@@ -2,6 +2,8 @@
 
 WorkBuddy 公开市场归档：技能包 / 连接器 / 专家包 / 插件市场，便于离线学习、检索与对照写法。
 
+> 📖 **在线检索版清单**：https://zhubeilife.github.io/workbuddyskills/ （支持关键词实时过滤全部条目；源文件为 `CATALOG-full.md`，更新后运行 `./gen_html.sh` 重新生成）
+
 > **版权声明**：内容来自 WorkBuddy / CodeBuddy 公开 CDN 与市场包，版权归原作者与腾讯相关产品所有。本仓库仅作学习归档，请勿用于未授权商业再分发。
 
 ## 说明
