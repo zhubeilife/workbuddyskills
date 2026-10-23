@@ -1,0 +1,30 @@
+{
+  "runtime": {
+    "type": "node",
+    "version": "22"
+  },
+  "npmRegistry": "https://registry.npmjs.org/",
+  "init": {
+    "darwin": "npm install -g @deployxai/dxc@0.3.24",
+    "linux": "npm install -g @deployxai/dxc@0.3.24",
+    "win32": "npm install -g @deployxai/dxc@0.3.24"
+  },
+  "auth": {
+    "darwin": "dxc auth start --auth-output raw-url --timeout 300",
+    "linux": "dxc auth start --auth-output raw-url --timeout 300",
+    "win32": "dxc.cmd auth start --auth-output raw-url --timeout 300"
+  },
+  "unAuth": {
+    "darwin": "dxc auth logout",
+    "linux": "dxc auth logout",
+    "win32": "dxc.cmd auth logout"
+  },
+  "status": {
+    "darwin": "dxc auth status --json",
+    "linux": "dxc auth status --json",
+    "win32": "dxc.cmd auth status --json"
+  },
+  "statusMatch": "\"identity\"\\s*:\\s*\\{",
+  "authUrlDomain": "content.deployxai.com",
+  "authWaitForExit": true
+}

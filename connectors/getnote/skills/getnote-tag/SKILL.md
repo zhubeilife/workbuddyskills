@@ -1,6 +1,10 @@
 ---
 name: getnote-tag
 description: 查看得到大脑笔记已有标签，为笔记增加标签，或按真实标签 ID 安全删除非系统标签，避免覆盖或误删其他标签。
+description_zh: 通过得到大脑 MCP 查看和添加笔记标签，按真实标签 ID 安全删除非系统标签。
+description_en: Use when listing or adding GetNote note tags, or safely removing non-system tags by their actual tag IDs through MCP.
+version: "1.1.2"
+author: GetNote
 ---
 
 # 得到大脑标签

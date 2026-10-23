@@ -8,6 +8,8 @@ WorkRally 画布散落节点清理工具（MCP 版 · 纯本地计算）
 🛡️ 核心铁律：
     - text / freehand 节点**绝不删除**（硬编码排除，不可通过任何参数绕过）
     - artboard / generator 节点**绝不删除**
+    - 生成任务的原始节点（id 以 mcp- 开头，携带 task 与生成参数/提示词）**绝不删除**
+    - --keep-ids 传入的节点（项目台账登记的原始图片/视频节点）**绝不删除**
     - 只删除 type ∈ {image, video} 且 parentId 为空的孤儿节点
 
 本脚本**不发起任何网络请求**、**不需要 workrally CLI / API Key**。
@@ -52,6 +54,8 @@ from pathlib import Path
 
 # ========= 硬编码安全白名单（绝不删除的类型）=========
 PROTECTED_TYPES = {'text', 'freehand', 'artboard', 'generator'}
+# MCP 生成占位节点前缀：节点里保存了 task 与生成参数（提示词），删掉就无法追溯与再次编辑
+PROTECTED_ID_PREFIXES = ('mcp-',)
 # 只允许删除的类型
 DELETABLE_TYPES = {'image', 'video'}
 
@@ -195,6 +199,8 @@ def main():
     ap.add_argument('--canvas-id',
                     help='画布 ID（用于生成 MCP 调用参数；不给则从快照里尽力推断）')
     ap.add_argument('--batch-size', type=int, default=80, help='每批删除节点数上限（默认 80）')
+    ap.add_argument('--keep-ids', dest='keep_ids',
+                    help='必须保留的节点 ID 清单（JSON 数组文件），如项目台账登记的原始图片/视频节点')
     ap.add_argument('--output-dir', default='/tmp/workrally',
                     help='中间文件输出目录')
     ap.add_argument('--emit-delete-args', dest='emit_delete_args',
@@ -240,6 +246,16 @@ def main():
     print(f'      共解析 {len(nodes)} 个节点')
     print(f'      类型分布: {type_count}')
 
+    keep_ids = set()
+    if args.keep_ids:
+        keep_ids = {str(x) for x in json.loads(Path(args.keep_ids).read_text(encoding='utf-8'))}
+
+    def is_protected(n: dict) -> bool:
+        nid = n.get('id') or ''
+        return (n.get('type') in PROTECTED_TYPES
+                or nid.startswith(PROTECTED_ID_PREFIXES)
+                or nid in keep_ids)
+
     # ======== 筛选待删节点（严格白名单）========
     to_delete = []
     protected_count = 0
@@ -249,8 +265,8 @@ def main():
         parent = n.get('parentId')
         if not nid or not ntype:
             continue
-        # 🛡️ 硬编码保护：任何受保护类型都跳过
-        if ntype in PROTECTED_TYPES:
+        # 🛡️ 硬编码保护：受保护类型、生成原始节点、台账保留节点都跳过
+        if is_protected(n):
             protected_count += 1
             continue
         # 只允许删除 image/video
@@ -262,7 +278,7 @@ def main():
         to_delete.append(n)
 
     print('[4/5] 筛选结果：')
-    print(f'      🛡️ 受保护节点（text/freehand/artboard/generator）: {protected_count}')
+    print(f'      🛡️ 受保护节点（text/freehand/artboard/generator、mcp- 生成原始节点、--keep-ids）: {protected_count}')
     print(f'      🗑️  散落待删节点（image/video 孤儿）: {len(to_delete)}')
 
     # 进一步按类型拆分展示
@@ -286,8 +302,8 @@ def main():
     # ======== 最终安全检查（防御性编程）========
     for nid in delete_ids:
         matched = next((n for n in nodes if n['id'] == nid), None)
-        if matched and matched.get('type') in PROTECTED_TYPES:
-            print(f'❌ 致命错误：待删列表里混入了受保护类型 {matched["type"]}，中止！')
+        if matched and is_protected(matched):
+            print(f'❌ 致命错误：待删列表里混入了受保护节点 {nid}（{matched["type"]}），中止！')
             sys.exit(2)
 
     # ======== 分批输出 MCP 参数 ========
@@ -314,7 +330,7 @@ def main():
         print(f'  canvas_manage(action="build_draft", canvas_id="{canvas_id}",')
         print(f'                delete_node_ids=<第 {i} 批 {len(b)} 个>, mode="merge")')
     print()
-    print(f'🛡️ 重申：即使执行删除，text/freehand/artboard/generator 节点也绝不会被删除。')
+    print(f'🛡️ 重申：即使执行删除，text/freehand/artboard/generator、mcp- 生成原始节点与 --keep-ids 节点也绝不会被删除。')
     print(f'✅ 完成。画布: https://workrally.qq.com/toolbox/canvas/{canvas_id}')
 
 

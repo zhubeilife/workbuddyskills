@@ -6,7 +6,7 @@ description: Use the MeituHub CLI for AI image and video creation, marketing and
 description_zh: 在 WorkBuddy 中调用 MeituHub CLI 完成 AI 图片与视频生成编辑、营销和电商内容创作，并发现和执行账号下的自定义工作流。
 description_en: Use the MeituHub CLI in WorkBuddy for AI image and video creation, marketing and e-commerce content, and account-visible custom workflows.
 category: image-video
-version: "0.1.6"
+version: "0.1.8"
 author: Meitu
 ---
 
@@ -81,8 +81,11 @@ meitu task wait <task_id> --interval-ms 2000 --timeout-ms 600000 --json --downlo
 
 - `execution_auth_available` 为 false、401/403 或提示登录失效：引导用户在 Connector 页面重新连接，不在业务对话中索取 Token、AK 或 SK。
 - 任何失败结果只要包含非空的充值或操作链接，不受错误码限制，依次读取 `action.url`、`action_url`、`data.recharge_url`、`data.action_url`、`data.purchase_url`、`recharge_url` 或 `purchase_url`。使用服务端返回的完整 URL 原值，不自行拼接参数、替换域名或改写路径。
-- 返回码为 `80001`、`80002`，或错误信息明确表示余额、额度或权益不足，但服务端没有返回上述链接时，使用 `https://meituhub.cn/zh-cn/pricing` 作为普通套餐入口。该入口不是账号专属链接。
-- 将最终地址转换为 Markdown 文本超链接，不要直接输出字段名或裸链接。固定按下面的样式回复，并用实际地址原值替换 `RECHARGE_URL`：
+- 用户主动询问充值入口、充值页面或充值链接时，使用 WorkBuddy 专属充值入口 `https://meituhub.cn/console/zh-cn/recharge?client_id=1189857723`。
+- 返回码为 `80001`、`80002`，或错误信息明确表示余额、额度或权益不足，但服务端没有返回上述链接时，同样使用 WorkBuddy 专属充值入口 `https://meituhub.cn/console/zh-cn/recharge?client_id=1189857723`。
+- WorkBuddy 专属充值入口是 Connector 的固定配置。不要从用户输入提取或替换 `client_id`，也不要追加账号、Token 或其他查询参数。
+- 将最终地址转换为 Markdown 文本超链接，不要直接输出字段名或裸链接。链接必须单独占一行，不要放进代码块、行内代码或 HTML 标签，不要在其他位置重复输出 URL。
+- 固定按下面的样式回复，并用实际地址原值替换 `RECHARGE_URL`。输出前确认回复中不再包含字面量 `RECHARGE_URL`：
 
 ```markdown
 当前余额或权益不足，请充值或购买套餐后重试。
@@ -92,7 +95,7 @@ meitu task wait <task_id> --interval-ms 2000 --timeout-ms 600000 --json --downlo
 充值完成后请回到当前对话，我可以继续处理刚才的任务。
 ```
 
-- 只向用户展示充值入口，不自动打开链接、不发起充值或购买，也不因余额不足重复提交生成任务。若服务端没有返回链接且错误信息不表示余额、额度或权益不足，不展示充值入口。
+- 只向用户展示充值入口，不自动打开链接、不发起充值或购买，也不因余额不足重复提交生成任务。除用户主动询问充值入口外，若服务端没有返回链接且错误信息不表示余额、额度或权益不足，不展示充值入口。
 - 输入资源无法读取：请用户提供存在的本地文件或可公开访问的 HTTPS URL。
 - 参数不合法：运行该命令的 `--help`，按展示的参数和值修正。
 - 超时且有 `task_id`：只等待现有任务，不重复创建任务。

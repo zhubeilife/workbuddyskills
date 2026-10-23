@@ -1,0 +1,28 @@
+{
+  "title": "特点人服务对接配置",
+  "title_en": "Tediaren Service Configuration",
+  "description": "连接您的特点人账号以调用人才测评数据。凭证仅存储在本机 ~/.workbuddy 目录下，不会上传云端。",
+  "description_en": "Connect your Tediaren account. Credentials are stored locally under ~/.workbuddy only.",
+  "docUrl": "https://ai.tedianren.com/open/v1/skills.md",
+  "docLabel": "如何获取 API Key？",
+  "fields": [
+    {
+      "key": "TEDIANREN_API_KEY",
+      "label": "API Key",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "tdr_sk_xxx:sk_live_xxx",
+      "description": "在特点人管理端（tdhr.tedianren.com）→ MCP 开放平台 → API Key 管理 中创建，格式为 tdr_sk_xxx:sk_live_xxx。"
+    },
+    {
+      "key": "COMPANY_NAME",
+      "label": "公司名称",
+      "label_en": "Company Name",
+      "type": "text",
+      "required": true,
+      "placeholder": "例如：特点天赋数据科技重庆有限公司",
+      "description": "填写您当前所在公司的全称，用于在连接器列表中标识本连接（仅作显示名，鉴权仍由上方 API Key 完成）。"
+    }
+  ]
+}

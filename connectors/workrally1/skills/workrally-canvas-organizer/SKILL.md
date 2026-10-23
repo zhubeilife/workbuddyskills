@@ -1,6 +1,6 @@
 ---
 name: workrally-canvas-organizer
-description: "WorkRally 无限画布整理工具（MCP 版）— 把一个凌乱的画布按素材类型（人物 / 场景 / 视频 / 散图等）自动分组到不同画板(artboard)，网格化排列。支持整理后可选清理「散落的旧媒资节点」（image/video 孤儿），文字节点永远保留不动。全程通过 WorkRally MCP 工具完成，不依赖 workrally CLI。适用于画布素材超过 20+ 节点、想要一键归类的场景。触发词：整理画布、画布整理、画布分类、canvas 归类、organize canvas、canvas cleanup、把画布分画板、按类型分画板、画布重排、canvas tidy up、清理画布散落节点、删除原节点保留文字。"
+description: "WorkRally 无限画布整理工具（MCP 版）— 把一个凌乱的画布按素材类型（人物 / 场景 / 视频 / 散图等）自动分组到不同画板(artboard)，网格化排列。支持整理后可选清理「散落的旧媒资节点」（image/video 孤儿），文字节点永远保留不动。全程通过 WorkRally MCP 工具完成，不依赖 workrally CLI。适用于画布素材超过 20+ 节点、想要一键归类的场景。触发词：整理画布、画布整理、画布分类、canvas 归类、organize canvas、canvas cleanup、把画布分画板、按类型分画板、画布重排、canvas tidy up、清理画布散落节点、删除原节点保留文字。不适用：出片流程收尾时的阶段归档画布（由 workrally-brand-film-pipeline 生成）、在画布上生图或生视频、资产库整理（用 material_manage）。"
 version: 3.0.0
 metadata:
   author: Moke
@@ -13,9 +13,13 @@ metadata:
 
 > **执行通道**：本 skill 全程使用 **WorkRally MCP 工具**（`mcp__workrally1__*`）。
 > **不要**调用 `workrally` CLI，也不要依赖 `WORKRALLY_API_KEY`——鉴权由 MCP 连接器托管。
+>
+> **平台唯一性**：画布与媒资读写只走 WorkRally MCP，**不得**改用其他 MCP server、第三方 API 或本地/网页版工具旁路操作画布；画布上的素材只能来自 WorkRally，不把外部生成或外部图床的素材写入画布。完整规则见 `workrally-brand-film-pipeline`「平台唯一性规则」。
 > 本地脚本只做纯计算；所有 I/O 由 Agent 走 MCP 完成。
 >
 > 迁移对照：`workrally tools call asset_search` → **`asset_search`**；`workrally canvas get` → **`canvas_manage(action="get")`**；`workrally canvas build-draft` → **`canvas_manage(action="build_draft")`**。
+>
+> **本技能是插件内「无限画布读写」的唯一规则源**：读取画布素材、`merge` 写入、画板分组排版、孤儿节点清理与 `draft_v1` 节点结构解析都以本文为准。`workrally-brand-film-pipeline` §9a 的项目归档只规定归档范围与验收口径，实际画布操作调用本技能。
 
 ## 适用场景
 
@@ -42,6 +46,50 @@ metadata:
 - 常规整理操作只影响**媒资的位置归位**（移入分类画板）
 - 文字、画笔、原有画板**不受影响**
 - **清理散落原节点**需要另行解析 `canvas_manage(action="get")` 返回的 draft_v1（Y.js update 二进制），详见 Step 7
+
+## 新建项目画布与逐轮添加文件
+
+`workrally-brand-film-pipeline` §0G 规定**什么时候**建画布、什么时候问用户；这里只写**怎么做**。
+
+**新建**：
+
+```text
+canvas_manage(action="create", title="<项目名>_<YYYYMMDD>")
+→ 返回 canvas_id 与「📎 画布前端链接」
+```
+
+链接直接用返回值，不自己拼。项目改名用 `canvas_manage(action="update", canvas_id, title)`，不新建第二个画布。
+
+**建分区画板**（新建画布后同一轮做，一次 `build_draft(mode="merge")` 写完）：
+
+- 8 个媒体分区从左到右排一行：02 人物CHAR、03 道具PROP、04 场景SC、05 视频单元、06 声音、07 字幕与包装、08 成片与验收、09 历史与未采用。00 项目导航、01 前期文字只有文字，放在最左边的文字栏，不建画板。
+- 每个分区占三块：画板本身（宽 1530、高 800，一行放得下 4 个 340 宽的节点；放不下时生成接口会自动加高）、画板外上方的标题文字节点（y=-80）、画板右侧 900 宽的文字栏（放这一分区的提示词卡）。分区之间再留 200。画板只会向下加高，文字栏在右侧，两者都往下长，不会互相压住。
+- 节点结构与 Step 4 脚本生成的画板和标题一致：画板 `{"id": "sec_02", "type": "artboard", "position": {"x": X, "y": 0}, "data": {}, "style": {"width": 1530, "height": 800}}`，标题 `{"id": "sec_02_title", "type": "text", "position": {"x": X + 40, "y": -80}, "data": {"text": {"content": "02 人物CHAR", "fontSize": 40, "fontWeight": 700, "color": "#ffffff"}}, "style": {"width": 600}}`。
+- 写完 `get` 核对 8 个画板都在，把「分区编号 → 画板 ID」交给主流程记进 `canvas_sections`。
+
+**生成结果直接落进分区**：`canvas_generate_image` / `canvas_generate_video` / `canvas_generate_audio` 同时传 `project_id=<canvas_id>` 和 `artboard_id=<分区画板 ID>`，占位节点就作为该画板的子节点排在空格子里，画板放不下会自动加高。返回的 `canvas_placeholder.artboard_id` 为空时，看 `message`：画板 ID 不对或不是画板，节点已按默认位置放在画布右侧，改用下文「整节点搬移」挪进分区，不另做副本。
+
+**把用户同意的文件加到画布**（始终 `mode="merge"`）：
+
+| 文件类型 | 做法 |
+|---|---|
+| 已在 WorkRally 生成的图 / 视频 / 音频 | 用 `asset_id` 建 `image` / `video` / `audio` 节点，`parentId` 设为对应分区画板，`position` 用相对画板的坐标；生成来的节点带 `data.task = {taskId, status:"success"}`，保留「再次编辑」 |
+| 本机媒体文件（剪辑后的成片、字幕图层等） | 先按 `workrally-ref-image-cos-upload` 取 URL，再 `asset_create(project_id=<短番项目ID>, channel="toolbox_canvas", canvas_project_id=<canvas_id>)`，最后建节点放进对应分区 |
+| Markdown / 提示词 / 字幕文本 | 建 `text` 节点，`data.text.content` 放全文，放在对应分区右侧的文字栏（文字节点不能进画板）；单卡上限 90000 字，超长按顺序拆成编号卡片，不截断 |
+
+新节点只放进分区画板的空格子或文字栏的空白处，不覆盖已有节点；写完调 `canvas_manage(action="get")` 核对节点数量与类型，再告诉用户已添加。
+
+## 最终推送画布：原有图片 / 视频节点和提示词必须保留
+
+项目最终归档（主流程 §9a）以及任何整理项目画布的操作，都必须保留画布上**原有的图片、视频节点**和它们的**提示词**：
+
+- **原节点不删、不替换、不改写**。原节点包括生成时自动落画布的占位节点（ID 形如 `mcp-<taskId>`，`data` 里带 `task` 与 `params`，即生成参数和提示词）、用户在网页里生成或拖入的图片 / 视频节点，以及此前逐轮添加的节点。
+- **不对原节点 ID 做局部写入**。`build_draft` 写图片 / 视频节点必须带 `type` 和 `data`，而 `data` 是整块替换：只带位置和 `asset.id` 会把 `task` / `params` 冲掉。
+- **新项目不做副本**：生成时传了 `artboard_id` 的原节点本来就在分区里，归档直接用。被替换或未采用的版本用「整节点搬移」移到 09 历史与未采用；搬不了就留在原处，旁边加「未采用」文字标签。
+- **整节点搬移**（只用于 `data.task.status` 为 `success` 的原节点，生成中的不动）：先 `get` 解析出该节点的完整数据；`build_draft(mode="merge")` 写回同一个 `id`、原样的 `type`、`data`、`style`、`measured`，只改 `position` 和 `parentId`；写完再 `get`，逐字段核对 `data.task` 与 `data.params` 和写前一致。任何一步读不全或核对不上就停下，不搬。
+- **旧画布才做副本**：本规则之前生成的、网页端生成或拖入的、没进分区的原节点，只给采用版本做副本放进分区，原节点留在原位。
+- **最终归档不执行 Step 7 孤儿清理**。用户另行明确要求清理时，先说明会影响哪些原节点并二次确认；脚本已硬性保护 `mcp-` 开头的节点，另把项目台账登记的原节点 ID 通过 `--keep-ids` 传入。
+- **提示词两处都保留**：原节点里的生成参数不动；同时按 §9a-2 在旁边放完整、可复制的提示词文字卡。副本节点只有 `asset.id`、没有生成记录，不能拿副本代替原节点作为提示词来源。
 
 ## 核心工作流
 
@@ -130,6 +178,8 @@ canvas_manage(
 **触发时机**：整理完成后，用户说"原节点除了文字都不用保留"、"清理散落的旧图片"、"把归类外的图片删掉"等。
 
 **关键约束**：
+- **项目画布最终归档不执行本步**（见上文「原有图片 / 视频节点和提示词必须保留」）
+- `mcp-` 开头的生成原始节点、`--keep-ids` 传入的节点硬性保留
 - 只删除 `type ∈ {image, video}` 且 `parentId` 为空（即不在任何画板内的孤儿节点）
 - `text`、`freehand`、`artboard`、`generator` 类型**硬编码排除**，绝不删除
 - 新整理产生的子节点都挂在画板下（`parentId` 非空），不会被误删

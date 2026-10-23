@@ -1,7 +1,7 @@
 ---
 name: welife-ai-workbench
 description: 查询当前授权餐饮商户的经营指标、经营报告、经营诊断与营销活动事实数据
-version: "2.1.1"
+version: "2.1.5"
 author: "WeLife"
 ---
 

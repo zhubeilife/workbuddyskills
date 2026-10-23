@@ -6,6 +6,12 @@
 ihr-cli attendance +periodTable --period-instance-id period-001
 ```
 
+## 动态表头使用方式
+
+1. 递归遍历响应中的 `columns`（含 `children`），只处理叶子列。
+2. 以叶子列的 `dataindex`/`dataIndex` 匹配 `+period` 返回行中的 key；叶子列 `title` 是字段展示标签。
+3. 最终回复只写“字段标签：业务含义”；`dataindex`、`dataIndex`、动态 key、`periodInstanceId` 和 UUID 不得出现在最终回复。
+
 
 ## CLI Command Contract
 

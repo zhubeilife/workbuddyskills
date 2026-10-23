@@ -2,7 +2,7 @@
 
 ## 输入名称转 ID
 
-1. 先读取目标业务公开 Command 契约：metadata command 使用其 schema，Shortcut 使用对应 reference/help。
+1. 先读取目标业务公开 Command 契约：metadata command 使用其 schema，Shortcut 使用对应的精确 Shortcut schema、help 和 reference。
 2. 以随包 Master Data Registry 或 `ihr-cli master-data --help` 确认当前运行版本支持的 canonical type；当前可读目录见 [ihr-master-data-lookup.md](ihr-master-data-lookup.md#支持的主数据类型)。
 3. 从公开契约的原始字段 Meta 读取类型：普通字段读取 `type`，`LIST` 递归读取 `items`，`OBJECT` 递归读取 `fields`。没有明确类型的开放字段不按名称猜测。
 4. 字段类型必须匹配 Registry canonical type 或 alias；alias 先归一为 canonical type。未注册类型保持 raw，不调用 Master Data Resolver。
@@ -37,3 +37,11 @@
 - 只是查询 Staff/Organization 业务数据；这时仍调用对应业务 Skill。
 
 Domain Skill 决定何时解析、字段类型映射和使用哪个业务 permissionCode；统一 Resolver 决定如何调用 Provider、缓存、权限 scope 和错误分类。
+
+## 租户字典输入解析
+
+1. 从目标业务公开 Schema/Command 契约读取字段声明中的真实 `codeTypeId`，例如 `Enum.StaffType`。
+2. 用户提供 code 时直接透传；用户提供名称时调用 `master-data option +resolve --code-type-id <codeTypeId> --values <value>`。
+3. 只接受唯一的 `results` 项；`missing` 原样保留并提示无法解析，`ambiguous` 先请求用户消歧。
+4. 业务 Skill 不维护静态 code/label 映射，也不能把 `STAFF_TYPE` 等内部语义名当作字典编码。
+5. `master-data option +list` 只用于需要浏览当前租户选项的场景；不要因已知 code 额外拉取全集。

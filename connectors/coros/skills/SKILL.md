@@ -1,13 +1,13 @@
 ---
 name: coros-skill
-description: COROS 运动与健康数据查询技能 - 训练记录、活动分析、睡眠、心率、HRV、压力、体能评估与训练日程
-version: "1.0.0"
+description: 查询与分析 COROS 运动和健康数据，创建与修改训练计划、课程，并安排训练日程
+version: "1.1.0"
 author: "COROS"
 ---
 
 # COROS Skill
 
-本 Skill 指导 AI 通过 COROS Connector 查询用户的 COROS 运动与健康数据。数据来自用户授权绑定的 COROS 账号；所有工具均为只读查询，不会修改或删除用户数据。
+本 Skill 指导 AI 通过 COROS Connector 查询与分析用户的运动和健康数据，以及创建、修改训练计划和课程、安排训练日程。数据来自用户授权绑定的 COROS 账号。查询不会改动训练内容；创建、修改和排期会保存到该账号，仅在用户明确要求时执行，不要把咨询或方案讨论当作保存授权。
 
 ## 关键约定（调用前必读）
 
@@ -19,6 +19,8 @@ author: "COROS"
 6. **HRV 结论以官方评估为准**：`querySleepHrv` 同时返回官方日评估与原始时序，日均值和正常范围直接使用官方评估段，不要自行从原始点计算。
 7. **参数必填标注**：下方参数表的"必填"列有三种取值——`✓` 必须传有效值；`✓*` 接口 schema 标为必填、但语义上可不指定，**调用时参数仍要携带**，用下述占位值表达"不指定"：日期/字符串传空字符串 `""`，天数/条数直接传默认值（如 7、20），距离/时长筛选传 `0`（服务端把 ≤0 视为不筛选），`sportTypeCodes` 不筛选时传 `[65535]`；`-` 为可省略参数。
 8. **返回形式**：除 `downloadActivityFitFiles` 返回 FIT 二进制资源外，其余工具返回面向用户的格式化文本，可直接引用或总结到回答中。
+9. **训练对象必须区分**：训练计划、课程库模板、某天的独立日程课程是不同对象；按下方训练工具说明分流。修改前先查询对应详情，不要通过新建替代修改。编号必须来自工具结果，完整保留并按工具参数要求传递，不要向用户展示内部编号。
+10. **以当前工具定义为准**：调用前读取当前连接提供的工具说明与参数结构，尤其是训练课程的嵌套参数、强度规则和可编辑条件；不要凭本说明猜字段。若当前连接未提供某个工具，如实说明当前连接暂不可用，不要声称已保存。
 
 ## 可用工具
 
@@ -280,8 +282,10 @@ author: "COROS"
 返回用户的 COROS 训练安排。适合"我这周/明天/某段时间该练什么"类问题。
 
 **注意**：
+
 - 返回结果可能包含内部 Plan ID 和 idInPlan 字段，**不要向用户展示这些内部 ID**。
-- 本 Connector 当前**只开放日程查询**：即使工具返回或描述中提到 `queryTrainingPlanDetail`、`updateTrainingPlan` 等训练计划工具，它们目前并未开放，**不要尝试调用**；用户需要修改训练计划时，引导其使用 COROS App。
+- 查询“我的训练计划”用 `queryTrainingPlanLibrary`；查询某天练什么或定位某天要修改的课程用本工具。
+- 日程中的计划内课程通过 `queryTrainingPlanDetails` → `updateTrainingPlan` 修改；独立课程通过 `queryScheduledWorkoutDetails` → `updateScheduledWorkout` 修改。
 
 **参数说明**：
 
@@ -291,6 +295,38 @@ author: "COROS"
 | endDate | string | ✓* | 结束日期 yyyyMMdd；无明确日期传 "" |
 
 **日期默认规则**：两个参数都传 "" 时查询本周（周一到周日）；只给 startDate 时查询该单日；只给 endDate 时窗口为今天到该日期。
+
+### 训练计划、课程库与日程课程
+
+以下工具均以当前连接提供的参数结构为准。本节说明如何选择工具及避免改错对象，不重复完整嵌套结构。
+
+| 用户意图 | 工具与调用顺序 | 保存位置与注意事项 |
+|------|------|------|
+| 查看我的训练计划 | `queryTrainingPlanLibrary` → `queryTrainingPlanDetails` | 列表区分计划状态与是否可编辑，不要把“我的计划”误当作日程查询 |
+| 创建多周训练计划 | `queryTrainingPlanLibrary` → `createTrainingPlan` | 先设计训练内容再保存；计划从指定开始日期自动执行。与进行中计划日期重叠时，说明风险并取得确认后再创建 |
+| 修改已有训练计划 | `queryTrainingPlanLibrary` → `queryTrainingPlanDetails` → `updateTrainingPlan` | 只能使用进行中、recordRole=execution 且 editable=true 的执行记录；不能用库原件、已完成或不可编辑的记录 |
+| 查看课程库 | `queryWorkoutLibrary` → `queryWorkoutDetails` | 查询用户自己的可复用课程模板 |
+| 保存一节可复用课程 | `createSingleWorkout` | 只保存到课程库，不安排日期 |
+| 修改课程库模板 | `queryWorkoutDetails` → `updateWorkoutDetails` | 先核对可编辑状态，再提交完整课程；不会改变已排到日程的副本 |
+| 某天新建一节课程 | `createScheduledWorkout` | 直接保存到该天，不进入课程库；不要先建库课程再排期 |
+| 把库里已有的课安排到某天 | `queryWorkoutLibrary` → `scheduleWorkout` | 把模板复制到日程，不改变原件；包括库里已有的力量、游泳等课程 |
+| 查看或修改某天的独立课程 | `queryTrainingSchedule` → `queryScheduledWorkoutDetails` → `updateScheduledWorkout` | 用日程返回的日期（作为 date 参数）和 idInPlan 定位；修改只影响日程副本，不回写课程库；只查看时不调用更新 |
+
+**训练计划边界**：
+
+- 新建计划为 4–16 个自然周，开始日期在今天至今天后 14 天内；首周可不足一周，结束日为最后一周周日。最后一周必须有训练课程。
+- 更新计划只提交要改的 dayNo；未提交的天不变，提交的某一天会整天替换，必须包含该天要保留的全部课程。休息日条目会清空该天的课程。
+- 若某天已有课程完成，该天整体跳过并保留原内容；按返回结果告诉用户哪些天未修改。调整总周数时，需同时提供匹配新长度的完整阶段安排；缩短计划会移除超出新结束日的课程，不能擅自缩短。
+- 退出或删除计划、移动或移除独立日程课程仍需使用 COROS App，不要用清空全部课程或另建一节课模拟这些操作。
+
+**课程与排期边界**：
+
+- 新建课程支持跑步、骑行、越野跑；训练课程的 sportType 使用 1/2/5，计划休息日使用 4，不能使用运动记录查询中的 100/200 等代码。力量、游泳等已有库课程可排期，但不能据此承诺可新建或修改这些课程。
+- 课程名称和说明使用对话语言、面向运动员的自然表达，不写内部字段名或编号。目标值使用整数米或秒；段级强度、自由模式、不设置强度及各运动支持范围严格遵循当前工具说明。
+- `createScheduledWorkout` 与 `scheduleWorkout` 每次处理一节课和一个日期，日期为今天至今天后 90 天（含边界）。同一天已有其他课程不阻止安排，但必须转述返回结果中的其他课程，提醒用户避免重复训练。
+- 同一库课程已在同一天排期时，`scheduleWorkout` 不再新增副本；直接新建课程不能假设有此去重保证。
+- 更新库课程或独立日程课程前，先查询详情并核对可编辑状态，提交包含保留部分的完整课程；不能只发用户要改的那一段。不可编辑时按返回原因说明，不能绕过限制新建替代品。
+- 日程副本与库模板相互独立。修改日程课程后，以返回的新编号为准，不能假设 idInPlan 永久不变。
 
 ### 生理周期
 
@@ -312,6 +348,10 @@ author: "COROS"
 - **最后 10 分钟表现**：`querySportRecords` 拿到活动 endTimestamp → `queryCustomActivityLapData`（startTimestamp=endTimestamp-600，endTimestamp=endTimestamp）。
 - **FIT 深度分析**：`downloadActivityFitFiles` 获取二进制并解析；客户端收不了二进制资源时改用 `queryActivityFitFileDownloadUrls`。
 - **恢复状态综合判断**：`queryRecoveryStatus` + `querySleepHrv` + `queryRestingHeartRate` 交叉给结论。
+- **明天新建一节跑步课**：按用户目标设计课程 → `createScheduledWorkout`；不调用 `createSingleWorkout`。
+- **把明天已安排的跑步课改短**：`queryTrainingSchedule` 定位课程 → 若是独立课程，`queryScheduledWorkoutDetails` → `updateScheduledWorkout`；若属于计划，查询可编辑执行计划及详情后用 `updateTrainingPlan`，保留同一天其他课程。
+- **把库里已有课程排到周五**：`queryWorkoutLibrary` 定位模板 → `scheduleWorkout`；后续修改周五的课走日程副本，不改库模板。
+- **创建多周计划**：结合用户目标和现有训练数据设计内容 → `queryTrainingPlanLibrary` 检查已有计划与日期重叠 → 必要时取得重叠确认 → `createTrainingPlan`。
 
 ## 认证与授权
 
@@ -327,3 +367,4 @@ author: "COROS"
 - **日期倒序**：常规查询工具会宽容交换起止日期；FIT 两个工具和生理周期工具遇到倒序/不合法窗口会显式报错，需修正后重试。
 - **时序窗口上限**："最近 N 天"模式下压力时序、健康快测、睡眠 HRV 都最多 7 天（超出按 7 处理）；显式日期范围只有压力时序强制不超过 7 天（超出报错），需要更长区间时分段查询；睡眠 HRV 和健康快测需要超过 7 天时，直接改用显式日期范围即可（不受 7 天限制）。
 - **重试**：查询类工具失败不改变任何状态，可修正参数后重试；FIT 工具失败同样不消耗额度，但每次**成功**调用都会按返回的文件数计入额度——不要对同一活动重复成功下载。
+- **写入结果不确定**：创建、修改或排期遇到超时、连接中断或不完整响应时，不能假设未保存并立即重试。先查询计划库、课程库或对应日程核对实际状态；仍不能确认时告知用户核查 COROS App，不要重复写入。仅根据明确的成功结果宣称保存完成。

@@ -1,0 +1,47 @@
+{
+  "runtime": {
+    "type": "python",
+    "version": ">=3.9"
+  },
+  "init": {
+    "darwin": "python -m pip install --no-index --no-deps --force-reinstall \"https://saas-voyage-public-1258344699.cos.ap-guangzhou.myqcloud.com/workbuddy/magic_agent_cli-1.2.2-py3-none-any.whl\"",
+    "linux": "python -m pip install --no-index --no-deps --force-reinstall \"https://saas-voyage-public-1258344699.cos.ap-guangzhou.myqcloud.com/workbuddy/magic_agent_cli-1.2.2-py3-none-any.whl\"",
+    "win32": "python -m pip install --no-index --no-deps --force-reinstall \"https://saas-voyage-public-1258344699.cos.ap-guangzhou.myqcloud.com/workbuddy/magic_agent_cli-1.2.2-py3-none-any.whl\""
+  },
+  "auth": {
+    "darwin": "magic-agent-cli auth login",
+    "linux": "magic-agent-cli auth login",
+    "win32": "magic-agent-cli.exe auth login"
+  },
+  "status": {
+    "darwin": "magic-agent-cli auth status",
+    "linux": "magic-agent-cli auth status",
+    "win32": "magic-agent-cli.exe auth status"
+  },
+  "unAuth": {
+    "darwin": "magic-agent-cli auth logout",
+    "linux": "magic-agent-cli auth logout",
+    "win32": "magic-agent-cli.exe auth logout"
+  },
+  "statusMatch": "\"configured\"\\s*:\\s*true",
+  "env": {
+    "MAGIC_API_BASE_URL": "https://tmc.qidian.qq.com/magic-agent",
+    "MAGIC_AUTH_MODE": "oauth",
+    "MAGIC_OAUTH_CLIENT_ID": "workbuddy_cli",
+    "MAGIC_OAUTH_AUTHORIZATION_URL": "https://tmc.qidian.qq.com/api/dataauth/authserver/web/wb/cli/authorize",
+    "MAGIC_OAUTH_TOKEN_URL": "https://tmc.qidian.qq.com/api/dataauth/authserver/web/oauth/token",
+    "MAGIC_OAUTH_REVOCATION_URL": "https://tmc.qidian.qq.com/api/dataauth/authserver/web/oauth/revoke",
+    "MAGIC_OAUTH_SCOPE": "chat:invoke",
+    "MAGIC_OAUTH_RESOURCE": "https://tmc.qidian.qq.com/magic-agent/api/chat"
+  },
+  "versionCheck": {
+    "command": {
+      "darwin": "magic-agent-cli --version",
+      "linux": "magic-agent-cli --version",
+      "win32": "magic-agent-cli.exe --version"
+    },
+    "minVersion": "1.2.2"
+  },
+  "authWaitForExit": true,
+  "authUrlDomain": "tmc.qidian.qq.com"
+}

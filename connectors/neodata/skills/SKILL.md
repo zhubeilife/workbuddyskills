@@ -1,5 +1,5 @@
 ---
-name: Neodata-financial-search
+name: tencent-fintech-neodata
 description: >-
   NeoData 金融数据 MCP。用标的代码 + 日期区间 + 枚举值 + 字段裁剪等结构化入参，查询股票、指数、板块、公募基金、债券、期货、外汇、贵金属与宏观经济数据，
   涵盖行情与K线、五档盘口、技术指标、市值、估值、财务三表与财务指标、资金流向、龙虎榜与大宗交易、两融与沪深港通、股东与分红、重大事件、供应链、研报评级、财经资讯等数据工具，
@@ -9,12 +9,12 @@ description: >-
 description_zh: "结构化参数查询股票/指数/板块/基金/债券/期货/外汇/贵金属/宏观等全品类金融数据"
 description_en: "Structured-parameter financial data query (stocks, indices, sectors, funds, bonds, futures, forex, precious metals, macro)"
 version: "1.1.0"
-display_name: "NeoData 金融数据库"
-display_name_en: "NeoData Financial Data"
+display_name: "腾讯金融科技NeoData数据库"
+display_name_en: "Tencent FinTech NeoData"
 visibility: "public"
 ---
 
-# NeoData 金融数据 MCP
+# 腾讯金融科技NeoData数据库 MCP
 
 > **一句话概述**：用标准代码 + 结构化字段直取金融数据，80 个数据信号覆盖股票、指数、板块、基金、债券、期货、外汇、贵金属与宏观，另有实体识别与长尾兜底两个辅助工具。
 

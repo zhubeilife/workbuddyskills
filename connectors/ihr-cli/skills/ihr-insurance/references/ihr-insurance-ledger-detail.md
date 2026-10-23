@@ -31,7 +31,7 @@ ihr-cli insurance ledger +detail \
 
 ### Agent 调用与安全规则
 
-- 自动分页：`ENFORCED` 为禁止；只读取当前确认页。
+- 自动分页：普通查询禁止；已确认 summaryId/账期内的统计分析、明确全量或完整拉取可串行翻页，禁止并发请求和自动重试。每页条数以本命令 Help/reference 为准。不得为找方案/缴纳组织 ID 翻页。
 - 批量执行：`ENFORCED` 为禁止；不枚举 summaryId 或拆字段批次。
 - 重试：`ENFORCED` 为不自动重试。
 - 写入保护：`N/A`，本命令只读。
@@ -73,7 +73,7 @@ ihr-cli insurance ledger +detail \
 - 用户只给台账名称和账期时，先执行 `ledger +list`；唯一候选自动注入 `summaryId/year/month`，多候选按名称、年月和状态确认。
 - 部门名称先用 `master-data +search --type DEPARTMENT --permission-code cnbBenefit.standingBook` 解析；唯一候选才继续。
 - 用户给动态列展示名时，使用本命令内部取得的 columns/header 匹配；唯一列名直接传入，重复列名按列名和上下文确认后由 Agent 使用 cellId。
-- 方案或缴纳组织名称只从同一已确认台账当前页公开的 `siPlan/hfPlan/otherPlan` 中读取 `id/name/payDepartmentId/payDepartmentName`。唯一匹配可用于后续同范围查询；没有安全来源时不扩大查询、不自动翻页、不要求用户提供内部 ID。
+- 方案或缴纳组织名称只从同一已确认台账公开的 `siPlan/hfPlan/otherPlan` 中读取 `id/name/payDepartmentId/payDepartmentName`。唯一匹配可用于后续同范围查询；没有安全来源时不扩大查询、不为找 ID 自动翻页、不要求用户提供内部 ID。台账明细的统计分析可在已确认 summaryId/账期内串行翻页，禁止并发。
 - JSON 使用友好字段：`summaryId/year/month/departmentIds/page/pageSize/fields`；拒绝 companyId、userId、specification 和 pageable。
 - 已授权结构化响应中的账号、动态金额和其他福利业务字段均按实际返回值原样展示，不做本地脱敏；员工证件、手机号等基本信息可保持通用脱敏。动态金额从 `dynamicValues` 按 cellName 展示。若 Shortcut 当前只返回后六位或已带遮蔽字符的值，则如实展示，不推测缺失内容，也不通过 raw 接口补齐。
 - `ledgerState/privilege/dataSource` 已是展示名称，可识别的 `lastUpdateTime` 固定为 `yyyy-MM-dd HH:mm:ss`；带明确时区的 Timestamp 先换算为北京时间，解析失败时保留接口原始值。不得恢复或展示 enum code。summaryId/cellId 等标识仅用于当前查询链路注入。

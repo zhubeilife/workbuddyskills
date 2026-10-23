@@ -1,0 +1,19 @@
+{
+  "title": "对接「瀚與」专利服务",
+  "title_en": "Connect the Hanyuu patent service",
+  "description": "请填写由管理员分配的调用凭证（orkey）。凭证仅保存在本机 ~/.workbuddy 目录下并在连接时注入，不会上传云端。",
+  "description_en": "Enter the access key (orkey) issued by the service administrator. The credential is stored locally under ~/.workbuddy and injected only at connect time.",
+  "docUrl": "https://www.patentg.com/",
+  "docLabel": "如何获取 orkey？",
+  "fields": [
+    {
+      "key": "PATENTG_ORKEY",
+      "label": "调用凭证 (orkey)",
+      "label_en": "Access Key (orkey)",
+      "type": "password",
+      "required": true,
+      "placeholder": "请联系专利管理系统管理员分配",
+      "description": "用于调用 瀚與专利数据服务的 orkey，将作为 X-MCP-Orkey 请求头注入。"
+    }
+  ]
+}

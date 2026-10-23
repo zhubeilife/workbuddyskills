@@ -70,7 +70,7 @@ ihr-cli conference +search-avatar-template --json '{"keyword":"Java 后端","pag
 1. `jobTitle` 和用户目标岗位是否一致或高度接近。
 2. `templateName` / `interviewName` 是否符合当前轮次，例如初面、技术面、复面、终面。
 3. `questionsCount` 是否足够。正式面试通常不要少于 6 道展示题；中高级、管理岗、专业岗建议 8 到 10 道。
-4. `digitalHumanId` 是否符合用户指定的数字人配置；用户未指定时接受后端按当前配置保存并返回的实际值。
+4. `digitalHumanId` 是否符合用户指定的数字人配置；用户没有提供或不确定时不填写，创建后读取响应中的实际值。
 5. `hasDraft=true` 只表示存在未发布草稿；搜索结果仍是已发布版本，可以用于发起面试。
 
 ## 创建前的 HR 面试设计
@@ -222,7 +222,7 @@ ihr-cli conference +create-avatar-template --json '{"templateName":"后端研发
 | `jobInfo` | 是 | 岗位信息 |
 | `keyPoint` | 否 | 面试重点，应概括本模板要考察的能力 |
 | `dynamicConstraint` | 否 | 模板级动态约束，例如岗位类型和岗位级别；不确定时省略，不要传空对象 |
-| `digitalHumanId` | 否 | 数字人配置 ID；不传时后端保存链路按当前配置决定实际值并校验可见性 |
+| `digitalHumanId` | 否 | 可选数字人配置 ID；仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写；实际值以创建响应为准 |
 | `anticheatingEnabled` | 否 | 是否开启反作弊；不传默认 `true` |
 | `dimensions` | 是 | 考察维度列表 |
 | `questions` | 是 | 题目列表 |
@@ -424,7 +424,7 @@ ihr-cli conference +create-avatar-template --json '{"templateName":"后端研发
 | `correctAnswer` | 最多 500 个字符；`hasCorrectAnswer=true` 时必须存在有效答案 |
 | `dynamicConstraint` | 不传可以；传空对象不可以 |
 | `job_level` | 传入时必须是 `L1`、`L2`、`L3`、`L4` |
-| `digitalHumanId` | 不传可以；传入时后端会校验配置存在、启用，并属于系统或当前公司 |
+| `digitalHumanId` | 可选；仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写；传入时会校验配置存在、启用，并属于系统或当前公司 |
 
 ## 创建请求样例
 
@@ -583,7 +583,7 @@ ihr-cli conference +create-avatar-template --json '{"templateName":"后端研发
 }
 ```
 
-保存 `response.data.templateId` 和 `response.data.template.digitalHumanId`。前者是发起数字人面试时的 `interviewCode`，后者是模板保存后实际生效的数字人配置 ID；示例中的 `123` 仅表示返回结构，不能当作默认值。
+保存 `response.data.templateId` 和 `response.data.template.digitalHumanId`。前者是发起数字人面试时的 `interviewCode`，后者是模板保存后实际生效的数字人配置 ID；示例中的 `123` 仅表示返回结构，不能当作固定配置 ID。
 后端会返回 `response.data.templateUri`；CLI 会额外补 `response.data.templateUrl`，其值是当前登录 profile 的业务域名加上 `templateUri`，可用于创建后直接打开模板。
 
 创建成功后建议用完整模板名再查一次：
@@ -615,7 +615,7 @@ ihr-cli conference +launch \
 2. 不要把数字人模板 `templateId` 填到 conference `--templateId`。
 3. 不要读取或传递 `uniqueId`、`questionBuilderId`、草稿版本 ID、发布版本 ID 等内部模板版本字段。
 4. 数字人候选人必须且只能有一个，且必须有 `name` 和 `phone` 或 `email`。
-5. 发起时把搜索/创建结果中的实际 `digitalHumanId` 转为十进制字符串写入数字人面谈官 `staffId`；不要在 CLI 或 Skill 中复制后端默认值。
+5. 发起时把搜索/创建结果中的实际 `digitalHumanId` 转为十进制字符串写入数字人面谈官 `staffId`；没有实际值时不要在 CLI 或 Skill 中自行补造。
 
 ## 常见错误
 

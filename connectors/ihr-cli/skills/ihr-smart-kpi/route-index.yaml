@@ -1,0 +1,48 @@
+version: 1
+
+domains:
+  - id: smart-kpi
+    title: 智慧绩效结果、指标库与指标模板
+    useWhen:
+      - 查询当前登录人的智慧绩效待办总数、待办分类或考核评分待办明细
+      - 查询员工或组织的绩效结果、考核得分、评估人总览或评估人评分明细
+      - 巡检绩效任务当前节点、待处理人员或在确认后催办
+      - 查询考核模板、指标模板、指标分类、计量单位或指标库引用
+      - 查询、新建或更新指标库指标和分类
+      - 查询、新建或更新计量单位
+      - 查询、新建或更新考核模板基本信息、项目、权限，或复制/启停考核模板
+      - 校验绩效公式，或读取、保存指标模板完整配置
+      - 用户要求从 Excel、CSV 或可提取文本设计和导入指标模板
+    avoidWhen:
+      - 查询员工档案中的历史绩效记录
+      - 查询薪资、绩效奖金或薪资方案
+      - 查询招聘测评或招聘面试评价
+    load:
+      domain: references/domain/overview.md
+
+useCases:
+  - id: smart-kpi.norm-template.import
+    title: 从文件设计并导入指标模板
+    useWhen:
+      - 根据 Excel、CSV 或可提取文本设计一个或多个指标模板，并新建或更新到指定考核模板
+      - 需要从客户文件映射项目、指标、字段、单位、分类、指标库引用或公式后形成完整保存载荷
+      - 用户最终目标是保存指标模板，而不是只分析文件或查询模板
+    avoidWhen:
+      - 只查询考核模板、指标模板、分类、单位或指标库候选
+      - 只校验一条已经明确的公式
+      - 用户已提供经过独立验证的完整保存载荷，并明确要求直接执行具体命令
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/norm-template-import/guide.md
+
+  - id: smart-kpi.programme-management
+    title: 考核方案查询与五步配置
+    useWhen:
+      - 用户需要查询、创建或更新考核方案基本信息、周期、范围、流程或结果设置
+      - 用户需要读取方案可选模板、流程节点、等级规则、强制分布规则或部门分组
+    avoidWhen:
+      - 用户只需要查询员工或组织绩效结果
+      - 用户需要删除、复制、分享或开启/关闭考核方案
+    load:
+      domain: references/domain/overview.md
+      reference: references/commands/programme/programme-management.md

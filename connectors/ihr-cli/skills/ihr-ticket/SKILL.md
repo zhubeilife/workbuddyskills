@@ -9,9 +9,11 @@ metadata:
 
 # ticket (v1)
 
-**CRITICAL — 开始前 MUST 先阅读 [`../ihr-shared/SKILL.md`](../ihr-shared/SKILL.md)，其中包含共享运行规则、鉴权配置和 JSON 协议。**
+**CRITICAL — 开始前 MUST 先阅读 [`../ihr-shared/SKILL.md`](../ihr-shared/SKILL.md)，其中包含共享运行规则、鉴权配置、JSON 协议和[查询分页](../ihr-shared/SKILL.md#查询分页)。** 工单列表普通查询只读当前页；统计分析、明确全量或完整拉取可串行翻页，禁止并发。`pageSize` 最大 50。
 
 ## 使用边界
+
+命令参数先看具体命令的 `--help`；需要机器可读输入/输出结构时，查询对应的 `ihr-cli schema ticket +<shortcut>`。Shortcut Schema 只描述该 Shortcut 的公开边界，不拼接底层接口 Schema。
 
 - 本 skill 只处理当前登录用户自己的工单，不提供管理工单能力。
 - 身份和 owner 范围由服务端根据 claw session 实时校验；不要传入、模拟或切换其他用户身份。
@@ -42,7 +44,9 @@ ihr-cli ticket +reactivate --ticket-id 9007199254740993 --confirm-ticket-id 9007
 1. 写动作不自动重放。网络结果不确定时，根据错误结果里的 `requestId` 查询核对；create/reply 还应复用原 `Idempotency-Key`。
 2. `ticketId`、`fileId`、`replyId` 可能超过 JavaScript 安全整数，命令和 JSON 中都必须保持十进制原值，不要转为浮点数。
 3. `--json` / `--stdin` 与分项业务 flags 不可混用；输出遵循 `ihr-shared` 的单行 JSON envelope。
-4. 不得改用 `ihr-interface`、curl 或自写 HTTP 请求绕过 owner、附件可见性和状态机校验。
+4. 创建确认预览必须显示“关联会话：指定会话 / 不关联”；仅使用调用上下文明确提供的 Claw threadId，或用户从 `+related-threads` 候选中选定的 ID，不得猜测当前/最近会话或自动选择第一项。
+5. `X-Session-Id` 是 Claw 身份会话，不是 threadId，不得作为 `--related-thread-id` 传入。
+6. 不得改用 `ihr-interface`、curl 或自写 HTTP 请求绕过 owner、附件可见性和状态机校验。
 
 ## Agent 执行策略
 

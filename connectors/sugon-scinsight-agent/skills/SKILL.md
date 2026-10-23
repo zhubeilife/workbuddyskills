@@ -1,7 +1,7 @@
 ---
 name:  sugon-scinsight-skill
 description: 科学文献洞察智能体，提供多数据库学术文献检索能力
-version: "2.1.0"
+version: "2.2.2"
 author: "liuzhang"
 ---
 # sugon-scinsight Skill
@@ -29,6 +29,15 @@ searchAcademicLiterature
 ---
 
 本 Skill 提供科学文献洞察能力，当前核心能力为多数据库学术文献检索。
+
+## 认证说明
+
+本 Connector 使用 WorkBuddy 标准 OAuth 2.1 + PKCE 流程，认证授权由外部 OAuth 服务器完成：
+
+- 首次使用时，WorkBuddy 自动发现 OAuth 服务并打开浏览器授权页面。
+- access token 到期后，WorkBuddy 使用 refresh token 自动续期。
+- Token 无效、已撤销或授权过期时，需要在 Connector 管理页重新连接。
+- 本 Connector 不要求用户手工填写 Token，也不会在 Skill 中收集账号、密码或 OAuth 凭证。
 
 当前默认配置启用多个文献库；实际检索数据源以部署配置和运行时启用状态为准。工具为用户提供学术文献搜索、结果聚合和基础文献元数据查询能力。
 
@@ -1704,7 +1713,7 @@ Tool Error != No Result
 
 ```text
 Skill Name: sugon-scinsight-skill
-Skill Version: 2.1.0
+Skill Version: 2.2.2
 Author: liuzhang
 Description: 科学文献洞察智能体，提供多数据库学术文献检索能力。对于查论文、找文献、搜索论文、检索文献、找相关研究、文献调研等明确请求，优先引导使用 searchAcademicLiterature 工具；该工具是本 Connector 的首选入口，但属于模型可见的软路由，最终选择受 WorkBuddy 宿主策略、启用状态和其他工具影响。
 ```

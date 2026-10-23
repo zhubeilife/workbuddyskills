@@ -1,0 +1,22 @@
+{
+  "title": "配置融聚汇MCP服务",
+  "title_en": "Configure FIU MCP",
+  "description": "连接您的融聚汇MCP，用于查询股票、债券、期权、基金、宏观数据。凭证仅存储在本机 ~/.workbuddy 目录下。",
+  "description_en": "Connect your FIU MCP. Credentials are stored locally only.",
+  "docUrl": "https://ai.szfiu.com/login",
+  "docLabel": "前往融聚汇FIU MCP官网获取令牌",
+  "docLabel_en": "Get a Token from the FIU MCP website",
+  "fields": [
+    {
+      "key": "API_KEY",
+      "label": "令牌",
+      "label_en": "Access Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "粘贴令牌本身，不包含 Bearer 前缀",
+      "placeholder_en": "Paste the Token without the Bearer prefix",
+      "description": "用于访问融聚汇MCP服务。仅填写令牌本身，不包含 Bearer 前缀或引号；凭证由 WorkBuddy 保存在本机并注入请求头。",
+      "description_en": "Enter only the Token, without a Bearer prefix or quotes. WorkBuddy stores it locally and injects it into the request header."
+    }
+  ]
+}

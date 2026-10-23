@@ -1,6 +1,6 @@
-# 主数据查询命令
+# 主数据与选项查询命令
 
-主数据类型、ID kind、展示字段和解析接口以 CLI 二进制内嵌的 `metadata/master-data/registry.json` 为准；`ihr-cli master-data --help` 展示当前运行版本支持的 canonical type。下面的类型表是当前版本的可读摘要，若与运行时不一致，以当前二进制内嵌 Registry 和命令 help 为准。
+主数据类型、ID kind、展示字段和解析接口以 CLI 二进制内嵌的 `metadata/master-data/registry.json` 为准；`ihr-cli master-data --help` 展示当前运行版本支持的 canonical type，`ihr-cli master-data option --help` 展示字典选项入口。下面的类型表是当前版本的可读摘要，若与运行时不一致，以当前二进制内嵌 Registry 和命令 help 为准。
 
 ## 支持的主数据类型
 
@@ -80,3 +80,18 @@ ihr-cli master-data +batch-get --type STAFF --ids '["staff-1","staff-2"]'
 权限不足、上游失败或部分 ID 未找到时，不得伪造名称。业务原查询已经成功时，主数据格式化失败不能改写原业务结果；最终答案保留 ID 并附 warning。
 
 主要错误码：`MASTER_DATA_TYPE_UNSUPPORTED`、`MASTER_DATA_ID_INVALID`、`MASTER_DATA_NOT_FOUND`、`MASTER_DATA_PERMISSION_DENIED`、`MASTER_DATA_UPSTREAM_UNAVAILABLE`、`MASTER_DATA_RESPONSE_INVALID`。这些错误都不得触发 secondparty/raw API 降级。
+
+## option
+
+字典选项使用真实 `codeTypeId`，不使用 `STAFF_TYPE` 之类的内部语义名。当前已登记的字典包括：
+
+| codeTypeId | 归属 Domain | 用途 |
+| --- | --- | --- |
+| `Enum.StaffType` | `staff` | 员工类型 code/label |
+
+```bash
+ihr-cli master-data option +list --code-type-id Enum.StaffType
+ihr-cli master-data option +resolve --code-type-id Enum.StaffType --values "全职,FULLTIME"
+```
+
+`+list` 返回规范化的 `options[].code` 和 `options[].label`。`+resolve` 以 code 精确匹配优先，其次按 label 精确匹配，返回 `results`、`missing` 和 `ambiguous`。Provider 的接口路径、请求字段和权限实现属于 CLI 内部 Registry，不是 Option 命令的公开输入。

@@ -63,9 +63,11 @@ ihr-cli workflow ledger +count --tab-code VACATION
 | Flag | 类型 | 必填 | 默认值 | 值/格式 | 请求映射 |
 | --- | --- | --- | --- | --- | --- |
 | `--page` | int | list only | `1` | 从 1 开始 | `request.page` |
-| `--rows` | int | list only | `10` | 最大 `100` | `request.rows` |
+| `--rows` | int | list only | `10` | 最大 `300` | `request.rows` |
 | `--pageSize` | int | list only | `10` | `--rows` 别名 | `request.rows` |
 | `--page-size` | int | list only | `10` | `--rows` 别名 | `request.rows` |
+
+需要全量时按 `totalElements` 与 `rows` 推算页数后串行翻页，并发固定 1、最多 20 页或 5000 条；达到上限立即停止并说明结果不完整。
 
 `approvalMonthStart/approvalMonthEnd` 在鉴权和远端调用前做本地校验；两者存在时开始月份不得晚于结束月份。非法格式或反向范围返回 exit `2`。
 

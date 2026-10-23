@@ -1,0 +1,21 @@
+{
+  "title": "连接执中账号",
+  "title_en": "Connect your ZERONE account",
+  "description": "请填写您申请的执中 API Key。凭证由 WorkBuddy 保存在本机，连接时发送至执中服务进行认证；可用数据与额度以您的执中账号权限为准。",
+  "description_en": "Enter your ZERONE API Key. WorkBuddy stores it locally and sends it to ZERONE for authentication. Access and quota follow your ZERONE account.",
+  "docUrl": "https://ai.zerone.com.cn",
+  "docLabel": "注册执中账号并申请 API Key",
+  "docLabel_en": "Register and request an API Key",
+  "fields": [
+    {
+      "key": "ZERONE_API_KEY",
+      "label": "执中 API Key",
+      "label_en": "ZERONE API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "填写在执中申请的 API Key",
+      "description": "访问 https://ai.zerone.com.cn 注册账号并申请 API Key。仅填写 Key 本身，不要添加 Bearer 前缀。",
+      "description_en": "Register at https://ai.zerone.com.cn and request an API Key. Enter only the key, without the Bearer prefix."
+    }
+  ]
+}

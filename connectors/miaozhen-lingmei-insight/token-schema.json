@@ -1,0 +1,22 @@
+{
+  "title": "聆媒洞察账号对接",
+  "title_en": "Lingmei Insight Connection",
+  "description": "填入 DataTap Token 即可使用。没有 Token？前往 datatap.deepminer.com.cn 注册免费获取（新用户赠 200 积分），在「令牌管理」生成后粘贴至此。如需人工协助，联系 tianxiufan@miaozhen.com（请注明来自 WorkBuddy）。凭证仅保存在本机，不经云端。",
+  "description_en": "Enter your DataTap Token to start. No token? Register free at datatap.deepminer.com.cn (200 bonus credits for new users), generate one under Token Management, and paste it here. Credentials are stored locally only.",
+  "docUrl": "https://datatap.deepminer.com.cn/console/tokens",
+  "docLabel": "前往 DataTap 获取 Token",
+  "docLabel_en": "Get a DataTap Token",
+  "fields": [
+    {
+      "key": "DATATAP_TOKEN",
+      "label": "DataTap Token",
+      "label_en": "DataTap Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "形如 dt_xxxxxxxx，在 datatap.deepminer.com.cn「令牌管理」生成",
+      "placeholder_en": "e.g. dt_xxxxxxxx, generated in DataTap Token Management",
+      "description": "DataTap 网关访问令牌，用于调用聆媒洞察数据服务。",
+      "description_en": "DataTap gateway access token for Lingmei Insight data services."
+    }
+  ]
+}

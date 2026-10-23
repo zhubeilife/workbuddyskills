@@ -1,6 +1,6 @@
 # ihr-cli attendance +vacationLimitBillTable
 
-查询假期余额表头。无业务参数，CLI 固定发送 `code=attendance.vacation.limit.bill`。
+查询假期余额动态表头，用于解释假期余额列表中的假期名称、单位和余额列。无业务参数；表头类型由 CLI 内部选择，Agent 不需要也不能传表头类型参数。
 
 ```bash
 ihr-cli attendance +vacationLimitBillTable
@@ -8,7 +8,13 @@ ihr-cli attendance +vacationLimitBillTable
 
 | 参数 | 类型 | 必填状态 | 默认值 | 说明 | 请求映射 |
 | --- | --- | --- | --- | --- | --- |
-| 无 | - | - | - | 不接受 `--json`/`--stdin` | 固定 query `code=attendance.vacation.limit.bill` |
+| 无 | - | - | - | 不接受 `--json`/`--stdin` | 无业务参数；表头类型 CLI 内部固定 |
+
+## 动态表头使用方式
+
+1. 递归遍历响应中的 `columns`（含 `children`），只处理叶子列。
+2. 以叶子列的 `dataindex`（平铺表头为 `dataIndex`）匹配 `+vacationLimitBill` 返回行中的 key；叶子列 `title` 是假期名称/单位的展示标签。
+3. 最终回复只写“字段标签：业务含义（数值/单位）”；`dataindex`、`dataIndex`、动态 key、假期设置 UUID 和内部 `code` 不得出现在最终回复。
 
 
 ## CLI Command Contract

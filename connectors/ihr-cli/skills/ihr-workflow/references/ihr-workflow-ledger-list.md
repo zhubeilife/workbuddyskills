@@ -11,7 +11,7 @@
 
 | 契约项 | 当前行为 | 状态与证据 |
 | --- | --- | --- |
-| 输入方式 | flags 或 --json/--stdin；输入互斥；groupCode/category 条件必填；月份使用 yyyy-MM 且开始月份不得晚于结束月份；page 默认 1，rows/pageSize 默认 10、最大 100。 | `ENFORCED`；internal/shortcuts/workflow/ledger.go；internal/shortcuts/workflow/ledger_test.go；test/cases/ihr-cli/workflow/ledger-readonly.yaml |
+| 输入方式 | flags 或 --json/--stdin；输入互斥；groupCode/category 条件必填；月份使用 yyyy-MM 且开始月份不得晚于结束月份；page 默认 1，rows/pageSize 默认 10、最大 300。 | `ENFORCED`；internal/shortcuts/workflow/ledger.go；internal/shortcuts/workflow/ledger_test.go；test/cases/ihr-cli/workflow/ledger-readonly.yaml |
 | 公共输出差异 | 无响应头差异；沿用 Shortcut 的 `--pretty/--output-file`，不支持 `--include`。 | `ENFORCED`；Shortcut runtime 与共享契约 |
 | 结构化输出 | response 包含 summary/items/totalElements/content/page/rows；默认展示 items 中全部当前页记录。 | `ENFORCED`；业务 reference 与 ledger tests |
 | 当前退出状态 | 成功、help、空结果和成功 dry-run 为 `0`；本地映射/参数/JSON/范围校验为 `2`；鉴权、配置、网络、业务和输出文件失败为 `1`。 | `currentExitCodeStatus=ENFORCED`；Shortcut runtime 与 focused tests |
@@ -22,8 +22,8 @@
 
 ### Agent 调用与安全规则
 
-- 自动分页：`ENFORCED` 为禁止；page>=1、rows 1-100；不自动翻页。
-- 批量执行：`ENFORCED` 为禁止；不拆分大类或小类为隐式多请求。
+- 自动分页：`ENFORCED` 为允许；page>=1、rows 1-300；需要全量时按 totalPages 串行翻页，并发固定 1、最多 20 页或 5000 条；达到上限立即停止并说明结果不完整。
+- 批量执行：`ENFORCED` 为禁止；翻页只限同一筛选条件下的连续页，不得拆分大类或小类为隐式多请求。
 - 重试：`ENFORCED` 为不自动重试。
 - 写入保护：`N/A`，本命令只读；dry-run 只构造请求。
 - raw interface fallback：`N/A`；禁止 raw HTTP 和内部 payload。

@@ -1,8 +1,8 @@
 {
     "mcpServers": {
         "tencent-marketing": {
-            "type": "streamableHttp",
             "url": "https://miaowen.qq.com/miaowen_mcp_service/v1.0/workbuddy/mcp",
+            "type": "streamable-http",
             "timeout": 30000
         }
     }

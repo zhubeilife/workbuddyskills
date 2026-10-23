@@ -57,6 +57,19 @@ If the user needs **local stdio** instead (local file access, offline), set the 
 
 Same shape, different host — `https://tcb-api.cloud.tencent.com/mcp/v1`. Nothing site-specific to declare: `domestic` + `ap-shanghai` are the defaults for both remote and local mode.
 
+```json
+{
+  "mcpServers": {
+    "cloudbase": {
+      "type": "http",
+      "url": "https://tcb-api.cloud.tencent.com/mcp/v1"
+    }
+  }
+}
+```
+
+OAuth-first applies here too: the URL alone is the configuration and the browser flow binds an environment. Add `env_id` plus the domestic `X-TencentCloud-SecretId` / `X-TencentCloud-SecretKey` pair **only** for a client without OAuth or for CI — never for an interactive IDE, where a key on disk is a secret that outlives the session for no benefit.
+
 > ⚠️ **No `site` / `region` query parameter on the remote endpoint.** The host decides the site. A domestic environment located in `ap-singapore` still uses the domestic host — do not try to switch sites with a URL parameter.
 >
 > ⚠️ **International has no NoSQL / document-database tools.** Route document-DB work to the domestic site or to PostgreSQL instead.
@@ -218,8 +231,8 @@ Query available plans, create environments, change plans, and renew:
   Resources parameter values: `storage` (cloud storage), `function` (cloud functions), `postgresql` (PostgreSQL database). `flexdb` (document database) is **not** offered — new environments are created without a NoSQL tenant, and passing it is rejected by the schema. To find out whether an environment actually has NoSQL, read `queryEnv(action="info")` → `EnvInfo.RuntimeBackends` instead of assuming.
   Optional `region` (e.g. `region=ap-shanghai`) selects where the environment is created: it is sent as the **`X-TC-Region` request context** (same as CLI `tcb env create --region ap-shanghai`), never as a CreateEnv body field. Omit it to use the current session region (`cloudBaseOptions.region` → `TCB_REGION` → project config / rc binding → site default: `ap-shanghai` domestic, `ap-singapore` intl). If you pass `region`, repeat the same value on the confirming call (`confirm=yes`), otherwise the environment may be created in the session region instead.
 
-- **Change plan** (e.g. upgrade to standard):
-  `npx mcporter call cloudbase.manageEnv action=modifyPlan envId=<envId> packageId=baas_pf_standard confirm=yes --output json`
+- **Change plan** (use a `packageId` from `listPackages`):
+  `npx mcporter call cloudbase.manageEnv action=modifyPlan envId=<envId> packageId=<packageId> confirm=yes --output json`
 
 - **Renew environment**:
   `npx mcporter call cloudbase.manageEnv action=renew envId=<envId> duration=12 confirm=yes --output json`

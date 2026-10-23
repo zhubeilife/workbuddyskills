@@ -2,7 +2,9 @@
 
 > **前置条件：** 先阅读 [`../../ihr-shared/SKILL.md`](../../ihr-shared/SKILL.md) 了解共享运行规则和 JSON 协议。
 
-选人组件人员搜索，支持分页和按姓名模糊搜索；姓名搜索大小写不敏感。只读操作，不修改员工或组织数据。
+> **已废弃：** 此入口仅为已有脚本保留兼容，不得用于新的 Agent 路由。面谈选人改用 [`../../ihr-conference/references/ihr-conference-select-staffs.md`](../../ihr-conference/references/ihr-conference-select-staffs.md) 和 `ihr-cli conference +selectStaffs`；非面谈员工检索改用 `ihr-cli staff +search`。
+
+旧命令继续支持分页和姓名模糊搜索，输入、输出、产品分流与 `conference +selectStaffs` 保持兼容。只读操作，不修改员工或组织数据。
 
 当前动作入口：
 
@@ -10,14 +12,9 @@
 ihr-cli base +selectStaffs
 ```
 
-## 典型触发表达
+## 兼容使用边界
 
-以下问题通常应进入 `+selectStaffs`：
-
-- 帮我搜一下叫张三的人
-- 面谈对象里找一下李四
-- 选人组件查一下王五
-- 分页看一下可选人员
+仅当已有自动化或脚本仍固定调用 `base +selectStaffs` 时保留本入口。新的人机交互不应根据“找人”直接选择 base：面谈参与人使用 conference，工作流代理、招聘面试官和花名册查询使用 staff。
 
 ## 命令
 
@@ -76,7 +73,7 @@ ihr-cli base +selectStaffs --searchKeyword "张三" --output-file /tmp/ihr_base_
 
 ## 路由规则
 
-CLI 根据当前 profile 的产品类型自动选择产品链路。Agent 只调用 `ihr-cli base +selectStaffs`，不硬编码或暴露内部 URL。
+CLI 根据当前 profile 的产品类型自动选择产品链路。兼容调用继续使用 `ihr-cli base +selectStaffs`，不硬编码或暴露内部 URL；新调用必须迁移到 `ihr-cli conference +selectStaffs`。
 
 ## 输出结果
 
@@ -120,3 +117,4 @@ CLI 统一输出：
 - `searchKeyword` 大小写不敏感，候选姓名大小写显示不同不构成需要追问的歧义。
 - 用户没有指定分页时，保留默认 `pageNo=1`、`pageSize=10`。
 - 本动作依赖服务端当前登录态判断可见人员范围，不需要在常规场景中手动传 `companyId`、`userId` 或 `staffId`。
+- 本入口已废弃但协议仍保留；不得据此把 base 重新作为通用人员查询入口。

@@ -1,7 +1,8 @@
 ---
 name: minimal-web-baas-demo
 description: "Fast path for a minimal CloudBase Web + database demo (最小前后端 / 最小可用 fullstack / Lovable-like BaaS). Defaults to @cloudbase/js-sdk client CRUD (NoSQL app.database / PG app.rdb), MCP-only schema, preview-first, and forbids cloud functions unless secrets, cron/background jobs, or logic that security rules/RLS cannot express. Use for 搭一套 demo、留言板、Todo、Notes、Kanban, or when users say 带云函数+云数据库 but only need CRUD. NOT for production multi-service backends, CloudRun, WeChat Mini Programs, or tasks that truly need server secrets."
-version: 2.34.8
+version: 2.36.0
+license: MIT
 alwaysApply: false
 ---
 
@@ -108,6 +109,7 @@ Stack priority for this path: **Web SDK CRUD > MCP schema > template warmup > cl
 | NoSQL browser CRUD | `../cloudbase-document-database-web-sdk/SKILL.md` |
 | PG browser CRUD + MCP schema | `../postgresql-development-cloudbase/SKILL.md` |
 | Auth provider readiness | `../auth-tool-cloudbase/SKILL.md` then `../auth-web-cloudbase/SKILL.md` |
+| MCP connection, calling tools from the shell with mcporter, plugin flags | `../cloudbase-mcp/SKILL.md` |
 
 Prefer `searchKnowledgeBase(mode="skill", skillName="minimal-web-baas-demo")` (or the sibling dir id) when local skill files are unavailable. **Do not** dump every CloudBase skill at session start.
 

@@ -1,7 +1,7 @@
 ---
 name: lark-shared
 version: 1.1.0
-description: "Use for lark-cli setup/auth tasks: auth login/status/logout, user vs bot identity, business-domain permissions (--domain, including all/docs/drive), missing scopes, revoking authorization, or handling _notice JSON."
+description: "Use for lark-cli setup/auth tasks: auth login/status/logout, user vs bot identity, business-domain permissions (--domain, including all/docs/drive), missing scopes, revoking authorization, or handling _notice JSON. On error code 21001, stop and tell the user that Doubao account authorization is not supported; they must revoke the current authorization and sign in again with a Feishu or Lark account."
 metadata:
   requires:
     bins: ["lark-cli"]
@@ -34,6 +34,8 @@ metadata:
 
 5. **文件路径只接受相对路径**：`--file`、`--output`、`--output-dir`、`@file` 等路径参数只接受 cwd 下的相对路径，传绝对路径会报 `unsafe file path`。数据输入（`@file`、大 JSON）优先用 stdin 传入，避免路径和转义问题。
 
+6. **只看 `error.code == 21001`**：命中后立刻停止当前流程，并读取 [`lark-shared-error-21001.md`](references/lark-shared-error-21001.md)，按其中的 Agent 规则和用户回复模板处理。不要使用 `error.type`、`error.subtype` 或 `error.message` 判断，也不要自行组织模板之外的错误说明。
+
 
 ## Reference 强触发索引
 
@@ -46,3 +48,4 @@ metadata:
 | 准备执行high-risk-write(高风险操作)、判断命令风险等级、遇到退出码 exit 10、`confirmation_required`、确认后重试 | [`lark-shared-high-risk-approval.md`](references/lark-shared-high-risk-approval.md) |
 | 首次使用CLI需运行 `lark-cli config init` 完成应用配置、或 CLI 明确提示 `config init --new` | [`lark-shared-config-init.md`](references/lark-shared-config-init.md) |
 | 用户询问 notice、CLI版本更新、或输出含 `_notice`（升级 / skills 落后 / 废弃命令提示）| [`lark-shared-update-notice.md`](references/lark-shared-update-notice.md) |
+| 错误信封里 `error.code` 为 `21001` | [`lark-shared-error-21001.md`](references/lark-shared-error-21001.md) |

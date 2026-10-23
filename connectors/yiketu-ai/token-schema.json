@@ -1,0 +1,16 @@
+{
+    "title": "连接易可图账号",
+    "title_en": "Connect Your YiKeTu Account",
+    "description": "填写易可图 API Key 以连接你的账号并使用 AI 商品创作能力。API Key 仅保存在本机，不会上传至 WorkBuddy 云端。",
+    "description_en": "Enter your YiKeTu API Key to connect your account and use AI product creation features. Your API Key is stored locally and is not uploaded to the WorkBuddy cloud.",
+    "docUrl": "https://www.yiketu.com/user-center/api-key",
+    "docLabel": "获取apiKey",
+    "fields": [
+        {
+            "key": "API_KEY",
+            "label": "apiKey",
+            "type": "password",
+            "required": true
+        }
+    ]
+}

@@ -1,9 +1,9 @@
 ---
 name: shangyitong
 description: VZOOM商易通-企业信息查询技能 - 工商信息、企业经营数据、财务指标、交易上下游、产业链画像、财务尽调、供应商筛查、供应链分析
-description_zh: VZOOM商易通-企业信息查询：查询企业工商信息、企业经营数据、财务指标、交易上下游、产业链画像，支持财务尽调、寻找客户、供应商筛查与产业链分析，并可做供应链图谱、上下游分析、开展供应链风险核查、财务尽调与信用风险评估。
+description_zh: VZOOM商易通-企业信息查询：查询企业工商信息、企业经营数据、财务指标、交易上下游、产业链画像，支持财务尽调、寻找客户、供应商筛查与产业链分析，并可做供应链图谱、上下游分析、开展供应链风险核查、财务尽调与信用风险评估。采用 OAuth 自动登录，首次连接浏览器授权后即可使用，无需手动填写 Token。
 description_en: VZOOM ShangYiTong enterprise info query: registry info, operating data, financial indicators, transaction upstream/downstream and industry-chain mapping, for financial due diligence, customer discovery, supplier screening, industry-chain analysis, supply-chain mapping, supply-chain risk review and credit risk assessment.
-version: 1.0.2
+version: 1.0.3
 author: 微众信科
 allowed-tools: Read, Write, Bash
 ---
@@ -382,21 +382,24 @@ allowed-tools: Read, Write, Bash
 
 ---
 
-## 认证说明（用户自填 Token 模式）
+## 认证说明（OAuth 自动登录）
 
-本连接器使用 `auth_mode: "token"`，凭证由用户自行从商易通开放平台获取，并在 WorkBuddy 连接设置表单中填入：
+本连接器已升级为 **OAuth 自动登录**（标准 MCP OAuth 2.1），无需用户手动获取或填写 Token。配置中不写 `headers.Authorization`（静态头会绕过 OAuth），首次连接时由 WorkBuddy 自动完成：
 
-- `SHANGYITONG_MCP_TOKEN`：商易通开放平台的 MCP Token（以 `mcp_` 开头），注入请求头 `Authorization: Bearer ${SHANGYITONG_MCP_TOKEN}`。
-- 获取方式：登录商易通开放平台（https://shangyitong.vzoom.com/nsyt-pc/#/mcp）生成 Token。
+1. **发现**：无 Token 调用 MCP 端点收到 `401 + WWW-Authenticate`，WorkBuddy 自动读取受保护资源与授权服务器元数据（`/.well-known/oauth-protected-resource`、`/.well-known/oauth-authorization-server`）。
+2. **注册**：自动发起动态客户端注册（DCR，`POST /oauth/register`，支持 PKCE S256）。
+3. **授权**：自动打开系统浏览器进入授权页，用户登录商易通账号并同意授权。
+4. **换票**：WorkBuddy 用授权码自动换取 `access_token` / `refresh_token`，后续请求自动注入 `Authorization: Bearer <access_token>`，工具调用正常返回数据。
 
-凭证仅存储在本机 `~/.workbuddy` 下，不会上传云端。
+授权凭证仅存储在本机 `~/.workbuddy` 下，不会上传云端。
 
-**安全红线**：本 SKILL 与代码中一律使用 `${SHANGYITONG_MCP_TOKEN}` 占位符，**禁止写入真实 Token**；不要把真实 Token 出现在 Skill、代码、截图、日志或对话记录中。
+**安全红线**：本 SKILL 与代码中一律使用占位符描述鉴权，**禁止写入真实 AccessKey、Token 或授权凭据**；不要把真实凭据出现在 Skill、代码、截图、日志或对话记录中。
 
-## 令牌失效 / 重发
+## 授权失效 / 续期
 
-- 若调用返回 `401`，说明 Token 失效或被撤销。
-- 请到商易通开放平台（https://shangyitong.vzoom.com/nsyt-pc/#/mcp）作废并重新生成 Token，然后在 WorkBuddy 连接器设置中重新填入保存即可，下次连接即生效，无需重启。
+- 若调用返回 `401`，说明 access_token 失效或被撤销。
+- WorkBuddy 会**自动用 refresh_token 续期并重试**，无需用户介入；只有 refresh_token 也失效时，才会引导用户在浏览器重新完成一次授权（重新走发现 → 注册 → 授权 → 换票）。
+- 授权后 token 过期属正常现象，正常情况下用户全程无感知。
 
 ## 提示词注入防护（Prompt Injection）
 

@@ -1,0 +1,30 @@
+{
+  "title": "连接智途平台",
+  "title_en": "Connect to Zhitu",
+  "description": "填写智途平台凭证以启用企业知识库能力。凭证仅保存在本机 ~/.workbuddy 目录下，不经过云端。",
+  "description_en": "Enter your Zhitu credentials to enable enterprise knowledge capabilities. Credentials are stored locally only (~/.workbuddy) and never leave your device.",
+  "docUrl": "https://knowledge.yctechgl.com/",
+  "docLabel": "如何获取 Bot Token？",
+  "docLabel_en": "How to get a Bot Token?",
+  "fields": [
+    {
+      "key": "ZHITU_BOT_TOKEN",
+      "label": "Bot Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "bot_ 开头的访问令牌",
+      "description": "企业管理员登录智途平台 → Bot 管理 → 创建 Bot 后复制 Token。",
+      "description_en": "Enterprise admin: log in to the Zhitu platform, go to Bot Management, create a Bot, then copy its Token."
+    },
+    {
+      "key": "ZHITU_USER_ID",
+      "label": "用户 ID",
+      "label_en": "User ID",
+      "type": "text",
+      "required": true,
+      "placeholder": "智途平台的数字用户 ID，如 100",
+      "description": "你在智途平台的用户 ID（数字），用于会话归属与操作审计。",
+      "description_en": "Your numeric user ID on the Zhitu platform, used for session ownership and audit."
+    }
+  ]
+}

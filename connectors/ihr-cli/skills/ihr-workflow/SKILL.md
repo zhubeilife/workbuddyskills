@@ -1,6 +1,6 @@
 ---
 name: ihr-workflow
-description: "iHR360 审批流台账查询。按大类、状态、小类、部门查询数量或列表；用户给部门名称而非 departmentId 时，必须先调用 ihr-master-data 解析，不能改用组织树。"
+description: "iHR360 审批流查询。支持当前员工待审批、本人发起和已审批记录，以及按大类、状态、小类、部门查询 HR 审批台账；部门名称必须先用 ihr-master-data 解析。"
 metadata:
   requires:
     bins: ["ihr-cli"]
@@ -8,6 +8,12 @@ metadata:
 ---
 
 # iHR360 审批流
+
+开始前先阅读 [`../ihr-shared/SKILL.md`](../ihr-shared/SKILL.md)。分页遵循其中的[查询分页](../ihr-shared/SKILL.md#查询分页)：普通查询只读当前页；统计分析、明确全量或完整拉取可对台账列表、流程列表和本人待办/已发起/已审批列表串行翻页，禁止并发。流程/本人列表 `rows` 为 1-300，全量最多 20 页或 5000 条，达上限停止并说明不完整。只要数量时优先使用 `ledger +count`。`process +count` 是聚合计数，不分页。
+
+## 流程处置命令
+
+HR 滞留流程统一使用 `workflow process +count/+list/+detail/+tasks/+approve/+deny/+urge/+transfer`。查询不接受 `companyId`、`userId`、`staffId`、token 或 cookie；写命令必须以 `confirm-process-id` 明确确认目标。`+urge` 继续由 CLI 调用原 `/urge`，保持原访问校验、防重复和异步语义。
 
 用于 workflow 审批台账数据查询。当前支持两类业务意图：
 
@@ -30,6 +36,10 @@ metadata:
 | --- | --- | --- |
 | 查询审批台账数量/总数 | `ihr-cli workflow ledger +count` | [`references/ihr-workflow-ledger-count.md`](references/ihr-workflow-ledger-count.md) |
 | 查询审批台账列表 | `ihr-cli workflow ledger +list` | [`references/ihr-workflow-ledger-list.md`](references/ihr-workflow-ledger-list.md) |
+| 查询待我审批 | `ihr-cli workflow self +pending` | [`references/ihr-workflow-self.md`](references/ihr-workflow-self.md) |
+| 查询我发起的审批 | `ihr-cli workflow self +applied` | [`references/ihr-workflow-self.md`](references/ihr-workflow-self.md) |
+| 查询我已审批的记录 | `ihr-cli workflow self +approved` | [`references/ihr-workflow-self.md`](references/ihr-workflow-self.md) |
+| 查询本人流程详情 | `ihr-cli workflow self +detail` | [`references/ihr-workflow-self.md`](references/ihr-workflow-self.md) |
 
 ## 自然语言封装规则
 
@@ -88,6 +98,7 @@ ihr-cli workflow ledger +count --category "考勤假期" --status "审批中"
 6. `response.content` 是业务原始数据，只用于排查或补充字段，不作为默认用户展示内容。
 7. 列表场景未指定返回条数时，shortcut 默认 `rows=10`，回复时必须展示 `response.items` 中的全部记录；不要只展示 1 条或 3 条。
 8. 需要确认精确参数或返回语义时，读取 [`references/ihr-workflow-ledger.md`](references/ihr-workflow-ledger.md) 和命令 help。
+9. 列表需要全量时按 `totalPages` 串行翻页，并发固定 1、最多 20 页或 5000 条；达到上限立即停止并说明结果不完整，不得并发翻页或无限拉取。
 
 ## 回复规范
 
@@ -119,6 +130,10 @@ ihr-cli workflow ledger +count --category "考勤假期" --status "审批中"
 
 ## HR 流程代理与流程设置
 
+## 流程查询与处置
+
+流程记录相关请求先读取 [`references/ihr-workflow-process.md`](references/ihr-workflow-process.md)，再按命令读取对应契约：`+count`、`+list`、`+detail`、`+tasks`、`+approve`、`+deny`、`+transfer`、`+urge`。`+count/+list/+detail/+tasks` 用于定位具体流程和当前活动任务，`+approve/+deny/+transfer/+urge` 只允许在用户明确确认后逐条执行；所有写命令必须传入一致的 `processId` 和 `confirmProcessId`。列表到详情、活动任务再到写操作时，只能传递前一步返回的真实 ID，不得猜测、批量扩散或使用 raw HTTP。
+
 本 skill 也覆盖 HR 管理端流程代理和流程设置的只读查询。所有身份上下文仍由 gateway/session 提供，不向用户索要 `companyId`、`userId`、token 或 cookie。
 
 | 用户意图 | 优先命令 | 参考文档 |
@@ -131,14 +146,14 @@ ihr-cli workflow ledger +count --category "考勤假期" --status "审批中"
 | 自然语言片段 | 封装规则 |
 | --- | --- |
 | “谁代理了谁”“流程代理关系” | `ihr-cli workflow proxy +list` |
-| “张三被谁代理” | 先执行 `ihr-cli base +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10`；唯一命中后取 `response.data.dataList[0].id`，再执行 `ihr-cli workflow proxy +list --client-staff-id <id>` |
+| “张三被谁代理” | 先执行 `ihr-cli staff +search --keyword "张三" --page 1 --page-size 10`；唯一命中后取 `response.data.list[0].id`，再执行 `ihr-cli workflow proxy +list --client-staff-id <id>` |
 | “李四代理了谁” | `ihr-cli workflow proxy +list --proxy-staff-name "李四"` |
 | “请假流程有哪些代理” | `ihr-cli workflow proxy +list --approval-setting-name "请假"` |
 
 姓名解析规则：
 
 1. 用户问“某人被谁代理”时，不要把姓名当 `staffId`，也不要直接猜员工 ID。
-2. 先用 `base +selectStaffs` 搜索候选；只有唯一候选时才用 `--client-staff-id` 精确查询。
+2. 先用 `staff +search` 搜索花名册；只有唯一候选时才用 `--client-staff-id` 精确查询。
 3. 候选超过 1 个时，先让用户确认具体员工。
 4. 没有候选时，可以退化为 `--client-staff-name` 姓名模糊查询，并在回答里说明不是精确 staffId 查询。
 5. 后端 `ProxySearchRequest` 当前没有 `proxyStaffId` 查询字段，所以“某人代理了谁”仍按 `--proxy-staff-name` 查询。

@@ -42,7 +42,7 @@ ihr-cli ticket +list --json '{"status":"PENDING","page":1,"pageSize":10}'
 | `--page` | int | OPTIONAL | `1` | `page` | 从 1 开始，必须为正数 |
 | `--page-size` | int | OPTIONAL | `10` | `pageSize` | 必须为 `1..50`；CLI 请求前校验，服务端保留相同上限 |
 
-Agent 策略：`CONFIRM_REQUIRED`。不要自动无限翻页；扩大页数或汇总范围前先确认。
+Agent 策略：`CONFIRM_REQUIRED`。普通查询不要自动无限翻页。已确认范围内的统计分析、明确全量或完整拉取按共享查询分页规则串行翻页，禁止并发；`pageSize` 最大 50。
 
 ## ihr-cli ticket +detail
 

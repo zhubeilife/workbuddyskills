@@ -1,6 +1,6 @@
 # 3 · 电影写实（剧情片质感）
 
-仅在 style_id=cinematic-realism 且选择已确认时读取。来源：style-cinematic-realism。
+**历史模板，非运行分支**：以下旧编号、加载与执行规则仅供维护追溯，不再因旧ID或入口名称执行。常规选择统一按 [../SKILL.md](../SKILL.md)，对应库条目为 [剧情片写实](library/styles/style-cinematic-realism.md)，主流程执行适配使用写实基底。来源：style-cinematic-realism。
 
 ## 定位与参考
 

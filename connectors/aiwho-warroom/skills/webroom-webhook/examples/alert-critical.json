@@ -1,0 +1,6 @@
+{
+  "title": "🔴 生产 5xx 突增",
+  "body": "告警：api-gateway 5xx 比例 12.4%（阈值 5%）\n持续 4 分钟，影响面：全部登录请求\n处置链接：https://grafana.example.com/d/abc",
+  "level": "urgent",
+  "externalId": "alert-20260919-0201-prod5xx"
+}

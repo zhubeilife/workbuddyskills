@@ -1,0 +1,162 @@
+/* ======================================================================
+   输出样式库 · style-library.css（cnki-edu-knowledge-cards）
+   ----------------------------------------------------------------------
+   5 种风格，通过 <html data-style="键"> 套用，无需重写渲染逻辑。
+   键：handdrawn（手绘笔记）| collage（卡片拼贴）| magazine（极简杂志）
+       blackboard（黑板粉笔）| mindmap（经典思维导图）
+   使用方式：在生成的 HTML 模板 <head> 引入本文件，并给 <html> 加 data-style。
+   变量名与 card-page-template.html / knowledge-graph-template.html 共用，
+   因此切换 data-style 即可整体换肤（含背景/主题色/字体）。
+   ====================================================================== */
+
+/* ---------- 0. 默认（与未设 data-style 等价，落库兜底） ---------- */
+:root{
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+
+/* ---------- 1. 手绘笔记风 handdrawn：米白·手写·荧光 ---------- */
+html[data-style="handdrawn"]:not([data-contrast="high"]){
+  --bg-1:#FBF7EE; --bg-2:#FFFDF5;
+  --panel:#FFFFFF;
+  --text:#3a3327; --muted:#8a7f6a;
+  --line:#ece3d2;
+  --deck:#e8a33d; --deck-2:#2f8f6b;
+  --deck-soft:#fdf1d8; --front:#fffdf6; --back:#fbf3e6;
+  --theme:#e8a33d; --theme-2:#2f8f6b;
+  --key:#e6b800; --key-soft:#fff3c4;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#2f8f6b; --lv-base-soft:#e7f3ec;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 8px 22px rgba(120,90,30,.12);
+  --shadow-hover:0 16px 34px rgba(120,90,30,.20);
+  --shadow-pop:0 16px 34px rgba(120,90,30,.20);
+  --font-head:"Xingkai SC","STXingkai","Comic Sans MS","Segoe Print",cursive;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="handdrawn"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="handdrawn"]:not([data-contrast="high"]) h1,
+html[data-style="handdrawn"]:not([data-contrast="high"]) h2,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .banner,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+
+/* ---------- 2. 卡片拼贴风 collage：圆角·柔阴影·便签 ---------- */
+html[data-style="collage"]:not([data-contrast="high"]){
+  --bg-1:#f4f6f8; --bg-2:#eef1f5;
+  --panel:#ffffff;
+  --text:#27313d; --muted:#6e7884;
+  --line:#e7ecf3;
+  --deck:#1aa179; --deck-2:#34b3a0;
+  --deck-soft:#e7f5ef; --front:#ffffff; --back:#f2f9f6;
+  --theme:#1aa179; --theme-2:#34b3a0;
+  --key:#f5a623; --key-soft:#fff3cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 24px rgba(40,61,110,.10);
+  --shadow-hover:0 16px 34px rgba(40,61,110,.18);
+  --shadow-pop:0 16px 34px rgba(40,61,110,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+
+/* ---------- 3. 极简杂志风 magazine：白底·蓝橙对比 ---------- */
+html[data-style="magazine"]:not([data-contrast="high"]){
+  --bg-1:#ffffff; --bg-2:#ffffff;
+  --panel:#ffffff;
+  --text:#101418; --muted:#5b6573;
+  --line:#e6e9ef;
+  --deck:#1E66F5; --deck-2:#FF7A1A;
+  --deck-soft:#e8eeff; --front:#ffffff; --back:#f5f8ff;
+  --theme:#1E66F5; --theme-2:#FF7A1A;
+  --key:#1E66F5; --key-soft:#e8eeff;
+  --warn:#b54708; --warn-soft:#fff1e6;
+  --lv-base:#1E66F5; --lv-base-soft:#e8eeff;
+  --lv-up:#FF7A1A; --lv-up-soft:#fff0e6;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:6px; --radius-sm:4px;
+  --shadow:0 4px 14px rgba(20,40,90,.10);
+  --shadow-hover:0 8px 22px rgba(20,40,90,.18);
+  --shadow-pop:0 8px 22px rgba(20,40,90,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+
+/* ---------- 4. 黑板粉笔风 blackboard：深底·粉笔线 ---------- */
+html[data-style="blackboard"]:not([data-contrast="high"]){
+  --bg-1:#1f3a2e; --bg-2:#22332a;
+  --panel:#26453a;
+  --text:#f3f6f2; --muted:#bcd2c4;
+  --line:#3c5a4b;
+  --deck:#f5f5f5; --deck-2:#9ad0b4;
+  --deck-soft:#34564a; --front:#2c4d40; --back:#2f5246;
+  --theme:#f5f5f5; --theme-2:#9ad0b4;
+  --key:#ffd866; --key-soft:#3a4d3f;
+  --warn:#ffb4a0; --warn-soft:#3a2e2a;
+  --lv-base:#9ad0b4; --lv-base-soft:#34564a;
+  --lv-up:#ffd866; --lv-up-soft:#3a4d3f;
+  --lv-chal:#ff8fa3; --lv-chal-soft:#3a2e34;
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 8px 20px rgba(0,0,0,.35);
+  --shadow-hover:0 14px 30px rgba(0,0,0,.45);
+  --shadow-pop:0 14px 30px rgba(0,0,0,.45);
+  --font-head:"Comic Sans MS","Chalkboard SE","STKaiti","Kaiti SC",cursive;
+  --font-body:"Kaiti SC","STKaiti","PingFang SC","Microsoft YaHei",serif;
+}
+html[data-style="blackboard"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="blackboard"]:not([data-contrast="high"]) h1,
+html[data-style="blackboard"]:not([data-contrast="high"]) h2,
+html[data-style="blackboard"]:not([data-contrast="high"]) .banner,
+html[data-style="blackboard"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+
+/* ---------- 5. 经典思维导图风 mindmap：中心图·彩色分支 ---------- */
+html[data-style="mindmap"]:not([data-contrast="high"]){
+  --bg-1:#fef6ec; --bg-2:#eef4ff;
+  --panel:#ffffff;
+  --text:#2b3340; --muted:#7a8392;
+  --line:#e7e0d4;
+  --deck:#3b6fd4; --deck-2:#1f3c7a;
+  --deck-soft:#e7eefb; --front:#ffffff; --back:#f4f8ff;
+  --theme:#3b6fd4; --theme-2:#1f3c7a;
+  --key:#e0a400; --key-soft:#fff4cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 26px rgba(60,80,140,.14);
+  --shadow-hover:0 16px 34px rgba(60,80,140,.22);
+  --shadow-pop:0 16px 34px rgba(60,80,140,.22);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+
+/* ======================================================================
+   通用辅助类（任意风格可叠加使用）
+   ====================================================================== */
+
+/* 荧光笔高亮（手绘笔记风常用） */
+.hl-y{background:linear-gradient(transparent 60%, #fff36b 60%);padding:0 2px}
+.hl-g{background:linear-gradient(transparent 60%, #b6f0c2 60%);padding:0 2px}
+.hl-p{background:linear-gradient(transparent 60%, #ffc9de 60%);padding:0 2px}
+
+/* 粉笔虚线框（黑板粉笔风常用） */
+.chalk{border:2px dashed #f5f5f5;border-radius:10px;padding:8px 12px}
+
+/* 图标锚点：固定语义，便于速记（节点/分支首部使用） */
+.anchor-time::before{content:"⏳ "}
+.anchor-person::before{content:"👤 "}
+.anchor-emotion::before{content:"💡 "}
+.anchor-exam::before{content:"🔴 "}
+.anchor-lab::before{content:"🧪 "}
+.anchor-formula::before{content:"📐 "}
+
+/* 形状区分（重要分支不只靠颜色，用形状） */
+.shape-circle{border-radius:999px}
+.shape-square{border-radius:6px}
+.shape-diamond{transform:rotate(45deg)}
+.shape-diamond > *{transform:rotate(-45deg)}

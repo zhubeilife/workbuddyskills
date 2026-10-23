@@ -3,7 +3,7 @@
         "neodata": {
             "type": "streamable-http",
             "url": "https://neodata.tencent.com/proxy/mcp",
-            "timeout": 12000
+            "timeout": 18000
         }
     }
 }

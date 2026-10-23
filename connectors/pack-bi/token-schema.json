@@ -1,0 +1,18 @@
+{
+  "title": "连接派可BI",
+  "title_en": "Connect to PackingData BI",
+  "description": "填写派可BI服务地址与 MCP 密钥。凭证仅存储在本机 ~/.workbuddy 目录下，不会上传云端。",
+  "fields": [
+    {
+      "key": "BI_SECRET_KEY",
+      "label": "MCP 密钥",
+      "label_en": "MCP Secret Key",
+      "placeholder": "「在派可BI『系统管理 → AI 配置』中生成或复制」——确认菜单路径和产品实际界面一致（之前截图是「我的管理 → AI MCP配置」，以实际 UI 为准）",
+      "placeholder_en": "Generate or copy in PaikeBI 'System Management → AI Configuration' - Confirm that the menu path matches the actual product interface (the previous screenshot was 'My Management → AI MCP Configuration', subject to the actual UI)",
+      "type": "password",
+      "required": true,
+      "description": "用于访问该 BI 实例的智能问数 MCP，权限与该密钥绑定的用户一致。",
+      "description_en": "Secret key for the BI MCP endpoint. Its permission scope matches the bound user."
+    }
+  ]
+}

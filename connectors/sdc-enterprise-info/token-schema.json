@@ -1,0 +1,21 @@
+{
+    "title": "企业信息查询服务配置",
+    "title_en": "Enterprise Info Service Configuration",
+    "description": "已预填公共体验凭证，直接确定即可开始使用。体验额度为所有用户共享，用尽后请到 tokensd.com.cn 领取专属额度并把 apiKey 换成自己的。凭证仅保存在本机 ~/.workbuddy 目录下，不经过云端。",
+    "description_en": "A shared trial credential is pre-filled — just confirm to start. The trial quota is shared by all users; once exhausted, get your own at tokensd.com.cn and replace the apiKey here. Credentials are stored locally only.",
+    "docUrl": "https://tokensd.com.cn",
+    "docLabel": "领取专属免费额度与 apiKey",
+    "fields": [
+        {
+            "key": "LITEMCP_API_KEY",
+            "label": "apiKey",
+            "label_en": "API Key",
+            "type": "password",
+            "required": true,
+            "defaultValue": "lmk_live_k7ZjnmbwGxJe_zlkmO6R4ywVu1TL1LRl60sA0bYin1jg9",
+            "placeholder": "lmk_live_...",
+            "description": "默认填的是公共体验凭证。在 tokensd.com.cn 用综金平台统一登录开通后，把这里换成自己的 apiKey，额度与用量才会单独计。",
+            "description_en": "Defaults to a shared trial credential. Replace it with your own apiKey after signing up at tokensd.com.cn."
+        }
+    ]
+}

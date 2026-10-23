@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-style="collage">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识卡片 · 可翻卡自测页</title>
+<!--
+  知识卡片网页模板（cnki-edu-knowledge-cards / assets）· 视觉重设计版
+  - 纯静态、零外部依赖、可离线打开
+  - 交互：翻卡 / 显示隐藏答案 / 随机抽卡 / 计时 / 收藏 / 错题标记 / 搜索 / 打印 / 字号可调 / 高对比 / 键盘操作
+  - 设计：温暖友好配色、学科主题色（DECK.theme）、卡片化翻看质感、层级徽章、柔和投影与微动效，贴近中小学课堂
+  - 使用方式：把下面 DECK 数组替换为本次生成的卡片数据即可，不要重写交互逻辑
+  - 卡片数据字段：
+      id      编号，如 "01"
+      title   卡片标题（卡片类型 + 学科·学段，如 "公式与定理卡 · 初中物理"）
+      front   正面问句（≤30 字）
+      back    背面答案，字符串数组，每个元素一行
+      tags    标签数组，如 ["内容域:力学", "册次:八下第十章", "类型:公式"]
+      source  出处，如 "人教版 八年级下册"
+      safety  安全提示（无则留空字符串）
+      level   分层标注："基础" | "提升" | "挑战"（无则留空）
+      scene   使用场景，如 "预习速查 / 早读抽卡"
+      color   可选，卡片左侧/顶部点缀色（hex），不填则跟随 DECK.theme
+      DECK 顶层字段（在 const DECK = { ... } 内设置，统一改整页风格）：
+        theme   可选，学科主题色（hex），覆盖页头渐变/按钮/层级徽章主色，如 "#5b7cfa"（化学可用 "#1aa179" 绿、历史可用 "#b5713a" 赭等）
+        theme2  可选，渐变辅色（hex），与 theme 搭配成页头/按钮渐变，如 "#8a6cf0"
+      references  文末「参考资料」列表（卡片组级，放在页面最底部且视觉轻量）；数组，每项 {no, title, author, source, date, entry}；渲染为紧凑单行：〔n〕《篇名》(超链接) · 作者 · 来源 · 类型 · 发表时间
+              no      文献编号，如 "1"（与正文 〔n〕 角标对应）
+              title   篇名（渲染为超链接，指向 entry）
+              author 作者（接口不返回时写 "在知网平台阅读页查看完整题录"）
+              source 来源（含年期），如 "《物理通报》2023年第05期"
+              date   发表时间，如 "2023年"
+              entry  知网单篇在线阅读页地址（取检索返回的 `url` 字段——形态为 `ix.cnki.net/read/article/readonline?dbcode=…&tablename=…&filename=…&fileSourceType=1`，与"投稿选刊"的 `readUrl` 完全一致，由知网负责登录/鉴权；字段缺失时回退 https://kns.cnki.net/kns8s/defaultresult/index?kw=篇名，与 `ix.cnki.net` 同属知网主站、共用统一登录）；作为篇名超链接目标
+-->
+<style>
+  :root{
+    --bg-1:#eef3fb; --bg-2:#fbf7f1;
+    --panel:#ffffff;
+    --text:#27313d; --muted:#6e7884;
+    --line:#e7ecf3;
+    --deck:#5b7cfa;            /* 学科主题色，可由 DECK.theme 覆盖 */
+    --deck-2:#8a6cf0;          /* 渐变辅色 */
+    --deck-soft:#eef1ff;
+    --front:#ffffff;
+    --back:#f5f8ff;
+    --warn:#c2410c; --warn-soft:#fff3ea;
+    --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+    --lv-up:#d97706;   --lv-up-soft:#fef3e2;
+    --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+    --radius:18px; --radius-sm:11px;
+    --font-scale:1; --fs-base:16px;
+    --shadow:0 8px 22px rgba(43,61,110,.09);
+    --shadow-hover:0 16px 34px rgba(43,61,110,.18);
+  }
+  html[data-contrast="high"]{
+    --bg-1:#ffffff; --bg-2:#ffffff;
+    --panel:#ffffff; --text:#000; --muted:#2b3440;
+    --line:#101828; --deck:#0b3ea8; --deck-2:#0b3ea8; --deck-soft:#e6eeff;
+    --front:#fff; --back:#fff; --warn:#7c2d12; --warn-soft:#fff1e6;
+    --lv-base:#047857; --lv-base-soft:#e6f6ef;
+    --lv-up:#b45309; --lv-up-soft:#fdeccf;
+    --lv-chal:#be123c; --lv-chal-soft:#fde2e9;
+    --shadow:none; --shadow-hover:none;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 12% -8%, rgba(91,124,250,.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(138,108,240,.10), transparent 55%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:calc(var(--fs-base) * var(--font-scale));
+    line-height:1.75;
+    padding:22px 16px 72px;
+  }
+  a{color:var(--deck);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ===== 背景涂鸦：圆点 + 小星（活泼不抢内容） ===== */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;opacity:.55;pointer-events:none;
+    background-image:
+      radial-gradient(circle, rgba(120,140,200,.16) 1.5px, transparent 2px),
+      radial-gradient(circle, rgba(230,160,60,.14) 1.5px, transparent 2px);
+    background-size:46px 46px, 70px 70px;
+    background-position:0 0, 23px 35px;
+  }
+  /* 漂浮装饰贴纸（页边星点，打印隐藏） */
+  .float{position:fixed;font-size:26px;opacity:.5;pointer-events:none;z-index:-1;animation:floaty 5s ease-in-out infinite}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg)}}
+
+  /* ===== 头部横幅 ===== */
+  header.top{
+    max-width:1180px;margin:0 auto 20px;
+    background:linear-gradient(135deg, var(--deck), var(--deck-2));
+    color:#fff;border-radius:22px;padding:22px 24px;
+    box-shadow:0 14px 34px rgba(60,80,150,.22);
+    position:relative;overflow:hidden;
+  }
+  header.top::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;
+    background:rgba(255,255,255,.12);
+  }
+  header.top::before{content:"✦";position:absolute;left:20px;bottom:8px;font-size:30px;opacity:.5;transform:rotate(-10deg);color:#fff}
+  .head-row{display:flex;align-items:center;gap:14px}
+  .emblem{
+    flex:none;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.22);
+    display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+  }
+  h1{margin:0;font-size:1.42em;letter-spacing:.01em;font-weight:800}
+  .meta{color:rgba(255,255,255,.92);font-size:.88em;margin-top:6px}
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:9px;align-items:center;
+    margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.25);
+  }
+  .toolbar .search-wrap{flex:1 1 220px;min-width:200px;position:relative}
+  input[type="search"]{
+    width:100%;font:inherit;font-size:.9em;padding:9px 14px 9px 36px;border:none;border-radius:999px;
+    background:rgba(255,255,255,.95);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+  input[type="search"]::placeholder{color:#9aa3b0}
+  .toolbar .search-wrap::before{
+    content:"🔍";position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6;
+  }
+  button{
+    font:inherit;font-size:.9em;font-weight:600;
+    background:rgba(255,255,255,.95);color:var(--deck);
+    border:none;border-radius:999px;padding:8px 15px;cursor:pointer;transition:.18s;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+  button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,.14)}
+  button.primary{background:#fff;color:var(--deck)}
+  button.primary:hover{background:#fff}
+  button[aria-pressed="true"]{background:var(--text);color:#fff}
+  button:focus-visible{outline:3px solid rgba(255,255,255,.7);outline-offset:2px}
+  input[type="search"]:focus-visible{outline:3px solid rgba(255,255,255,.7);outline-offset:2px}
+  .status{color:rgba(255,255,255,.92);font-size:.84em;margin-left:auto;align-self:center}
+
+  main{max-width:1180px;margin:0 auto}
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
+
+  /* ===== 卡片 ===== */
+  .card{
+    position:relative;background:var(--front);
+    border:1px solid var(--line);border-top:5px solid var(--accent, var(--deck));
+    border-radius:var(--radius);padding:16px 17px 14px;min-height:236px;
+    display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid;
+    box-shadow:var(--shadow);transition:transform .2s, box-shadow .2s;
+    animation:cardIn .42s ease both;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+  @keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .card.dim{display:none}
+  /* 胶带角 + 贴纸感：让卡片像贴在手帐上，而非孤立方框 */
+  .card::before{
+    content:"";position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-3deg);
+    width:74px;height:22px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 7px, rgba(91,124,250,.18) 7px 14px);
+    border:1px solid rgba(0,0,0,.06);border-radius:3px;opacity:.92;box-shadow:0 2px 5px rgba(0,0,0,.10);z-index:3;
+  }
+  .card-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .card-no{
+    font-weight:800;color:var(--deck);font-variant-numeric:tabular-nums;flex:none;
+    background:var(--deck-soft);border-radius:8px;padding:1px 8px;font-size:.86em;
+  }
+  .card-title{font-size:.86em;color:var(--muted);flex:1;min-width:0;line-height:1.4}
+  .card-title .lv{
+    display:inline-block;margin-left:6px;padding:1px 9px;border-radius:999px;
+    font-size:.92em;font-weight:700;white-space:nowrap;
+  }
+  .lv-base{background:var(--lv-base-soft);color:var(--lv-base)}
+  .lv-up{background:var(--lv-up-soft);color:var(--lv-up)}
+  .lv-chal{background:var(--lv-chal-soft);color:var(--lv-chal)}
+  .star,.wrong{
+    background:none;border:none;padding:2px 5px;font-size:1.15em;line-height:1;
+    color:#cbd3de;cursor:pointer;border-radius:8px;box-shadow:none;
+  }
+  .star:hover,.wrong:hover{transform:none;background:var(--deck-soft)}
+  .star.on{color:#f5a623}
+  .wrong.on{color:#ef4444}
+  .front{
+    position:relative;font-size:1.08em;font-weight:700;margin:8px 0 6px;
+    padding-left:40px;min-height:40px;display:flex;align-items:center;
+  }
+  .front::before{
+    content:"Q";position:absolute;left:0;top:50%;transform:translateY(-50%);
+    width:30px;height:30px;border-radius:10px;background:var(--deck);color:#fff;
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px;
+    box-shadow:0 3px 8px rgba(91,124,250,.35);
+  }
+  .back{
+    background:var(--back);border-radius:var(--radius-sm);padding:12px 14px;margin-top:8px;
+    border:1px solid var(--line);border-left:4px solid var(--accent, var(--deck));
+    font-size:.94em;max-height:0;overflow:hidden;opacity:0;transform:translateY(-4px);
+    transition:max-height .4s ease, opacity .3s ease, transform .3s ease, padding .4s ease, margin .4s ease;
+  }
+  .card.revealed .back{max-height:700px;opacity:1;transform:none}
+  .back ul{margin:0;padding-left:0;list-style:none}
+  .back li{position:relative;padding-left:16px;margin:5px 0;line-height:1.7}
+  .back li::before{
+    content:"";position:absolute;left:2px;top:.72em;width:7px;height:7px;border-radius:50%;
+    background:var(--accent, var(--deck));opacity:.55;
+  }
+  .reveal{align-self:flex-start;margin-top:auto;font-size:.86em;padding:7px 16px;background:var(--deck);color:#fff}
+  .reveal:hover{background:var(--deck);color:#fff;transform:translateY(-1px)}
+  .card.revealed .reveal{display:none}
+
+  .foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:.78em;color:var(--muted)}
+  .tag{background:var(--deck-soft);color:var(--deck);border-radius:999px;padding:2px 10px;font-weight:600}
+  .src{width:100%;opacity:.9}
+  .src b{color:var(--text);font-weight:700}
+
+  .safety{
+    margin-top:10px;padding:9px 12px;border-radius:var(--radius-sm);
+    background:var(--warn-soft);color:var(--warn);font-size:.86em;font-weight:600;
+  }
+  .safety::before{content:"⚠ 安全提示：";font-weight:800}
+
+  /* 参考资料：轻量、小字、弱化，不喧宾夺主 */
+  .references{
+    max-width:1180px;margin:22px auto 0;padding:14px 16px 0;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .references h2{margin:0 0 4px;font-size:.95em;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px}
+  .references h2::before{content:"";width:4px;height:16px;border-radius:3px;background:var(--deck);display:inline-block}
+  .references ol{margin:6px 0 0;padding-left:1.1em}
+  .references li{margin:4px 0;font-size:.82em;line-height:1.6;color:var(--muted);word-break:break-word}
+  .references a{color:var(--deck)}
+  .reflink{color:var(--deck);text-decoration:none;border-bottom:1px dotted var(--deck);cursor:pointer;font-weight:600}
+  .reflink:hover{background:var(--deck-soft)}
+  .refs-line{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:.8em;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+  .refs-line .lbl{font-weight:700;color:var(--text)}
+  .refs-line .reflink{border-bottom:none}
+
+  .empty{color:var(--muted);padding:48px 0;text-align:center;font-size:1.05em}
+
+  /* 随机抽卡浮层 */
+  .draw{position:fixed;inset:0;background:rgba(20,28,46,.55);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .draw.open{display:flex}
+  .draw-box{
+    background:var(--panel);border-radius:22px;max-width:560px;width:100%;padding:26px;
+    border:1px solid var(--line);max-height:88vh;overflow:auto;position:relative;box-shadow:0 24px 60px rgba(20,30,60,.35);
+  }
+  .draw-box h2{margin:0 0 14px;font-size:1.1em;color:var(--deck)}
+  .draw-front{position:relative;font-size:1.3em;font-weight:800;margin:10px 0 16px;padding-left:42px}
+  .draw-front::before{content:"Q";position:absolute;left:0;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:10px;background:var(--deck);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .draw-back{background:var(--back);border:1px solid var(--line);border-left:4px solid var(--deck);border-radius:var(--radius-sm);padding:12px 14px;margin-top:10px;display:none}
+  .draw-back.show{display:block;animation:cardIn .3s ease both}
+  .draw-back ul{margin:0;padding-left:0;list-style:none}
+  .draw-back li{position:relative;padding-left:16px;margin:5px 0;line-height:1.7}
+  .draw-back li::before{content:"";position:absolute;left:2px;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--deck);opacity:.55}
+  .draw-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+
+  @page{size:A4;margin:12mm}
+  @media print{
+    body{background:#fff;padding:0;font-size:11pt}
+    body::before,.float,.card::before{display:none !important}
+    header.top,.toolbar,.draw,.reveal{display:none !important}
+    .grid{grid-template-columns:repeat(2,1fr);gap:0}
+    .references{display:block !important;margin-top:5mm;box-shadow:none;border:1px dashed #999}
+    .card{border:1px dashed #999;border-top:3px solid var(--deck);border-radius:0;min-height:82mm;margin:0;box-shadow:none;animation:none}
+    .card.dim{display:flex}
+    .back{display:block !important;max-height:none !important;opacity:1 !important;transform:none !important}
+    .front::before,.draw-front::before{box-shadow:none}
+  }
+  .print-note{display:none;max-width:1180px;margin:0 auto 10px;font-size:.8em;color:#444}
+/* ===== 样式库·内联（cnki-edu-knowledge-cards · 技能内部资产，不单独输出给用户） ===== */
+:root{
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="handdrawn"]:not([data-contrast="high"]){
+  --bg-1:#FBF7EE; --bg-2:#FFFDF5;
+  --panel:#FFFFFF;
+  --text:#3a3327; --muted:#8a7f6a;
+  --line:#ece3d2;
+  --deck:#e8a33d; --deck-2:#2f8f6b;
+  --deck-soft:#fdf1d8; --front:#fffdf6; --back:#fbf3e6;
+  --theme:#e8a33d; --theme-2:#2f8f6b;
+  --key:#e6b800; --key-soft:#fff3c4;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#2f8f6b; --lv-base-soft:#e7f3ec;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 8px 22px rgba(120,90,30,.12);
+  --shadow-hover:0 16px 34px rgba(120,90,30,.20);
+  --shadow-pop:0 16px 34px rgba(120,90,30,.20);
+  --font-head:"Xingkai SC","STXingkai","Comic Sans MS","Segoe Print",cursive;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="handdrawn"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="handdrawn"]:not([data-contrast="high"]) h1,
+html[data-style="handdrawn"]:not([data-contrast="high"]) h2,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .banner,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+html[data-style="collage"]:not([data-contrast="high"]){
+  --bg-1:#f4f6f8; --bg-2:#eef1f5;
+  --panel:#ffffff;
+  --text:#27313d; --muted:#6e7884;
+  --line:#e7ecf3;
+  --deck:#1aa179; --deck-2:#34b3a0;
+  --deck-soft:#e7f5ef; --front:#ffffff; --back:#f2f9f6;
+  --theme:#1aa179; --theme-2:#34b3a0;
+  --key:#f5a623; --key-soft:#fff3cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 24px rgba(40,61,110,.10);
+  --shadow-hover:0 16px 34px rgba(40,61,110,.18);
+  --shadow-pop:0 16px 34px rgba(40,61,110,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="magazine"]:not([data-contrast="high"]){
+  --bg-1:#ffffff; --bg-2:#ffffff;
+  --panel:#ffffff;
+  --text:#101418; --muted:#5b6573;
+  --line:#e6e9ef;
+  --deck:#1E66F5; --deck-2:#FF7A1A;
+  --deck-soft:#e8eeff; --front:#ffffff; --back:#f5f8ff;
+  --theme:#1E66F5; --theme-2:#FF7A1A;
+  --key:#1E66F5; --key-soft:#e8eeff;
+  --warn:#b54708; --warn-soft:#fff1e6;
+  --lv-base:#1E66F5; --lv-base-soft:#e8eeff;
+  --lv-up:#FF7A1A; --lv-up-soft:#fff0e6;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:6px; --radius-sm:4px;
+  --shadow:0 4px 14px rgba(20,40,90,.10);
+  --shadow-hover:0 8px 22px rgba(20,40,90,.18);
+  --shadow-pop:0 8px 22px rgba(20,40,90,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="blackboard"]:not([data-contrast="high"]){
+  --bg-1:#1f3a2e; --bg-2:#22332a;
+  --panel:#26453a;
+  --text:#f3f6f2; --muted:#bcd2c4;
+  --line:#3c5a4b;
+  --deck:#f5f5f5; --deck-2:#9ad0b4;
+  --deck-soft:#34564a; --front:#2c4d40; --back:#2f5246;
+  --theme:#f5f5f5; --theme-2:#9ad0b4;
+  --key:#ffd866; --key-soft:#3a4d3f;
+  --warn:#ffb4a0; --warn-soft:#3a2e2a;
+  --lv-base:#9ad0b4; --lv-base-soft:#34564a;
+  --lv-up:#ffd866; --lv-up-soft:#3a4d3f;
+  --lv-chal:#ff8fa3; --lv-chal-soft:#3a2e34;
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 8px 20px rgba(0,0,0,.35);
+  --shadow-hover:0 14px 30px rgba(0,0,0,.45);
+  --shadow-pop:0 14px 30px rgba(0,0,0,.45);
+  --font-head:"Comic Sans MS","Chalkboard SE","STKaiti","Kaiti SC",cursive;
+  --font-body:"Kaiti SC","STKaiti","PingFang SC","Microsoft YaHei",serif;
+}
+html[data-style="blackboard"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="blackboard"]:not([data-contrast="high"]) h1,
+html[data-style="blackboard"]:not([data-contrast="high"]) h2,
+html[data-style="blackboard"]:not([data-contrast="high"]) .banner,
+html[data-style="blackboard"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+html[data-style="mindmap"]:not([data-contrast="high"]){
+  --bg-1:#fef6ec; --bg-2:#eef4ff;
+  --panel:#ffffff;
+  --text:#2b3340; --muted:#7a8392;
+  --line:#e7e0d4;
+  --deck:#3b6fd4; --deck-2:#1f3c7a;
+  --deck-soft:#e7eefb; --front:#ffffff; --back:#f4f8ff;
+  --theme:#3b6fd4; --theme-2:#1f3c7a;
+  --key:#e0a400; --key-soft:#fff4cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 26px rgba(60,80,140,.14);
+  --shadow-hover:0 16px 34px rgba(60,80,140,.22);
+  --shadow-pop:0 16px 34px rgba(60,80,140,.22);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+.hl-y{background:linear-gradient(transparent 60%, #fff36b 60%);padding:0 2px}
+.hl-g{background:linear-gradient(transparent 60%, #b6f0c2 60%);padding:0 2px}
+.hl-p{background:linear-gradient(transparent 60%, #ffc9de 60%);padding:0 2px}
+.chalk{border:2px dashed #f5f5f5;border-radius:10px;padding:8px 12px}
+.anchor-time::before{content:"⏳ "}
+.anchor-person::before{content:"👤 "}
+.anchor-emotion::before{content:"💡 "}
+.anchor-exam::before{content:"🔴 "}
+.anchor-lab::before{content:"🧪 "}
+.anchor-formula::before{content:"📐 "}
+.shape-circle{border-radius:999px}
+.shape-square{border-radius:6px}
+.shape-diamond{transform:rotate(45deg)}
+.shape-diamond > *{transform:rotate(-45deg)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="head-row">
+    <span class="emblem">知</span>
+    <div>
+      <h1>知识卡片 · 可翻卡自测</h1>
+      <div class="meta" id="deckMeta">—</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="search-wrap"><input type="search" id="search" placeholder="搜索正面 / 背面 / 标签" aria-label="搜索卡片"></div>
+    <button class="primary" id="btnDraw">🎲 随机抽卡</button>
+    <button id="btnRevealAll" aria-pressed="false">👀 显示全部答案</button>
+    <button id="btnStarFilter" aria-pressed="false">⭐ 只看收藏</button>
+    <button id="btnWrongFilter" aria-pressed="false">✗ 只看错题</button>
+    <button id="btnTimer">⏱ 开始计时</button>
+    <button id="btnFontUp" aria-label="放大字号">A＋</button>
+    <button id="btnFontDown" aria-label="缩小字号">A－</button>
+    <button id="btnContrast" aria-pressed="false">🌓 高对比</button>
+    <button id="btnPrint">🖨 打印 / 导出 PDF</button>
+    <span class="status" id="status"></span>
+  </div>
+</header>
+
+<div class="print-note">打印提示：纸张选 A4，缩放选"实际大小"（关闭"适应页面"），沿虚线裁切。双面打印请选"短边翻转"。</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>没有匹配的卡片。</div>
+  <section class="references" id="references" hidden></section>
+</main>
+
+<div class="draw" id="draw" role="dialog" aria-modal="true" aria-label="随机抽卡">
+  <div class="draw-box">
+    <h2 id="drawTitle">随机抽卡</h2>
+    <div class="draw-front" id="drawFront"></div>
+    <button class="primary" id="drawShow">看答案</button>
+    <div class="draw-back" id="drawBack"></div>
+    <div class="draw-actions">
+      <button id="drawNext">再抽一张</button>
+      <button id="drawClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== 1. 卡片数据：生成时替换为本次内容 ===== */
+const DECK = {
+  title: "〈学段·学科〉〈教材版本/单元〉知识卡片组",
+  subtitle: "内容范围：〈知识点范围〉 ｜ 卡片类型：〈类型〉",
+  theme: "#5b7cfa", theme2: "#8a6cf0",
+  cards: [
+    {
+      id: "01",
+      title: "公式与定理卡 · 初中物理",
+      front: "阿基米德原理在什么条件下才能用？",
+      back: [
+        "F浮 = ρ液 g V排",
+        "适用条件：液体（或气体）中；V排 是物体排开液体的体积，不是物体体积本身〔1〕。",
+        "易错点：物体部分浸入时，V排 ≠ V物；浸没时 V排 = V物。"
+      ],
+      tags: ["内容域:浮力", "册次:八下 第十章", "类型:公式定理"],
+      source: "人教版 八年级下册",
+      safety: "",
+      level: "基础",
+      scene: "预习速查 / 课堂抽卡"
+    },
+    {
+      id: "02",
+      title: "易混概念辨析卡 · 初中物理",
+      front: "「漂浮」和「悬浮」到底有什么不同？",
+      back: [
+        "漂浮：物体部分露出液面，V排 < V物，ρ物 < ρ液。",
+        "悬浮：物体全部浸没且静止，V排 = V物，ρ物 = ρ液。",
+        "共同点：二者 F浮 都等于重力 G。",
+        "易错点：把「悬浮」当「漂浮」，误判 V排 = V物。"
+      ],
+      tags: ["内容域:浮力", "册次:八下 第十章", "类型:易混辨析"],
+      source: "人教版 八年级下册",
+      safety: "",
+      level: "提升",
+      scene: "课后自测 / 同伴互问"
+    }
+  ],
+  references: [
+    { no:"1", title:"浮力产生的原因与大小决定因素辨析", author:"〔在知网平台阅读页查看完整题录〕", source:"《物理通报》2023年第05期", date:"2023年", type:"期刊", entry:"https://kns.cnki.net/kns8s/defaultresult/index?kw=浮力产生的原因与大小决定因素辨析" }
+  ]
+};
+
+/* ===== 2. 状态 ===== */
+const LS_KEY = "kc-state-v1:" + location.pathname;
+const state = {
+  revealed: false,
+  query: "",
+  onlyStar: false,
+  onlyWrong: false,
+  contrast: false,
+  scale: 1,
+  timer: null,
+  seconds: 0,
+  marks: { star: {}, wrong: {} }
+};
+try {
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+  state.marks = Object.assign({ star: {}, wrong: {} }, saved.marks || {});
+  state.scale = saved.scale || 1;
+  state.contrast = !!saved.contrast;
+} catch (e) { /* 忽略损坏的本地状态 */ }
+
+function persist() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      marks: state.marks, scale: state.scale, contrast: state.contrast
+    }));
+  } catch (e) { /* 隐私模式下静默失败 */ }
+}
+
+/* ===== 3. 渲染 ===== */
+const grid = document.getElementById("grid");
+const emptyBox = document.getElementById("empty");
+const statusEl = document.getElementById("status");
+
+function matches(card) {
+  if (state.onlyStar && !state.marks.star[card.id]) return false;
+  if (state.onlyWrong && !state.marks.wrong[card.id]) return false;
+  const q = state.query.trim().toLowerCase();
+  if (!q) return true;
+  const hay = [card.id, card.title, card.front, card.source, card.scene, (card.back || []).join(" "), (card.tags || []).join(" ")]
+    .join(" ").toLowerCase();
+  return hay.indexOf(q) !== -1;
+}
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function renderWithRefs(text) {
+  const frag = document.createDocumentFragment();
+  const re = /〔(\d+)〕/g;
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+    const a = document.createElement("a");
+    a.href = "#ref-" + m[1];
+    a.className = "reflink";
+    a.textContent = "〔" + m[1] + "〕";
+    frag.appendChild(a);
+    last = re.lastIndex;
+  }
+  if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+  return frag;
+}
+
+function citedNos(card) {
+  const set = new Set(), re = /〔(\d+)〕/g;
+  let m;
+  (card.back || []).forEach(function (line) {
+    while ((m = re.exec(line)) !== null) set.add(m[1]);
+  });
+  return Array.from(set).sort(function (a, b) { return (+a) - (+b); });
+}
+
+function renderReferences() {
+  const box = document.getElementById("references");
+  if (!box) return;
+  const list = DECK.references || [];
+  if (!list.length) { box.hidden = true; return; }
+  box.hidden = false;
+  box.textContent = "";
+  box.appendChild(el("h2", null, "参考资料"));
+  const ol = el("ol");
+  list.forEach(function (d) {
+    const li = el("li");
+    li.id = "ref-" + (d.no || "");
+    li.appendChild(document.createTextNode("〔" + (d.no || "") + "〕 "));
+    if (d.entry) {
+      const t = document.createElement("a");
+      t.href = d.entry; t.target = "_blank"; t.rel = "noopener";
+      t.textContent = "《" + (d.title || "") + "》";
+      li.appendChild(t);
+    } else {
+      li.appendChild(document.createTextNode("《" + (d.title || "") + "》"));
+    }
+    const meta = [d.author, d.source, d.type || "期刊", d.date].filter(function (x) { return x; }).join(" · ");
+    if (meta) li.appendChild(document.createTextNode(" · " + meta));
+    ol.appendChild(li);
+  });
+  box.appendChild(ol);
+}
+
+function levelClass(lv) {
+  if (lv === "基础") return "lv-base";
+  if (lv === "提升") return "lv-up";
+  if (lv === "挑战") return "lv-chal";
+  return "";
+}
+
+function render() {
+  grid.textContent = "";
+  let shown = 0;
+  DECK.cards.forEach(function (c) {
+    if (!matches(c)) return;
+    shown++;
+    const card = el("div", "card" + (state.revealed ? " revealed" : ""));
+    if (c.color) card.style.setProperty("--accent", c.color);
+
+    const head = el("div", "card-head");
+    head.appendChild(el("span", "card-no", c.id));
+    const title = el("span", "card-title", c.title);
+    if (c.level) {
+      const lv = el("span", "lv " + levelClass(c.level), c.level);
+      title.appendChild(lv);
+    }
+    head.appendChild(title);
+
+    const star = el("button", "star" + (state.marks.star[c.id] ? " on" : ""), "★");
+    star.title = "收藏 / 取消收藏";
+    star.setAttribute("aria-pressed", state.marks.star[c.id] ? "true" : "false");
+    star.addEventListener("click", function () { toggleMark("star", c.id); });
+    head.appendChild(star);
+
+    const wrong = el("button", "wrong" + (state.marks.wrong[c.id] ? " on" : ""), "✗");
+    wrong.title = "标记为错题 / 取消标记";
+    wrong.setAttribute("aria-pressed", state.marks.wrong[c.id] ? "true" : "false");
+    wrong.addEventListener("click", function () { toggleMark("wrong", c.id); });
+    head.appendChild(wrong);
+    card.appendChild(head);
+
+    card.appendChild(el("div", "front", c.front));
+
+    const reveal = el("button", "reveal", "看答案");
+    reveal.addEventListener("click", function () {
+      card.classList.add("revealed");
+      reveal.remove();
+    });
+    card.appendChild(reveal);
+
+    const back = el("div", "back");
+    const ul = el("ul");
+    (c.back || []).forEach(function (line) {
+      const li = el("li");
+      li.appendChild(renderWithRefs(line));
+      ul.appendChild(li);
+    });
+    back.appendChild(ul);
+    if (c.safety) back.appendChild(el("div", "safety", c.safety));
+    card.appendChild(back);
+
+    const nos = citedNos(c);
+    if (nos.length) {
+      const refs = el("div", "refs-line");
+      refs.appendChild(el("span", "lbl", "依据"));
+      nos.forEach(function (n, i) {
+        const ref = (DECK.references || []).filter(function (r) { return String(r.no) === String(n); })[0];
+        const a = document.createElement("a");
+        a.href = "#ref-" + n; a.className = "reflink";
+        a.textContent = "〔" + n + "〕" + (ref && ref.title ? "《" + ref.title + "》" : "");
+        refs.appendChild(a);
+        if (i < nos.length - 1) refs.appendChild(document.createTextNode(" "));
+      });
+      card.appendChild(refs);
+    }
+
+    const foot = el("div", "foot");
+    (c.tags || []).forEach(function (t) { foot.appendChild(el("span", "tag", t)); });
+    if (c.source) foot.appendChild(el("span", "src", "出处：" + c.source));
+    if (c.scene) foot.appendChild(el("span", "src", "场景：" + c.scene));
+    card.appendChild(foot);
+
+    grid.appendChild(card);
+  });
+  emptyBox.hidden = shown !== 0;
+  statusEl.textContent = "共 " + DECK.cards.length + " 张 ｜ 显示 " + shown + " 张";
+}
+
+function toggleMark(kind, id) {
+  state.marks[kind][id] = !state.marks[kind][id];
+  persist();
+  render();
+}
+
+/* ===== 4. 工具栏 ===== */
+const btnRevealAll = document.getElementById("btnRevealAll");
+btnRevealAll.addEventListener("click", function () {
+  state.revealed = !state.revealed;
+  btnRevealAll.setAttribute("aria-pressed", state.revealed ? "true" : "false");
+  btnRevealAll.textContent = state.revealed ? "🙈 隐藏全部答案" : "👀 显示全部答案";
+  render();
+});
+
+document.getElementById("search").addEventListener("input", function (e) {
+  state.query = e.target.value;
+  render();
+});
+
+const btnStarFilter = document.getElementById("btnStarFilter");
+btnStarFilter.addEventListener("click", function () {
+  state.onlyStar = !state.onlyStar;
+  btnStarFilter.setAttribute("aria-pressed", state.onlyStar ? "true" : "false");
+  render();
+});
+
+const btnWrongFilter = document.getElementById("btnWrongFilter");
+btnWrongFilter.addEventListener("click", function () {
+  state.onlyWrong = !state.onlyWrong;
+  btnWrongFilter.setAttribute("aria-pressed", state.onlyWrong ? "true" : "false");
+  render();
+});
+
+document.getElementById("btnFontUp").addEventListener("click", function () {
+  state.scale = Math.min(1.6, +(state.scale + 0.1).toFixed(2));
+  applyScale(); persist();
+});
+document.getElementById("btnFontDown").addEventListener("click", function () {
+  state.scale = Math.max(0.8, +(state.scale - 0.1).toFixed(2));
+  applyScale(); persist();
+});
+function applyScale() { document.documentElement.style.setProperty("--font-scale", state.scale); }
+
+const btnContrast = document.getElementById("btnContrast");
+btnContrast.addEventListener("click", function () {
+  state.contrast = !state.contrast;
+  document.documentElement.setAttribute("data-contrast", state.contrast ? "high" : "normal");
+  btnContrast.setAttribute("aria-pressed", state.contrast ? "true" : "false");
+  persist();
+});
+
+const btnTimer = document.getElementById("btnTimer");
+btnTimer.addEventListener("click", function () {
+  if (state.timer) {
+    clearInterval(state.timer); state.timer = null;
+    btnTimer.textContent = "⏱ 继续计时";
+    return;
+  }
+  btnTimer.textContent = "⏸ 暂停计时";
+  state.timer = setInterval(function () {
+    state.seconds++;
+    const m = String(Math.floor(state.seconds / 60)).padStart(2, "0");
+    const s = String(state.seconds % 60).padStart(2, "0");
+    statusEl.textContent = "计时 " + m + ":" + s;
+  }, 1000);
+});
+
+document.getElementById("btnPrint").addEventListener("click", function () { window.print(); });
+
+/* ===== 5. 随机抽卡 ===== */
+const draw = document.getElementById("draw");
+const drawFront = document.getElementById("drawFront");
+const drawBack = document.getElementById("drawBack");
+const drawTitle = document.getElementById("drawTitle");
+let drawCard = null;
+
+function pick() {
+  if (!DECK.cards.length) return;
+  const c = DECK.cards[Math.floor(Math.random() * DECK.cards.length)];
+  drawCard = c;
+  drawTitle.textContent = "随机抽卡 · " + c.id + " · " + c.title;
+  drawFront.textContent = c.front;
+  drawBack.textContent = "";
+  drawBack.classList.remove("show");
+  const ul = el("ul");
+  (c.back || []).forEach(function (line) {
+    const li = el("li");
+    li.appendChild(renderWithRefs(line));
+    ul.appendChild(li);
+  });
+  drawBack.appendChild(ul);
+  if (c.safety) drawBack.appendChild(el("div", "safety", c.safety));
+}
+document.getElementById("btnDraw").addEventListener("click", function () {
+  pick(); draw.classList.add("open");
+});
+document.getElementById("drawShow").addEventListener("click", function () {
+  drawBack.classList.add("show");
+});
+document.getElementById("drawNext").addEventListener("click", pick);
+document.getElementById("drawClose").addEventListener("click", function () {
+  draw.classList.remove("open");
+});
+draw.addEventListener("click", function (e) { if (e.target === draw) draw.classList.remove("open"); });
+document.addEventListener("keydown", function (e) {
+  if (!draw.classList.contains("open")) return;
+  if (e.key === "Escape") draw.classList.remove("open");
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); drawBack.classList.add("show"); }
+});
+
+/* ===== 6. 元信息与初始化 ===== */
+document.title = DECK.title + " · 知识卡片";
+document.querySelector("h1").textContent = DECK.title;
+document.getElementById("deckMeta").textContent = DECK.subtitle || "";
+if (DECK.theme) document.documentElement.style.setProperty("--deck", DECK.theme);
+if (DECK.theme2) document.documentElement.style.setProperty("--deck-2", DECK.theme2);
+applyScale();
+if (state.contrast) {
+  document.documentElement.setAttribute("data-contrast", "high");
+  btnContrast.setAttribute("aria-pressed", "true");
+}
+render();
+renderReferences();
+
+/* 漂浮装饰贴纸（页边星点）：增强活泼感，打印自动隐藏 */
+(function addFloats(){
+  ["✶","✦","✺","★","❀","✸"].forEach(function(e,i){
+    const f=document.createElement("div");
+    f.className="float"; f.textContent=e; f.setAttribute("aria-hidden","true");
+    f.style.right=(4+i*7)+"%"; f.style.top=(10+i*12)+"%"; f.style.left="";
+    f.style.animationDelay=(i*0.7)+"s"; f.style.color=i%2?"#e59410":"#5b7cfa";
+    document.body.appendChild(f);
+  });
+})();
+</script>
+</body>
+</html>

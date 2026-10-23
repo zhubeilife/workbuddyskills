@@ -1,0 +1,19 @@
+{
+  "title": "对分易教学平台作业批改配置",
+  "title_en": "Duifene Homework Grading Setup",
+  "description": "填入您的教师专属访问密钥，即可通过自然语言批改您名下课程的学生作业。密钥仅保存在本机 ~/.workbuddy 目录下，不会上传到云端，也仅能访问您本人负责的课程和班级。",
+  "description_en": "Enter your teacher-specific access key to grade submissions for the courses you teach. The key is stored locally only and can access only your own courses and classes.",
+  "docUrl": "https://www.duifene.com/help/mcp-api-key",
+  "docLabel": "如何获取教师访问密钥？",
+  "fields": [
+    {
+      "key": "MCP_API_KEY",
+      "label": "教师访问密钥",
+      "label_en": "Teacher Access Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "粘贴从网页端复制的访问密钥",
+      "description": "登录对分易教学平台网页端，在「课程下的作业管理 → AI批改 → MCP 访问密钥」中生成并复制。每个密钥对应一位教师，请勿与他人共享。密钥无效或已停用时，请重新生成后再连接。"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "中欧财富MCP授权",
+  "title_en": "zocaifu MCP authorization",
+  "description": "填写中欧财富 MCP API Key ，用于查询基金、高端、投顾数据。Key 仅保存在本机 ~/.workbuddy 下，不会上传云端。",
+  "description_en": "Enter your zocaifu MCP API Key to query fund, high-end wealth management, and advisory data. The key is stored only locally under ~/.workbuddy and is never uploaded to the cloud.",
+  "docUrl": "https://ai.zocaifu.com/platform/#/ai/skillPlaza?mainChannel=ai&subChannel=tencentai",
+  "docLabel": "还没有？去开通",
+  "docLabel_en": "Need access? Open this page",
+  "fields": [
+    {
+      "key": "AITOOLS_API_KEY",
+      "label": "API Key",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "粘贴 aits_ 开头的个人密钥，不要加 Bearer",
+      "placeholder_en": "Paste the aits_ personal key. Do not add Bearer.",
+      "description": "打开开通页，手机号验证后复制个人密钥。WorkBuddy 会自动加上 Bearer 前缀。",
+      "description_en": "Open the signup page, verify by SMS, then copy your personal key. WorkBuddy will prefix Bearer automatically."
+    }
+  ]
+}

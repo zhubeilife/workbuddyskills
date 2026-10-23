@@ -1,0 +1,19 @@
+{
+  "title": "连接丝路E投财务引擎",
+  "title_en": "Connect SLGJ Finance Engine",
+  "description": "填入您的丝路E投 MCP 令牌。凭证仅保存在本机 ~/.workbuddy 目录下，不经云端传输。",
+  "description_en": "Paste your SLGJ MCP token. Credentials are stored locally only (~/.workbuddy) and never pass through the cloud.",
+  "docUrl": "https://www.slgj.cn/payment/mcp_access",
+  "docLabel": "如何获取 MCP 令牌？",
+  "fields": [
+    {
+      "key": "SLGJ_TOKEN",
+      "label": "MCP 令牌",
+      "label_en": "MCP Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "sk-mcp-xxxxxxxx（个人中心 → AI接入 → 生成）",
+      "description": "丝路E投平台注册用户专令牌，30/90 天有效期，可随时在该页面吊销重铸。"
+    }
+  ]
+}

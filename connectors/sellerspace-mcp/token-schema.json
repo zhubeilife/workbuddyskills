@@ -1,0 +1,21 @@
+{
+  "title": "连接优麦云 SellerSpace",
+  "title_en": "Connect SellerSpace",
+  "description": "填写优麦云 MCP API Key，以查询已授权的亚马逊店铺数据，并在确认变更计划后管理广告。凭证仅保存在本机 ~/.workbuddy 目录下。",
+  "description_en": "Enter your SellerSpace MCP API Key to query authorized Amazon store data and manage ads after confirming each change plan. The credential is stored locally under ~/.workbuddy only.",
+  "docUrl": "https://www.sellerspace.com/help/doc/how-to-get-your-sellerspace-mcp-key",
+  "docLabel": "如何获取优麦云 MCP API Key？",
+  "docLabel_en": "How do I get a SellerSpace MCP API Key?",
+  "fields": [
+    {
+      "key": "SELLERSPACE_API_KEY",
+      "label": "优麦云 MCP API Key",
+      "label_en": "SellerSpace MCP API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "sk-ss-xxxxx",
+      "description": "在优麦云 MCP 后台点击“生成 x-api-key”，创建后立即复制并填写。",
+      "description_en": "Generate an x-api-key in the SellerSpace MCP console, then copy and paste it here."
+    }
+  ]
+}

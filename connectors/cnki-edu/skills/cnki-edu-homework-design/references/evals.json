@@ -1,0 +1,128 @@
+{
+  "skill_name": "cnki-edu-homework-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我给七年级数学\"一元一次方程\"这个单元出一份分层作业，班里水平中等偏上，大概 10 道题，要有基础和拓展，最好结合点生活情境。我们有自己的题库可以用。",
+      "expected_output": "走完八步：确认缺失参数（或用默认值并标注）→ 加载数学包 + 初中学段包 → 跑 homework_kit.py route 做供给路由（gen_cap 默认 0.2）→ 拼装 prompt → 输出符合 schema 的 JSON（含 origin / source_id / based_on / sources）→ 跑 validate 自校验 → render 出 Markdown 作业单。交付时明确写\"待审草稿，答案需教师复核\"。不编造 CNKI 文献名。",
+      "assertions": [
+        "调用了 scripts/homework_kit.py 的 route 与 validate 子命令",
+        "输出为符合 prompt-template.md schema 的 JSON 与 Markdown 作业单",
+        "分层比例与题量按 10 题 5:3:2 分配，原创题未超过 gen_cap 上限",
+        "每道材料/情境题都带 generic=false 的 sources",
+        "通过了学段政策校验：初中 allow_written=true、总时长不超过 90 分钟"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "小学二年级语文能不能用 AI 出一页练习题？明天家长要。",
+      "expected_output": "识别出政策红线并拦住：小学低段(1-2) allow_written=false、max_minutes=0，不布置书面家庭作业。给出替代方案（口头表达 / 实践任务 / 亲子阅读），每道题 mode=oral，并解释为什么不能出书面试题——而不是讨好式地直接出题。",
+      "assertions": [
+        "明确说明小学一二年级不布置书面家庭作业的政策依据",
+        "未输出任何 mode=written 的题目",
+        "替代方案题型落在该学段白名单内（口头表达/实践任务/观察记录/亲子阅读）",
+        "能现场演示 validate 对该学段拦住书面题"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "用知网题库给我出一份初中数学\"一元一次方程\"的作业，8 道题，要能追溯到原题出处。",
+      "expected_output": "走 CNKI 基础教育（edu）MCP 接入链路：先用 ToolSearch 确认 `mcp__<SERVER>__tkSearchQuestion` 可用（查不到＝连接器未启用，先让用户启用）→ mcp_adapters.py code 解析学科码(初中数学=20) → 调 mcp__<SERVER>__tkSearchQuestion 取候选 → mcp_adapters.py bank 清洗并做候选体检（候选数需 ≥ 8×1.5=12，不足就换关键词补足）→ 塞进 params 跑 route → 生成后 validate → render。每题带 source_id(SID) 或 based_on，出处用 Label（如「2025秋·嘉定区校级月考」）。文献一律走 mcp__<SERVER>__searchVectorBJ，拿不到就按 workbuddy-mcp.md / source-citation.md 的降级处理，绝不编造文献名。",
+      "assertions": [
+        "题库走 edu MCP 的 mcp__<SERVER>__tkSearchQuestion，未用本地题库文件或公开网络检索拼题",
+        "调用了 mcp_adapters.py 的 code 与 bank 子命令",
+        "候选题数量 ≥ 题量的 1.5 倍，或明确提示候选不足的风险",
+        "输出题的 origin 字段为 retrieve/adapt/generate 之一；retrieve 题带 source_id+source_label，adapt 题带 based_on+based_on_label",
+        "未编造任何 CNKI 文献名；文献接口不可用时走了降级而非伪造",
+        "复合学科（理化生/政史地）场景会追问二级学科而非猜测"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "给我出一份高二语文《雷雨》的阅读理解作业，6 道题，要能查到学术出处。",
+      "expected_output": "文献走 edu MCP 的 mcp__<SERVER>__searchVectorBJ（唯一的文献检索入口），再用 mcp_adapters.py lit 标准化，按 source-citation.md 挂 sources：优先引 CNKI 期刊论文并给全「作者·篇名·来源期刊·年份·期」；确实只有专著可用时才降级到 book/chapter 并给出版社与年份；接口不返回的作者/刊名/卷/页一律留 null 渲染成【待补充】，按篇名核实后再用 --fill 回填。文献接口不可用时按降级处理，绝不编造文献名或期刊名。",
+      "assertions": [
+        "文献检索调用的是 mcp__<SERVER>__searchVectorBJ，而非已不存在的 searchLiteratureKnowledge 或公开网络检索",
+        "用 mcp_adapters.py lit 做了标准化，年份/期号从文件名解析而来",
+        "每道材料题都带 generic=false 的 sources，且每条都标了 type",
+        "学术溯源中至少含一条 type=journal，并给全作者/篇名/来源期刊/年份/期",
+        "缺失字段渲染为【待补充】，未凭印象填充作者、刊名、期号或页码",
+        "未出现任何编造的文献名或期刊名",
+        "文献接口不可用时走了降级策略而非伪造溯源"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "我讲完八年级《浮力》这一课，要一份课后作业，8 道题 25 分钟。我看你们出的题都是改编的——能不能也给我几道已经考过的真题，我直接拿来用？",
+      "expected_output": "认出这是「供给策略」问题而非「少几道题」：先问清这份作业要不要拿去打分（这是决定原题比例的唯一关键），然后默认 supply=mix + job_type=课后巩固 走路由，产出 真题3/改编4/原创1 的混合计划。retrieve 题必须题面一字不改、答案沿用原题、只补课标绑定与层级标注，并在作业单上印真实试卷出处而非内部编号。同时说明：若这份作业改成周测/月测要出分，原题必须压到 ~10%，否则学生背答案让成绩失真。",
+      "assertions": [
+        "追问了「这份作业要不要打分/排序」而不是直接开始出题",
+        "params 里给了 supply=mix 与 job_type，配额由用途预设决定而非固定 5:3:2",
+        "plan 中存在 origin=retrieve 的题，且这些 retrieve 题都带 source_id 与 source_label",
+        "retrieve 题的题面未加减、改动，答案沿用原题",
+        "明确提示了「周测/月测/单元测验要压制原题，否则背答案导致成绩失真」这一边界",
+        "作业单上印的是试卷出处（Label），没有出现裸的内部题库编号"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "上次那份浮力作业里第 4 道改编题，答案看着还是原题的数——你们改数据之后到底有没有重算？还有，我想让第 2 题直接用真题，别的不用动。",
+      "expected_output": "两件事分开答：① 这正是第 14 条要拦的「改了数据没改成答案」。adapt 题必填 answer_check{changed, recompute, verdict}，缺字段、verdict 非「一致」、changed 为空一律阻塞；历史 items.json 没有验算记录所以必然被拦，重跑或逐题人工复核后回填二选一，**不得为了让它通过而编一条假验算**。② 改一道题不必整体切换作业用途，params 加 overrides={\"2\":\"retrieve\"} 逐题指认即可，指认优先于配额，越界或非法指认会被记录而非静默丢弃；同时提醒 retrieve 一字不改，底座知识点必须人工再核一遍（没有补救机会）。若目标是同一考点多次训练，建议走 variants 变式包而不是手动改一堆题。",
+      "assertions": [
+        "讲清第 14 条 answer_check 三件套的作用与三种阻塞情形，不把它降级为「建议尽量做」",
+        "明确指出历史产出缺验算记录会被拦，且明确禁止编造假验算凑通过",
+        "用 overrides 完成「只改第 2 题」这一诉求，而不是让用户改整体 job_type 或配额",
+        "提醒 retrieve 下一字不改、底座选错没有补救机会这一代价",
+        "同一考点需多次训练时给出了 variants 变式包这条路径"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "我要给八年级《浮力》的作业挂学术溯源，你帮我找几篇知网上的真实论文。",
+      "expected_output": "先确认 edu MCP 可用（ToolSearch 查 mcp__<SERVER>__searchVectorBJ），再调它检索并把原始返回落盘，用 mcp_adapters.py lit --raw 标准化：年份/期号从文件名（形如 <刊码>+2023+10+004，可解析出 2023 年第 10 期）解析，product 非 CJFD（优先出版）不解析期号。明确告知接口不返回作者/刊名/卷/页码，这些字段留【待补充】，按篇名核实后用 --fill 回填，回填时若与文件名解析出的年份/期号冲突则保留 CNKI 文件名的值并记 notes。最后用 lit_report 报告几条完整、几条待补。全程不编造，也不用公开网络检索冒充 CNKI 文献。",
+      "assertions": [
+        "文献来源为 mcp__<SERVER>__searchVectorBJ，未使用公开网络检索结果冒充 CNKI 文献",
+        "年份与期号由 CNKI 文件名解析得出，且仅对 product=CJFD 解析",
+        "作者/刊名/卷/页缺失时渲染为【待补充】，未被凭空填充",
+        "回填冲突时保留 CNKI 文件名的值并记录分歧，未静默覆盖",
+        "给出了包含完整/待补/优先出版统计的体检报告"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "知网这个连接器好像更新了，会不会有我们还没用上的新接口？两三年后要是又出新接口，我怎么知道？",
+      "expected_output": "坦诚说明登记表是静态的、确实会滞后（并拿真实历史举例：首次全量列出连接器暴露的 12 个工具时，表里只登记了 8 个，漏掉 mcp__<SERVER>__tkQuestionAnalysis / mcp__<SERVER>__tkQuestionType / mcp__<SERVER>__tkQuestionFrom / mcp__<SERVER>__userState），所以「新接口会不会漏」不是假设而是已经发生过的事。然后给出机制而不是保证：用 ToolSearch 列出连接器当前工具 -> 落盘 -> 跑 `mcp_adapters.py reconcile --tools tools.json` 双向对账，报告分 PREFIX-DRIFT / PREFIX-OK / OK / BLOCKER / NEW / INFO 几类，NEW 段就是漏掉的新接口。同时提醒两条常被搞混的事：① 工具名前缀来自连接器【显示名】而不是 mcp.json 里的 key，且会随用户重命名而变（已实测 edu→知网基教→edu 两次），写错前缀表现为「查不到工具」而非报错；不确定当前前缀时跑 reconcile，它会反推真实前缀并在 PREFIX-DRIFT 段直接给出「把 MCP_PROVIDER 改成 X」；② 对账只能发现「有没有这个接口」，能否用它仍然要人工读参数后登记入表。建议触发时机：连接器升级时，以及发现「按理该有这能力却要绕路实现」时。",
+      "assertions": [
+        "承认接口登记表静态、会滞后，并给出已发生过的漏接口实例而非空泛保证",
+        "给出了 reconcile 双向对账这条可执行路径与四类偏差的含义",
+        "说明了工具名前缀来自连接器显示名而非 mcp.json key、会随重命名变化，以及用 reconcile 反推前缀的办法",
+        "明确区分了「发现接口存在」与「能正确使用它」（后者需人工登记 params/returns/坑）",
+        "给出了对账的触发时机，而不是要求每次都跑"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "我要出八年级《浮力》的作业，其中几道改编题改了数据。怎么保证答案没错？另外怎么才能少选到那种「综合题里只嵌一问浮力」的题？",
+      "expected_output": "两个问题各有一个对应的接口，且都已接入链路。① 答案保证：先说明搜题接口（mcp__<SERVER>__tkSearchQuestion / mcp__<SERVER>__tkSearchSubjectQuestion）只返回答案，解析字段 Analyse/Method/Discuss 全是空字符串，所以过去第 14 条验算是「模型改编→模型复算→模型判一致」的自证循环，改错了也查不出来。取官方解析的办法：对选定的题逐个调 mcp__<SERVER>__tkQuestionAnalysis(SID, subjectCode)，再用 `mcp_adapters.py analysis --raw raw_analysis.json --out analysis.json` 清洗，用 `mcp_adapters.py bank --raw raw_bank.json --analysis raw_analysis.json --out bank.json` 按 SID 合并进题库。合并后校验器自动做三层交叉校验：retrieve 题答案与官方答案不符直接阻塞（retrieve 就是原样使用）；adapt 题答案与官方答案不同但 recompute 里没提原答案则提醒，要求说明为什么变了；答案中的数值在官方解析里一个都找不到则提醒核查是否算错或单位换算有误。同时必须提示：不是每道题都有解析，返回为空的题不得编解析。② 少选到偏题：改用按考点检索 mcp__<SERVER>__tkSearchSubjectQuestion(subjectCode=21, point=[\"浮力\"], yr=\"2025\")，考点名从 mcp__<SERVER>__tkPoint 取（返回极大，用 point 子命令抽命中项）；它比关键词检索多返回 SourceReports（完整试卷名，如「2025-2026学年湖南省衡阳市衡阳县八年级（下）期末物理试卷」，真题新鲜度以此为准，不用再从 Label 简称猜）、RealCount / PaperCount（真实考试引用次数与收录试卷数，真题含金量参考）。并说明 dg 难度档方向存疑（接口标注 11=易(0.8~1.0) 与 Degree 越大越难相反，推测指正确率），所以只用它做服务端筛选，定档一律用返回的 Degree。",
+      "assertions": [
+        "指出搜题接口只给答案不给解析，因此取官方解析才能打破模型自证",
+        "给出了 mcp__<SERVER>__tkQuestionAnalysis 的调用方式与 analysis/bank --analysis 两条命令",
+        "说清合并后三类交叉校验的分级（retrieve 阻塞 / adapt 提醒 / 数值核查）",
+        "提示了不是每题都有解析、不得编解析",
+        "偏题问题给出按考点检索 mcp__<SERVER>__tkSearchSubjectQuestion 而非关键词检索，并说明 SourceReports/RealCount 的用途",
+        "提及 dg 难度档只用于筛选、定档仍用 Degree"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "你刚给我出的作业，看着挺像那么回事，但我怎么知道不是 AI 瞎编的？尤其我没给你传供题计划的时候。",
+      "expected_output": "分两层说明防编造机制：①结构级（无条件，不依赖计划）——每题必须声明合法 origin 且带齐对应依据：retrieve 要有 source_id、adapt 要有 based_on + answer_check、generate 要有至少一条 generic=false 的 CNKI 文献；哪怕不传 --plan，缺 origin / 缺 source_id / 缺 based_on / 缺文献的题也会被 validate 直接拦下（旧版这些检查被误关在 if plan 里，无计划时编造题会漏过，已修复）。②事实级（传了 --plan 才生效）——声明的 source_id / based_on 必须与计划里真实抓取的候选题 bank_id 对得上，引用计划外或编造编号会被拦截。最后诚实说明 residual：generate 题的 CNKI 文献 sources 是否真实，脚本无法自动核验，必须按 validation.md 第 1 条人工随机抽 20 条去 CNKI 实检，编造溯源比没有溯源更糟。",
+      "assertions": [
+        "说明结构级依据校验无条件执行、不依赖 --plan，无计划时编造题同样被拦",
+        "说明事实级 bank_id 交叉核对：声明的题源编号必须命中计划里的真实候选",
+        "坦诚 generate 的 CNKI 文献真实性仍需人工抽检，脚本查不出",
+        "重申编造溯源比没有溯源更糟、禁止编造文献名"
+      ]
+    }
+  ]
+}

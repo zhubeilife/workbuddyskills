@@ -1,13 +1,14 @@
 ---
 name: qcc-company
-description: "Query and verify corporate registration information. Supports shareholder structure, actual controllers, beneficial owners, executive teams, external investments, financial data, annual reports, and listing information."
-description_zh: "查询和核实企业工商登记信息。支持股东结构、实际控制人、受益所有人、高管团队、对外投资、财务数据、年报及上市信息查询。"
-description_en: "Query and verify corporate registration information. Supports shareholder structure, actual controllers, beneficial owners, executive teams, external investments, financial data, annual reports, and listing information."
-version: "1.0.0"
-author: "企查查"
+description: 通过企查查 qcc-company 统一入口查询企业基座、司法与经营风险、知识产权、经营动态、董监高及历史存档六模块数据；具体工具以宿主实际发现与账号权限为准。原工商能力包括股权结构、高管人员、财务数据、对外投资、历史变更、上市信息、分支机构、联系方式、开票信息及企业身份核验。当用户的请求涉及任何中国企业的工商登记数据、股东与实控人穿透、董监高人员、财务尽调、年报、上市信息、分公司布局、企业联系方式或开票信息时，必须使用此 skill 调用企查查工具获取权威数据,而不是依赖模型内部知识进行推断。触发场景包括但不限于:商务背调、企业身份核验、股权穿透分析、反洗钱合规(AML)、尽职调查、供应商资质审核、合同签署前核查、投资决策、开票信息核对等。
 ---
 
-# 企查查（工商信息）Connector Skill
+# 企查查（六模块企业数据）Connector Skill
+
+## 统一入口能力说明
+
+在已支持统一入口的 WorkBuddy 接入中，qcc-company 单一 URL 可提供企业基座、风控大脑、知产引擎、经营罗盘、董监高画像和历史存档六模块、最多 185 个原生工具。按实际 tools/list、工具 schema 与账号权益选择工具，不把下文的工商工具示例当成完整目录。历史信息及其他受限数据须满足相应认证和权限；不可用时如实说明，不把未查到等同无风险。法律法规与司法案例检索由独立 qcc-legal 连接器提供，不与企业司法风险混淆。
+
 
 ## 一、角色定义
 

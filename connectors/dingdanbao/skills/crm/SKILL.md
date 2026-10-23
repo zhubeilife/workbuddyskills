@@ -13,7 +13,7 @@ author: "订单豹"
 
 ## 认证说明
 
-登录失败时请用户打开连接器设置重填账号密码。不要在对话里要密码。
+登录失败时请用户重新连接连接器完成授权。不要在对话里要密码。
 
 ## 对用户说话
 
@@ -27,15 +27,15 @@ author: "订单豹"
 
 ### ddb_get_customer_profile
 
-客户档案。参数：`keyword` 或 `member_id`。多人时列出供用户选择，勿自动挑。
+客户档案。`keyword` / `member_id` **必填其一**。多人时列出供用户选择，勿自动挑。
 
 ### ddb_list_customer_recent_orders
 
-最近订单。参数：`keyword` / `member_id`、`page`、`page_size`。展示订单号与金额，不展示内部 ID。
+最近订单。`keyword` / `member_id` **必填其一**；另有 `page`、`page_size`。展示订单号与金额，不展示内部 ID。
 
 ### ddb_list_customer_frequent_goods
 
-常购商品。参数：`keyword` / `member_id`、`page`、`page_size`。
+常购商品。`keyword` / `member_id` **必填其一**；另有 `page`、`page_size`。
 
 ### ddb_list_top_customers
 
@@ -43,11 +43,11 @@ author: "订单豹"
 
 ### ddb_get_customer_portrait
 
-客户画像。参数：`keyword` 或 `member_id`。
+客户画像。`keyword` / `member_id` **必填其一**。
 
 ### ddb_list_member_coupons
 
-客户优惠券。参数：`keyword` 或 `member_id`。
+客户可发券。`keyword` / `member_id` **必填其一**。不要无参调用。
 
 ### ddb_send_coupon
 
@@ -56,8 +56,7 @@ author: "订单豹"
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|:----:|------|
 | keyword / member_id | string | ✅ 其一 | 客户 |
-| salesman_coupon_id | string | - | 指定券 |
-| coupon_keyword | string | - | 按名称选券 |
+| salesman_coupon_id / coupon_keyword | string | ✅ 其一 | 指定券或按名称选券 |
 
 ### ddb_get_warning_summary
 
@@ -86,6 +85,6 @@ author: "订单豹"
 
 | 现象 | 处理 |
 |------|------|
-| 登录失败 | 设置页重填凭证 |
-| 匹配到多个客户 | 列出姓名+手机号，让用户选 |
+| 登录失败 | 请用户重新连接连接器完成授权 |
+| 请提供客户关键词或 member_id | 先用姓名/手机号确定客户，再查券或档案 |
 | 发券失败 | 展示错误，不要连发多张 |

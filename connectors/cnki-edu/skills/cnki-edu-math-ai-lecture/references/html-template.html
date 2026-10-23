@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>@@PAGE_TITLE@@</title>
+    <!-- KaTeX 数学公式渲染库（公式显示正确的关键，务必保留；同步加载保证顺序） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+
+        /* 桌面端页面宽度约束：整体宽度上限 1200px、下限 680px */
+        :root{--page-max:1200px;--page-min:680px}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        html,body{height:100%;font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#f4f7fc;color:#1e293b;overflow:hidden}
+        body{display:flex;flex-direction:column;min-width:var(--page-min)}
+        .tab-bar-wrapper{flex-shrink:0;background:#f4f7fc;padding:12px 16px 0 16px;z-index:10}
+        .tab-bar-frame{max-width:var(--page-max);min-width:var(--page-min);margin:0 auto}
+        .tab-bar{display:flex;background:white;border-radius:60px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .tab-btn{flex:0 0 50%;padding:12px 0;border:none;border-radius:40px;font-size:16px;font-weight:600;background:transparent;color:#64748b;cursor:pointer;text-align:center;touch-action:manipulation}
+        .tab-btn.active{background:#1e293b;color:white;box-shadow:0 4px 12px rgba(30,41,59,0.15)}
+        .tab-btn:active{transform:scale(0.96)}
+        .tab-content-wrapper{flex:1;overflow:hidden;display:flex;flex-direction:column;max-width:var(--page-max);min-width:var(--page-min);margin:0 auto;width:100%;padding:12px 16px 12px 16px}
+        .tab-content{display:none;height:100%;flex-direction:column;overflow:hidden;min-width:0}
+        .tab-content.active{display:flex}
+        .question-area{background:white;border-radius:20px;padding:20px 16px;box-shadow:0 2px 12px rgba(0,0,0,0.05);overflow-y:auto;flex:1}
+        .q-title{font-size:15px;font-weight:600;color:#3b82f6;background:#eff6ff;display:inline-block;padding:4px 16px;border-radius:30px;margin-bottom:14px}
+        .sentence-list{font-size:18px;line-height:1.9;font-weight:500}
+        .sentence-list .sentence{display:block;padding:2px 0}
+        .translator-section{margin-top:16px;border-top:1px dashed #e2e8f0;padding-top:16px}
+        .translator-section .title{font-size:14px;font-weight:600;color:#475569;margin-bottom:8px}
+        .trans-item{background:#f0f7ff;border-radius:10px;padding:8px 14px;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-bottom:6px}
+        .trans-item .orig{color:#475569}
+        .trans-item .math{font-weight:600;color:#2563eb;font-family:"Times New Roman",serif;background:#dbeafe;padding:0 10px;border-radius:6px}
+        /* 讲解 Tab = 上（绘图｜讲解 左右等比 1:1） + 下（语音/切换条） */
+        .explain-container{flex:1;min-height:0;display:grid;grid-template-rows:1fr auto;grid-template-columns:1fr;gap:12px;overflow:hidden}
+        .explain-top{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;overflow:hidden}
+        .canvas-wrap{background:white;border-radius:20px;padding:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05);position:relative;align-self:start}
+        #stepCanvas{width:100%;aspect-ratio:360/260;display:block;background:#fff;border-radius:12px}
+        .frame-badge{position:absolute;top:16px;right:16px;background:rgba(30,41,59,0.75);color:white;font-size:12px;padding:3px 10px;border-radius:20px;pointer-events:none}
+        .step-content{min-height:0;overflow-y:auto;padding-bottom:10px}
+        .step-item{background:white;border-radius:20px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+        .step-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+        .sq-tag{font-weight:600;color:#3b82f6;background:#eff6ff;padding:3px 12px;border-radius:20px;font-size:14px;flex-shrink:0}
+        .step-idx{font-weight:700;color:#d97706;background:#fef3c7;padding:3px 10px;border-radius:20px;font-size:14px;flex-shrink:0}
+        .step-title{font-size:16px;font-weight:600;color:#1e293b;flex:1;min-width:0;line-height:1.5}
+        .step-count{font-size:12px;color:#94a3b8;margin-left:auto;flex-shrink:0}
+        .step-body{margin-top:2px}
+        .step-goal{font-size:14px;font-weight:600;color:#2563eb;background:#eff6ff;border-radius:10px;padding:8px 12px;margin-bottom:10px;line-height:1.6}
+        .solution-line{font-family:"Times New Roman",serif;font-size:15px;line-height:2.0;color:#334155;padding:2px 10px;border-radius:6px;word-break:break-all}
+        .solution-line.current{background:#eff6ff;color:#1d4ed8;font-weight:600;animation:fadeSlide 0.4s ease}
+        .node-desc{font-size:16px;line-height:1.9;color:#334155;word-break:break-word}
+        .node-desc .math{font-weight:600;color:#2563eb;font-family:"Times New Roman",serif}
+        .pitfall-trigger{margin-top:12px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:500;text-align:center;cursor:pointer}
+        .pitfall-trigger:active{transform:scale(0.96)}
+        .bottom-bar{flex-shrink:0;background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.05);padding:12px 16px;display:none;align-items:center;gap:12px}
+        .bottom-bar.show{display:flex}
+        .nav-btn{border:none;background:#f1f5f9;color:#1e293b;font-size:14px;font-weight:600;padding:12px 20px;border-radius:30px;cursor:pointer;transition:0.2s}
+        .nav-btn:disabled{opacity:0.35}
+        .nav-btn:active{transform:scale(0.95)}
+        .voice-control{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+        .play-btn{width:48px;height:48px;border:none;border-radius:50%;background:#1e293b;color:white;font-size:20px;cursor:pointer;flex-shrink:0;transition:0.2s}
+        .play-btn:active{transform:scale(0.92)}
+        .progress-wrap{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+        #progressSlider{width:100%;accent-color:#3b82f6}
+        .time-label{font-size:12px;color:#64748b;text-align:right}
+        /* KaTeX 公式与周围文字对齐 */
+        .katex{font-size:1.08em}
+        .sentence .katex,.node-desc .katex,.step-goal .katex,.solution-line .katex,.trans-item .katex{vertical-align:middle}
+        .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.45);display:none;align-items:center;justify-content:center;z-index:1000;padding:24px}
+        .modal-overlay.show{display:flex}
+        .modal{background:white;border-radius:20px;padding:20px;width:100%;max-width:340px}
+        .modal-title{font-size:17px;font-weight:600;color:#1e293b;margin-bottom:12px}
+        .modal-block{border-radius:12px;padding:12px;margin-bottom:10px;font-size:14px;line-height:1.7}
+        .modal-block.wrong{background:#fef2f2;color:#b91c1c}
+        .modal-block.right{background:#f0fdf4;color:#15803d}
+        .block-label{font-weight:600;margin-bottom:4px}
+        .modal-close-btn{width:100%;border:none;background:#1e293b;color:white;font-size:15px;font-weight:600;padding:12px;border-radius:30px;cursor:pointer;margin-top:6px}
+        .modal-close-btn:active{transform:scale(0.97)}
+        @keyframes fadeSlide { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
+
+        /* ===== 窄屏回退（≤760px）：单列竖排，取消最小宽度限制 ===== */
+        @media (max-width:760px){
+            body{min-width:0}
+            .tab-bar-frame,.tab-content-wrapper{min-width:0;max-width:none}
+            .tab-content-wrapper{padding:12px;padding-bottom:0}
+            .explain-top{grid-template-columns:1fr;overflow:visible}
+            .canvas-wrap{align-self:stretch}
+            .explain-container{display:flex;flex-direction:column}
+            .step-content{flex:1}
+        }
+        </style>
+</head>
+<body>
+    <div class="tab-bar-wrapper" id="tabBarWrapper">
+        <div class="tab-bar-frame">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="question">📖 试题</button>
+            <button class="tab-btn" data-tab="explain">🎯 讲解</button>
+        </div>
+        </div>
+    </div>
+    <div class="tab-content-wrapper">
+        <div class="tab-content active" id="tabQuestion">
+            <div class="question-area">
+                <div class="q-title" id="questionTitle">【题型名称】</div>
+                <div class="sentence-list" id="sentenceList"></div>
+                <div class="translator-section">
+                    <div class="title">🔤 数学语言翻译器</div>
+                    <div id="translatorList"></div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content" id="tabExplain">
+            <div class="explain-container" id="explainBody">
+                <div class="explain-top">
+                    <div class="canvas-wrap">
+                        <canvas id="stepCanvas" width="360" height="260"></canvas>
+                        <div class="frame-badge" id="frameBadge">帧 1 / N</div>
+                    </div>
+                    <div class="step-content" id="stepContent"></div>
+                </div>
+                <div class="bottom-bar" id="bottomBar">
+                    <button class="nav-btn" id="prevBtnFixed">⬅ 上一步</button>
+                    <div class="voice-control">
+                        <button class="play-btn" id="playBtn">▶</button>
+                        <div class="progress-wrap">
+                            <input type="range" id="progressSlider" min="0" max="100" value="0">
+                            <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+                        </div>
+                    </div>
+                    <button class="nav-btn" id="nextBtnFixed">下一步 ➡</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="pitfallModal">
+        <div class="modal">
+            <div class="modal-title">⚠️ 避坑指南</div>
+            <div class="modal-block wrong"><div class="block-label">❌ 常见错误</div><div id="modalWrong"></div></div>
+            <div class="modal-block right"><div class="block-label">✅ 正确做法</div><div id="modalRight"></div></div>
+            <button class="modal-close-btn" id="closeModalBtn">我记住了</button>
+        </div>
+    </div>
+    <script>
+        // ============================================================
+        //  【数据区 1】Step 1 产出：sentences / translations
+        //  ⬇️ 替换为第一步的实际数据
+        // ============================================================
+        /* @@S1_SENTENCES@@ */
+        /* @@S1_TRANSLATIONS@@ */
+
+        // ============================================================
+        //  【数据区 2】Step 2 产出：questionData（不含 highlight 字段；voiceText 已全中文化）
+        //  ⬇️ 替换为第二步的实际输出
+        // ============================================================
+        /* @@S2_QUESTIONDATA@@ */
+
+        // ============================================================
+        //  【数据区 3-前置】本模板所有 —— ⛔ 原样保留，禁止替换/删除
+        //  绘图层内部直接使用 ctx / W / H 三个名字，删掉任一个画布就全线失效
+        // ============================================================
+        const canvasEl = document.getElementById('stepCanvas');
+        const ctx = canvasEl.getContext('2d');
+
+        // ============================================================
+        //  【数据区 3】Step 3 产出 —— ⬇️ 以下整段替换为第三步的实际输出
+        //  （真实内容：档位声明 + W/H + COLORS + 两块内联库 LIB 整段 + 解构语句
+        //   + qAcc/switchQ/recQ + 构造区 + 绘图函数 + navigationMap + drawFunctions
+        //   + 末尾「抄写自检日志」注释块）
+        //
+        //  ⚠️ 下面骨架里的 `/* 完整实现 */` 是**骨架占位**；
+        //     实际产出时，**每个 `function` 都必须写出完整函数体**，不得残留占位符。
+        //
+        //  ⚠️⚠️ **特别注意「伪真数字占位」（v6.8.1 新增）**：骨架里 navigationMap 的帧号
+        //     用的是**看似真实的数字**，比 `/* 完整实现 */` 更容易被整段照抄。
+        //     替换时逐项核对：**帧号从 0 连续排到最大帧号，不得跳号，
+        //     不得出现"比上一个帧号大得多"的孤立数字。**
+        //
+        //  ⬇️ 替换为第三步的实际输出
+        // ============================================================
+        /* @@S3_DRAWING@@ */
+
+        // ============================================================
+        //  【数据区 4】题型名称
+        // ============================================================
+        const QUESTION_TITLE = @@QUESTION_TITLE_JSON@@;
+
+        //  以下内容【完全保留】
+        // ============================================================
+        let currentIndex = 0, navSequence = [], currentUtterance = null;
+        let isPaused = false, isPlaying = false, progressInterval = null, currentVoiceDuration = 8;
+        const sentenceList=document.getElementById('sentenceList');
+        const translatorList=document.getElementById('translatorList');
+        const stepContent=document.getElementById('stepContent');
+        const frameBadge=document.getElementById('frameBadge');
+        const playBtn=document.getElementById('playBtn');
+        const progressSlider=document.getElementById('progressSlider');
+        const timeLabel=document.getElementById('timeLabel');
+        const prevBtnFixed=document.getElementById('prevBtnFixed');
+        const nextBtnFixed=document.getElementById('nextBtnFixed');
+        const modal=document.getElementById('pitfallModal');
+        const modalWrong=document.getElementById('modalWrong');
+        const modalRight=document.getElementById('modalRight');
+        const closeModal=document.getElementById('closeModalBtn');
+        document.getElementById('questionTitle').textContent=QUESTION_TITLE;
+
+
+        // ============================================================
+        //  数学公式渲染 + 语音清洗工具（v3 新增，勿删；v6.8 起含符号转中文兜底）
+        // ============================================================
+        // 把一段文本里所有 $...$ 用 KaTeX 渲染为行内公式 HTML。
+        // 若无 KaTeX（离线降级），退化为去掉 $ 与反斜杠后的纯文本，保证不显示乱码。
+        function renderMath(text){
+            if(!text)return '';
+            const s=String(text);
+            if(typeof katex!=='undefined' && katex.renderToString){
+                return s.replace(/\$([^$]+)\$/g,function(m,tex){
+                    try{ return katex.renderToString(tex,{throwOnError:false,displayMode:false}); }
+                    catch(e){ return '<span class="math-plain">'+tex+'</span>'; }
+                });
+            }
+            // 降级：去掉 $ 符号与常见 LaTeX 反斜杠命令，尽量可读
+            return s.replace(/\$/g,'')
+                    .replace(/\\sqrt/g,'√').replace(/\\frac/g,'/')
+                    .replace(/\\pi/g,'π').replace(/\\times/g,'×').replace(/\\div/g,'÷')
+                    .replace(/\\neq/g,'≠').replace(/\\geqslant/g,'≥').replace(/\\leqslant/g,'≤')
+                    .replace(/\\cdot/g,'·').replace(/\\begin\{cases\}/g,'').replace(/\\end\{cases\}/g,'')
+                    .replace(/\\angle/g,'∠').replace(/\\triangle/g,'△').replace(/\\parallel/g,'∥')
+                    .replace(/\\perp/g,'⊥').replace(/\\circ/g,'°').replace(/\\sim/g,'∽')
+                    .replace(/\\cong/g,'≌').replace(/\\ldots/g,'…')
+                    .replace(/\\\\/g,' ').replace(/[\\{}]/g,'');
+        }
+        // 把含 $...$ 的 HTML 字符串渲染公式（用于 description 等已含 <br>/<span> 的内容）
+        function renderMathHTML(html){
+            if(!html)return '';
+            const s=String(html);
+            return s.replace(/\$([^$]+)\$/g,function(m,tex){
+                if(typeof katex!=='undefined' && katex.renderToString){
+                    try{ return katex.renderToString(tex,{throwOnError:false,displayMode:false}); }
+                    catch(e){ return '<span class="math-plain">'+tex+'</span>'; }
+                }
+                return tex.replace(/\\sqrt/g,'√').replace(/\\frac/g,'/').replace(/\\pi/g,'π').replace(/\\times/g,'×').replace(/\\div/g,'÷').replace(/\\neq/g,'≠').replace(/\\geqslant/g,'≥').replace(/\\leqslant/g,'≤').replace(/\\cdot/g,'·').replace(/\\angle/g,'∠').replace(/\\triangle/g,'△').replace(/\\parallel/g,'∥').replace(/\\perp/g,'⊥').replace(/\\circ/g,'°').replace(/\\sim/g,'∽').replace(/\\cong/g,'≌').replace(/\\ldots/g,'…').replace(/[\\{}]/g,'');
+            });
+        }
+        // 把 LaTeX 片段转成可被 TTS 朗读的口语文本（仅用于语音，不影响页面公式显示）
+        // ★ v6.8：末尾追加"符号转中文"兜底替换，防止 LaTeX 之外的符号漏网
+        function latexToSpeech(tex){
+            let t=tex;
+            t=t.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'$2 分之 $1');
+            t=t.replace(/\\sqrt\{([^{}]*)\}/g,'根号 $1');
+            t=t.replace(/\\sqrt/g,'根号');
+            t=t.replace(/\\pi/g,'派');
+            t=t.replace(/\\times/g,'乘');
+            t=t.replace(/\\div/g,'除以');
+            t=t.replace(/\\cdot/g,'点');
+            t=t.replace(/\\neq/g,'不等于');
+            t=t.replace(/\\geqslant/g,'大于等于');
+            t=t.replace(/\\leqslant/g,'小于等于');
+            t=t.replace(/\\ge(?![a-zA-Z])/g,'大于等于');
+            t=t.replace(/\\le(?![a-zA-Z])/g,'小于等于');
+            t=t.replace(/\\begin\{cases\}/g,'');
+            t=t.replace(/\\end\{cases\}/g,'');
+            t=t.replace(/\\\\/g,'；');
+            t=t.replace(/\\ldots/g,'等等');
+            t=t.replace(/\\circ/g,'度');
+            t=t.replace(/\^\{([^{}]*)\}/g,' 的 $1 次方');
+            t=t.replace(/\^([0-9])/g,' 的 $1 次方');
+            t=t.replace(/_\{([^{}]*)\}/g,' 下标 $1');
+            t=t.replace(/[\\{}]/g,'');
+            t=t.replace(/\|([^|]*)\|/g,'$1 的绝对值');
+            t=t.replace(/°/g,'度');
+            // ★ v6.8 兜底：把 LaTeX 之外可能残留的符号也转中文
+            // ⚠️ 注意顺序：Rt△ 必须在 △ 之前，否则 Rt△ 会被 △ 先替换成 "Rt三角形"
+            t=t.replace(/Rt△/g,'直角三角形')
+               .replace(/△/g,'三角形')
+               .replace(/∠/g,'角')
+               .replace(/⊙/g,'圆')
+               .replace(/⊥/g,'垂直于')
+               .replace(/∥/g,'平行于')
+               .replace(/∽/g,'相似于')
+               .replace(/≌/g,'全等于')
+               .replace(/∴/g,'所以')
+               .replace(/∵/g,'因为')
+               .replace(/∈/g,'属于')
+               .replace(/∪/g,'并集')
+               .replace(/∩/g,'交集')
+               .replace(/±/g,'正负')
+               .replace(/≠/g,'不等于')
+               .replace(/≥/g,'大于等于')
+               .replace(/≤/g,'小于等于')
+               .replace(/×/g,'乘')
+               .replace(/÷/g,'除以')
+               .replace(/√/g,'根号')
+               .replace(/π/g,'派')
+               .replace(/²/g,'的平方')
+               .replace(/³/g,'的立方');
+            return t.trim();
+        }
+        // 清洗 voiceText：去掉所有指令/情绪/停顿标记（[指令性][pause 2s] 等）与 $...$ 公式，输出纯口语文本
+        // ★ v6.8：末尾追加"符号转中文"兜底替换，防止 Step 2 漏改时仍有符号漏网
+        function cleanVoiceText(text){
+            if(!text)return '';
+            let t=String(text);
+            // 1) 去掉所有 [xxx] 方括号标记（[指令性] / [启发性] / [pause 2s] / [转折] / [冲突] / [激励] 等）
+            t=t.replace(/\[[^\]]*\]/g,'');
+            // 2) 把 $...$ 公式转为口语（不朗读 LaTeX 源码）
+            t=t.replace(/\$([^$]+)\$/g,function(m,tex){ return latexToSpeech(tex); });
+            // 3) ★ v6.8 兜底：把可能残留的数学符号转为中文
+            //    ⚠️ 注意顺序：Rt△ 必须在 △ 之前，否则 Rt△ 会被 △ 先替换成 "Rt三角形"
+            t=t.replace(/Rt△/g,'直角三角形')
+               .replace(/△/g,'三角形')
+               .replace(/∠/g,'角')
+               .replace(/⊙/g,'圆')
+               .replace(/⊥/g,'垂直于')
+               .replace(/∥/g,'平行于')
+               .replace(/∽/g,'相似于')
+               .replace(/≌/g,'全等于')
+               .replace(/∴/g,'所以')
+               .replace(/∵/g,'因为')
+               .replace(/∈/g,'属于')
+               .replace(/∪/g,'并集')
+               .replace(/∩/g,'交集')
+               .replace(/±/g,'正负')
+               .replace(/≠/g,'不等于')
+               .replace(/≥/g,'大于等于')
+               .replace(/≤/g,'小于等于')
+               .replace(/×/g,'乘')
+               .replace(/÷/g,'除以')
+               .replace(/°/g,'度')
+               .replace(/√/g,'根号')
+               .replace(/π/g,'派')
+               .replace(/²/g,'的平方')
+               .replace(/³/g,'的立方');
+            // 4) 压缩多余空白
+            t=t.replace(/\s+/g,' ').trim();
+            return t;
+        }
+
+
+        function buildNavSequence(){
+            const seq=[];
+            if(navigationMap.totalIntro!==null&&questionData.totalIntro) seq.push({kind:'totalIntro',frame:navigationMap.totalIntro,data:questionData.totalIntro,subQuestion:null});
+            questionData.subQuestions.forEach(function(sq,i){
+                const sqMap=navigationMap.subQuestions[i]; if(!sqMap)return;
+                sq.stages.forEach(function(stage,j){
+                    const stMap=sqMap.stages[j]; if(!stMap)return;
+                    if(stage.stage==='规范建模'&&stage.subSteps){
+                        stage.subSteps.forEach(function(ss,k){ seq.push({kind:'subStep',frame:(stMap.frames||[])[k],data:ss,subQuestion:sq,stage:stage}); });
+                    } else { seq.push({kind:stage.stage,frame:stMap.frame,data:stage,subQuestion:sq}); }
+                });
+            });
+            if(navigationMap.finalSummary!==null&&questionData.finalSummary) seq.push({kind:'finalSummary',frame:navigationMap.finalSummary,data:questionData.finalSummary,subQuestion:null});
+            return seq;
+        }
+        function renderQuestionTab(){
+            sentenceList.innerHTML='';
+            sentences.forEach(function(text){const span=document.createElement('span');span.className='sentence';span.innerHTML=renderMath(text);sentenceList.appendChild(span);});
+            translatorList.innerHTML='';
+            translations.forEach(function(t){const div=document.createElement('div');div.className='trans-item';div.innerHTML='<span class="orig">'+renderMath(t.original)+'</span> → <span class="math">'+renderMath(t.math)+'</span>';translatorList.appendChild(div);});
+        }
+        // 环节序号 → 中文圈号
+        const CN_NUM=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+        function stageNum(name){
+            if(name==='审题定向')return 1;
+            if(name==='破冰搭桥')return 2;
+            if(name==='规范建模')return 3;
+            if(name==='独立总结')return 4;
+            return 0;
+        }
+        function stageTask(title){
+            // "规范建模 · 分步推导证明" -> "分步推导证明"
+            const i=title.indexOf('·');
+            return i>=0?title.slice(i+1).trim():title;
+        }
+        // 整合步骤卡片：标题（第几问+编号+环节）+ 求证/目标 + 解题步骤累加
+        function renderStepCard(node){
+            stepContent.innerHTML='';
+            const item=document.createElement('div'); item.className='step-item';
+
+            // ---- 标题行 ----
+            const header=document.createElement('div'); header.className='step-header';
+            let tag='', idx='', title='';
+            if(node.kind==='totalIntro'){
+                title=node.data.title||'题目总览';
+            } else if(node.kind==='finalSummary'){
+                title=node.data.title||'整题总结';
+            } else if(node.subQuestion){
+                tag='第'+node.subQuestion.index+'问';
+                const sn=stageNum(node.kind==='subStep'?'规范建模':node.kind);
+                idx=CN_NUM[sn-1]||'';
+                if(node.kind==='subStep'){
+                    idx=CN_NUM[sn-1]+'-'+node.data.subIndex;
+                    title='规范建模 · '+stageTask(node.stage.title)+' · '+node.data.stepTitle;
+                } else {
+                    title=node.kind+' · '+stageTask(node.data.title);
+                }
+            }
+            if(tag){const t=document.createElement('span');t.className='sq-tag';t.textContent=tag;header.appendChild(t);}
+            if(idx){const i=document.createElement('span');i.className='step-idx';i.textContent=idx;header.appendChild(i);}
+            const tt=document.createElement('span');tt.className='step-title';tt.textContent=title;header.appendChild(tt);
+            const cnt=document.createElement('span');cnt.className='step-count';cnt.textContent=(currentIndex+1)+' / '+navSequence.length;header.appendChild(cnt);
+            item.appendChild(header);
+
+            // ---- 内容区 ----
+            const body=document.createElement('div'); body.className='step-body';
+            if(node.kind==='subStep'){
+                // 求证/目标行
+                const goal=document.createElement('div'); goal.className='step-goal';
+                goal.innerHTML='目标：'+renderMath(node.subQuestion.goal); body.appendChild(goal);
+                // 解题步骤逐步累加
+                const sq=node.subQuestion; let modelStage=null;
+                sq.stages.forEach(function(s){if(s.stage==='规范建模')modelStage=s;});
+                if(modelStage&&modelStage.subSteps){
+                    const upTo=node.data.subIndex;
+                    modelStage.subSteps.forEach(function(ss,k){
+                        if(k<upTo){
+                            const div=document.createElement('div');
+                            div.className='solution-line'+(k===upTo-1?' current':'');
+                            div.innerHTML=renderMath(ss.solutionLine);
+                            body.appendChild(div);
+                        }
+                    });
+                }
+            } else {
+                const desc=document.createElement('div'); desc.className='node-desc';
+                desc.innerHTML=renderMathHTML(node.data.description||''); body.appendChild(desc);
+            }
+            item.appendChild(body);
+
+            // ---- 避坑按钮（破冰环节） ----
+            if(node.kind==='破冰搭桥'&&node.data.showPitfall&&node.data.pitfallContent){
+                const pitBtn=document.createElement('div');pitBtn.className='pitfall-trigger';pitBtn.textContent='⚠️ 此处易错';
+                pitBtn.addEventListener('click',function(){modalWrong.textContent=node.data.pitfallContent.wrong;modalRight.textContent=node.data.pitfallContent.right;modal.classList.add('show');document.body.style.overflow='hidden';});
+                item.appendChild(pitBtn);
+            }
+            stepContent.appendChild(item);
+        }
+        function renderNode(index){
+            const node=navSequence[index]; if(!node)return; currentIndex=index;
+            renderStepCard(node);
+            if(node.frame!==null&&node.frame!==undefined&&drawFunctions[node.frame]){drawFunctions[node.frame]();frameBadge.textContent='帧 '+(node.frame+1)+' / '+drawFunctions.length;}
+            else {drawFrame_0();frameBadge.textContent='帧 -';}
+            prevBtnFixed.disabled=(index===0); nextBtnFixed.disabled=(index===navSequence.length-1);
+            nextBtnFixed.textContent=(index===navSequence.length-1)?'完成 ✅':'下一步 ➡';
+            resetVoiceProgress();
+            currentVoiceDuration=node.data.voiceDuration||8;
+            timeLabel.textContent='0:00 / '+formatTime(currentVoiceDuration); progressSlider.value=0;
+            if(currentUtterance){window.speechSynthesis.cancel();currentUtterance=null;isPlaying=false;isPaused=false;playBtn.textContent='▶';}
+            stepContent.scrollTop=0;
+        }
+        function toggleVoice(){
+            const node=navSequence[currentIndex]; const text=cleanVoiceText(node.data.voiceText); if(!text)return;
+            if(!window.speechSynthesis)return;
+            if(currentUtterance&&window.speechSynthesis.speaking&&!isPaused){window.speechSynthesis.pause();isPaused=true;isPlaying=true;playBtn.textContent='▶';clearInterval(progressInterval);return;}
+            if(currentUtterance&&isPaused){window.speechSynthesis.resume();isPaused=false;isPlaying=true;playBtn.textContent='⏸';startProgress();return;}
+            if(currentUtterance){window.speechSynthesis.cancel();currentUtterance=null;}
+            const utterance=new SpeechSynthesisUtterance(text); utterance.lang='zh-CN'; utterance.rate=0.9;
+            utterance.onend=function(){currentUtterance=null;isPlaying=false;isPaused=false;playBtn.textContent='▶';clearInterval(progressInterval);progressSlider.value=100;timeLabel.textContent=formatTime(currentVoiceDuration)+' / '+formatTime(currentVoiceDuration);};
+            utterance.onerror=function(){currentUtterance=null;isPlaying=false;isPaused=false;playBtn.textContent='▶';clearInterval(progressInterval);};
+            currentUtterance=utterance; window.speechSynthesis.speak(utterance);
+            isPlaying=true; isPaused=false; playBtn.textContent='⏸';
+            progressSlider.value=0; timeLabel.textContent='0:00 / '+formatTime(currentVoiceDuration); startProgress();
+        }
+        function startProgress(){
+            clearInterval(progressInterval); const total=currentVoiceDuration; const startTime=Date.now();
+            progressInterval=setInterval(function(){
+                if(isPaused)return; const elapsed=(Date.now()-startTime)/1000;
+                if(elapsed>=total){clearInterval(progressInterval);progressInterval=null;progressSlider.value=100;timeLabel.textContent=formatTime(total)+' / '+formatTime(total);return;}
+                progressSlider.value=(elapsed/total)*100; timeLabel.textContent=formatTime(elapsed)+' / '+formatTime(total);
+            },100);
+        }
+        function resetVoiceProgress(){clearInterval(progressInterval);progressInterval=null;progressSlider.value=0;}
+        function formatTime(seconds){const m=Math.floor(seconds/60),s=Math.floor(seconds%60);return m+':'+(s<10?'0':'')+s;}
+        function goToNode(index){
+            if(index<0||index>=navSequence.length)return;
+            if(currentUtterance){window.speechSynthesis.cancel();currentUtterance=null;isPlaying=false;isPaused=false;playBtn.textContent='▶';clearInterval(progressInterval);}
+            renderNode(index); setTimeout(function(){toggleVoice();},300);
+        }
+        prevBtnFixed.addEventListener('click',function(){if(currentIndex>0)goToNode(currentIndex-1);});
+        nextBtnFixed.addEventListener('click',function(){if(currentIndex<navSequence.length-1)goToNode(currentIndex+1);});
+        playBtn.addEventListener('click',function(){toggleVoice();});
+        closeModal.addEventListener('click',function(){modal.classList.remove('show');document.body.style.overflow='';});
+        modal.addEventListener('click',function(e){if(e.target===modal){modal.classList.remove('show');document.body.style.overflow='';}});
+        const tabBtns=document.querySelectorAll('.tab-btn');
+        const tabContents={question:document.getElementById('tabQuestion'),explain:document.getElementById('tabExplain')};
+        const tabBarWrapper=document.getElementById('tabBarWrapper');
+        const bottomBar=document.getElementById('bottomBar');
+        let currentTab='question',touchStartX=0,touchStartY=0,isSwiping=false;
+        tabBtns.forEach(function(btn){btn.addEventListener('click',function(){switchTab(this.dataset.tab);});});
+        tabBarWrapper.addEventListener('touchstart',function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;isSwiping=false;},{passive:true});
+        tabBarWrapper.addEventListener('touchmove',function(e){const dx=e.touches[0].clientX-touchStartX,dy=e.touches[0].clientY-touchStartY;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>30){isSwiping=true;e.preventDefault();}},{passive:false});
+        tabBarWrapper.addEventListener('touchend',function(e){if(!isSwiping)return;const dx=e.changedTouches[0].clientX-touchStartX;if(dx<-50&&currentTab==='question')switchTab('explain');else if(dx>50&&currentTab==='explain')switchTab('question');isSwiping=false;},{passive:true});
+        function switchTab(tab){
+            if(tab===currentTab)return; currentTab=tab;
+            tabBtns.forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});
+            Object.keys(tabContents).forEach(function(key){tabContents[key].classList.toggle('active',key===tab);});
+            // 底部导航栏只在"讲解"Tab 显示；"试题"Tab 隐藏
+            if(bottomBar)bottomBar.classList.toggle('show',tab==='explain');
+            if(tab==='explain'){if(!stepContent.children.length)renderNode(currentIndex);setTimeout(function(){toggleVoice();},400);}
+            else {if(currentUtterance){window.speechSynthesis.cancel();currentUtterance=null;isPlaying=false;isPaused=false;playBtn.textContent='▶';clearInterval(progressInterval);}}
+        }
+        navSequence=buildNavSequence();
+        renderQuestionTab(); renderNode(0);
+        window.addEventListener('resize',function(){clearTimeout(window._resizeTimer);window._resizeTimer=setTimeout(function(){const node=navSequence[currentIndex];if(node&&node.frame!==null&&node.frame!==undefined&&drawFunctions[node.frame])drawFunctions[node.frame]();},200);});
+        console.log('✅ 讲题页面已加载完成，共 '+navSequence.length+' 个导航节点');
+    </script>
+</body>
+</html>

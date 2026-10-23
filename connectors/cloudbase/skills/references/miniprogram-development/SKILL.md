@@ -1,7 +1,8 @@
 ---
 name: miniprogram-development
 description: WeChat Mini Program development skill for building, debugging, previewing, testing, publishing, and optimizing mini program projects (小程序开发、调试、预览、发布). Covers project structure and config (`project.config.json`, `appid`, `miniprogramRoot`, `tabBar`, routing/navigation, icon assets), WeChat Developer Tools Nightly workflows (`wechatide` CLI, WeChat IDE Skills/MCP), `miniprogram-ci` preview/upload, console/network debugging, message push (消息推送) and customer-service auto-reply (客服消息), mini program SEO / search indexing (小程序搜索优化、页面收录、搜索推广、mpcrawler), and CloudBase integration (`wx.cloud`, 腾讯云开发, 云开发) when explicitly used. Use when users create, develop, modify, debug, preview, deploy, publish, or promote WeChat Mini Programs. NOT for Web frontend (use web-development), pure backend services (use cloudrun-development / cloud-functions), or UI-design-only tasks (use ui-design).
-version: 2.34.8
+version: 2.36.0
+license: MIT
 alwaysApply: false
 ---
 
@@ -48,6 +49,7 @@ If a referenced sibling skill file is missing from this environment, ask the use
 - Mixing Web SDK assumptions into `wx.cloud` projects.
 - Applying CloudBase constraints before confirming the project actually uses CloudBase.
 - Assuming Stable WeChat Developer Tools includes Nightly Skills/`wechatide` (it may not).
+- Running `which wechatide`, finding nothing, and quietly switching to manual import. Missing `wechatide` is a setup gap to report and offer to fix, not an environment limit — state that Nightly is required, offer to install it, and wait for the user's decision before falling back.
 - Forcing CloudBase MCP Tencent Cloud login for daily mini program cloud ops when Nightly `wechatide` already works.
 - Inventing `wechatide` tool names or flags instead of using `--help` / Nightly `tools.yaml`.
 - Bypassing wxide CLI / IDE for message-push ops with low-level transport before `cloud_*_msg_push` is exposed (see [message-push-customer-service.md](references/message-push-customer-service.md)).
@@ -100,9 +102,10 @@ Use this skill for **WeChat Mini Program development** when you need to:
    - Only apply CloudBase-specific auth, database, storage, or cloud function constraints when the project is using CloudBase
 
 5. **Recommend the right preview/debug/cloud-ops path**
-   - Prefer **Nightly** WeChat Developer Tools (built-in Skills/MCP) and execute via `wechatide` when available — see [devtools-debug-preview.md](references/devtools-debug-preview.md)
+   - Default target: **Nightly** WeChat Developer Tools (built-in Skills/MCP), executed through `wechatide` — see [devtools-debug-preview.md](references/devtools-debug-preview.md)
    - Nightly download: https://developers.weixin.qq.com/miniprogram/dev/devtools/nightly_backup.html
-   - If Nightly / `wechatide` is unavailable, fall back to `miniprogram-ci` for preview/upload and CloudBase MCP for cloud resources
+   - A missing `wechatide` is a **one-time setup gap, not an environment limit**. Tell the user Nightly is required for the CLI-driven path, offer to download/install it, and **wait for their answer**. Only after they decline or cannot install do you continue with `miniprogram-ci` + CloudBase MCP.
+   - Never present stable DevTools + hand import as the recommended default, and never make the "keep it simple" trade-off on the user's behalf. Manual import is a downgrade the user chooses, not one you assign.
 
 ---
 
@@ -155,9 +158,10 @@ Keep the custom `tabBar` layout text-only, and use flex centering or matching `h
 
 ## Debugging, Preview, and Publishing
 
-- Prefer **Nightly** DevTools + `wechatide` for open project, compile, simulator, console/network debug, preview, upload, and daily cloud ops (WeChat login — no separate Tencent Cloud login)
+- **Default path**: **Nightly** DevTools + `wechatide` for open project, compile, simulator, console/network debug, preview, upload, and daily cloud ops (WeChat login — no separate Tencent Cloud login)
 - Always pass required context: `-c <clientName>`, absolute `--project`, valid `appid`, and cloud `env` when needed
-- If Nightly / `wechatide` is not available, use `miniprogram-ci` as the fallback for preview/upload/npm, and CloudBase MCP for cloud resources; tell the user to install Nightly for full Skills/MCP
+- **If `wechatide` is missing**: report it as a setup gap, state that Nightly is required for the CLI-driven path, offer to install it, and wait for the user's answer — do not downgrade on your own
+- Only after the user declines or cannot install Nightly: use `miniprogram-ci` for preview/upload/npm plus CloudBase MCP for cloud resources, and say which capabilities are now missing (simulator, console/network, automation, CLI cloud ops)
 - For detailed workflows, read [debug and preview reference](references/devtools-debug-preview.md) and [WeChat IDE Skills vs CloudBase MCP](references/wxide-vs-cloudbase-mcp.md)
 
 ## Message Push & Customer Service Auto-Reply

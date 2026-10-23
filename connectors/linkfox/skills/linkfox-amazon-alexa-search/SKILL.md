@@ -7,7 +7,9 @@ description: 通过亚马逊前台的 Alexa 购物助手发起自然语言问答
 
 ## 基本信息
 
-- **业务工具名**：`/amazon/alexaSearch`
+- **MCP 服务**：`LinkFox`
+- **MCP 工具**：`proxy_call`
+- **业务路由**：`toolName = "amazon/alexaSearch"`，不加前导 `/`，保留大小写。
 - **所属分组**：Amazon · 搜索、评论与商业洞察
 - **功能说明**：通过自然语言向 Amazon Alexa 发起问答，获取与问题相关的回答、推荐商品、商品信息和可继续追问的问题。仅支持单轮对话问答。支持传入 URL 参数，为本次问答补充指定亚马逊页面上下文。
 - **关键词**：Amazon Alexa, Alexa助手, 亚马逊Alexa,  对话式查询, 商品推荐, 商品信息, follow-up questions
@@ -25,34 +27,26 @@ description: 通过亚马逊前台的 Alexa 购物助手发起自然语言问答
 |---|---|:---:|---|---|
 | `url` | `string` | 否 | 最长 1000；示例：`https://www.amazon.com/` | 联动页面 URL.用于补充 Alexa 当前答复的页面上下文 |
 | `format` | `string` | 否 | 默认 `"markdown"`；最长 1000；示例：`markdown`, `json` | 响应格式.可选 markdown 或 json；默认 markdown。 |
-| `prompts` | `array<string>` | 是 | 最多 1000 项；示例：`["best wireless earbuds for running"]`, `["best electric kettle","Compare with similar products"]` | 对话提示词数组.用于发起一次 Alexa 多轮问答，至少 1 条，建议不超过 5 条。多个元素表示同一次调用中的连续追问，会按数组顺序依次发送：先发送 prompts[0]，等待 Alexa 回答后再发送 prompts[1]，再继续发送后续问题。若需要基于上一次工具调用结果继续追问，下一次调用是新的问答上下文，agent 需要根据历史回答和推荐商品自行总结上下文，并组织成新的 prompts 再发起调用。 |
+| `prompts` | `array<string>` | 是 | 必须且只能包含 1 个字符串；示例：`["best wireless earbuds for running"]` | 每次调用仅发送 `prompts[0]` 这一个问题。必须传 JSON 数组，不要传字符串或序列化后的数组字符串。每次调用是独立的新会话，不保留跨次调用的历史上下文；如需追问，agent 须总结上一轮回答中的推荐商品、ASIN 和关键结论，拼接新问题后作为下一次调用唯一的 `prompts[0]`。 |
 
 
 ## MCP 调用示例
 
-向以下地址发起 HTTP `POST`：
-
-```text
-https://mcp-tool-gateway.linkfox.com/mcp/any-tool
-```
-
-请求体：
+调用已安装的 **LinkFox MCP** 所暴露的 **`proxy_call` 工具**，传入以下工具参数：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "/amazon/alexaSearch",
-    "arguments": {
-      "prompts": "[\"best wireless earbuds for running\"]"
-    }
+  "toolName": "amazon/alexaSearch",
+  "arguments": {
+    "prompts": ["best wireless earbuds for running"],
+    "format": "json"
   }
 }
 ```
 
 > 示例值仅用于展示请求结构。实际调用时必须替换为用户的真实查询条件。
+
+`proxy_call` 是 MCP 工具名；`amazon/alexaSearch` 是其 `toolName` 参数中的业务路由。WorkBuddy 自动注入认证信息，无需在工具参数中传入凭证。若 LinkFox MCP 不可用，按下方安装指引提示用户，不改用直接 HTTP 请求。
 
 ## 输出字段
 
@@ -101,20 +95,20 @@ https://mcp-tool-gateway.linkfox.com/mcp/any-tool
 
 ## 响应处理建议
 
-1. 先检查 JSON-RPC 外层是否包含 `error`。
-2. 成功时读取 `result`，并继续解析其中的 `content`、`data`、`products`、`items` 或其他业务字段。
-3. 如果响应为 `text/event-stream`，按 SSE 事件读取 `data:` 内容，再解析 JSON。
-4. 保留分页字段、总数、失败明细及 `costToken`。
-5. 向用户输出分析结论，不要直接倾倒大段原始 JSON。
+1. 检查 MCP 工具调用是否报错（如 `isError`）；报错时保留错误信息。
+2. 读取返回的 `content` 或结构化结果；若 `content` 中包含 JSON 文本，解析后检查业务 `code` 是否为 `"200"`。
+3. `format=json` 时读取 `data`、`products` 和 `items`；`format=markdown` 时读取 `stdout`。
+4. 保留 `taskId`、`resultsNum` 和 `costToken`，用于追踪查询结果。
+5. 向用户输出分析结论；如需追问，总结本次结果后另发一次调用，仍只传一个问题。
 
 ## 原始 Schema
 
-原始的Input Schema 和 Output Schema 参考 references/schema.md
+Input Schema 和 Output Schema 参考 [references/schema.md](references/schema.md)。其中 `prompts` 为字符串数组，`minItems` 和 `maxItems` 均为 `1`。
 
 ## 解决认证和积分问题
 
 ## [!IMPORTANT]
-本 Skill 必须依赖 MCP “linkfox”。如未安装该MCP，请明确通知用户：
+本 Skill 必须依赖 MCP “LinkFox”。如未安装该MCP，请明确通知用户：
 > 请先安装 LinkFox 连接器：
 > - 在 WorkBuddy 左侧找到 “专家·技能·连接器” → “连接器”；
 > - 搜索关键词 “LinkFox”，并安装连接器 “LinkFox”（注意：是 linkfox，不是 linkfox-product-selection），按指引完成登录授权；

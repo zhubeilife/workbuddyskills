@@ -1,0 +1,16 @@
+{
+  "title": "平台开放 API 密钥",
+  "description": "登录 tuwen.superzixuan.com → 设置 → 开放 API → 创建密钥（明文仅显示一次）。密钥代表您的账号身份：作品、模板、产品库与积分与网页端完全同步，可随时在网页端吊销。",
+  "fields": [
+    {
+      "key": "TUWEN_API_KEY",
+      "label": "开放 API 密钥",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "wbpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "description": "登录 https://tuwen.superzixuan.com → 设置 → 开放 API → 创建密钥，明文仅显示一次。可随时在网页端吊销。",
+      "docUrl": "https://tuwen.superzixuan.com/privacy"
+    }
+  ]
+}

@@ -31,10 +31,10 @@ ihr-cli conference +launch
 ## 标准流程
 
 1. 确认用户要发起的是数字人面试，不是普通面谈、会议或数字人陪练。
-2. 确认数字人面试模板。读取模板搜索/创建结果中的 `templateId`、`templateBusinessType` 和 `digitalHumanId`；类型必须为 `INTERVIEW`。发起时将 `digitalHumanId` 转为十进制字符串作为数字人面谈官 `staffId`。只有 `interviewCode` 而没有模板实际 `digitalHumanId` 时不能猜默认值，先取得对应模板结果或请用户补充已确认的数字人配置。
-3. 确认唯一候选人的姓名和手机号或邮箱。候选人可以没有 `staffId`；如果用户只给了内部员工姓名并希望按内部人员处理，先使用 `base +selectStaffs` 确认 ID。
+2. 确认数字人面试模板。读取模板搜索/创建结果中的 `templateId`、`templateBusinessType` 和 `digitalHumanId`；类型必须为 `INTERVIEW`。发起时将 `digitalHumanId` 转为十进制字符串作为数字人面谈官 `staffId`。只有 `interviewCode` 而没有模板实际 `digitalHumanId` 时不能自行补造，先取得对应模板结果或请用户补充已确认的数字人配置。
+3. 确认唯一候选人的姓名和手机号或邮箱。候选人可以没有 `staffId`；如果用户只给了内部员工姓名并希望按内部人员处理，先使用 `conference +selectStaffs` 确认 ID。
 4. 确认面试主题、允许进入的绝对时间、最晚结束的绝对时间和数字人配置。用两者的分钟差计算 `duration`；不要把预计实际作答时长当作可进入窗口。
-5. 如果允许真人监考官介入，必须先确认唯一真人监考官；内部人员 ID 来自 `base +selectStaffs`。
+5. 如果允许真人监考官介入，必须先确认唯一真人监考官；内部人员 ID 来自 `conference +selectStaffs`。
 6. 信息不完整时先追问；信息完整但用户尚未明确真实发起时，只允许整理参数或执行 `--dry-run`。
 7. 真实执行成功后，按“状态、面谈名称、允许进入时间与最晚结束时间、面谈方式、参会人、面谈详情页”的顺序汇报。
 
@@ -174,11 +174,11 @@ ihr-cli conference +launch --json '{
 
 1. 必须通过 `thirdPartyPlatform=DIGITAL_AVATAR` 或 `interviewMode=DIGITAL_AVATAR` 表达数字人面试。
 2. 候选人必须是唯一 `interviewees[0]`，必须有 `name` 和 `phone` 或 `email`，可以没有 `staffId`。
-3. 数字人面谈官使用 `sourceType=DIGITAL_HUMAN`，`staffId` 是数字人配置 ID；必须优先使用模板搜索/创建结果返回的实际 `digitalHumanId`。创建模板时未指定该值，由后端按当前配置决定；Skill 不复制或猜测后端默认值。
+3. 数字人面谈官使用 `sourceType=DIGITAL_HUMAN`，`staffId` 是数字人配置 ID；必须使用模板搜索/创建结果返回的实际 `digitalHumanId`。创建模板时该字段可选，仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写。
 4. 真人监考官是非 `DIGITAL_HUMAN` 的 `interviewers[]`。只有 `allowObserverIntervention=true` 时允许，且必须且只能有一个。
 5. 数字人面试不支持非空 `others`。
 6. 不要传 `roleCode`、`DA_INTERVIEWER`、`DA_CANDIDATE`、`REGULAR_*` 等后端内部角色值。
-7. 如果用户只给内部员工姓名并要求作为真人监考官或内部候选人处理，先通过 `base +selectStaffs` 确认 `staffId`，不能猜 ID。
+7. 如果用户只给内部员工姓名并要求作为真人监考官或内部候选人处理，先通过 `conference +selectStaffs` 确认 `staffId`，不能猜 ID。
 
 ## 时间规则
 

@@ -1,0 +1,18 @@
+{
+  "title": "赛狐ERP MCP 链接配置",
+  "title_en": "Connect to SellfoxERP MCP",
+  "description": "连接您的赛狐ERP账号。X-Mcp-Key仅存储在本机，由WorkBuddy在连接赛狐 MCP 服务时通过请求头注入。请勿向他人分享该密钥。",
+  "description_en": "Connect your Saihu ERP account. X-Mcp Key is only stored locally and injected by WorkBuddy through request headers when connecting to the Saihu MCP service. Please do not share this key with others.",
+  "docUrl": "https://www.sellfox.com/help/features/sellfoxMCP",
+  "docLabel": "如何获取赛狐 MCP 密钥？",
+  "fields": [
+    {
+      "key": "SELLFOX_MCP_KEY",
+      "label": "MCP KEY",
+      "type": "password",
+      "required": true,
+      "placeholder": "在赛狐ERP的「MCP管理」页面复制鉴权密钥",
+      "description": "密钥与当前赛狐账号绑定，数据访问范围继承该账号权限，密钥泄露后请立即重新生成。"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ ihr-cli attendance +periodInstances --month 2026-07 --page 0 --size 20
 
 | 契约项 | 当前行为 | 状态与证据 |
 | --- | --- | --- |
-| 输入方式 | 分项 flags 或 --json/--stdin；输入互斥；month 可选且为 yyyy-MM；page 原样 0-based，size 默认 20、最小 1。 | `ENFORCED`；internal/shortcuts/attendance/period.go；internal/shortcuts/attendance/attendance_test.go；test/cases/ihr-cli/attendance/{readonly,json-stdin-pagination,boundary-validation}.yaml |
+| 输入方式 | 分项 flags 或 --json/--stdin；输入互斥；month 可选且为 yyyy-MM；page 原样 0-based，size 默认 20、范围 1-1000。 | `ENFORCED`；internal/shortcuts/attendance/period.go；internal/shortcuts/attendance/attendance_test.go；test/cases/ihr-cli/attendance/{readonly,json-stdin-pagination,boundary-validation}.yaml |
 | 公共输出差异 | 无额外响应头行为；沿用 Shortcut 的 `--pretty/--output-file`，不支持 `--include`。 | `ENFORCED`；`internal/shortcut/runtime.go`、共享契约 |
 | 结构化输出 | Shortcut envelope 的 response 为周期实例分页结果；periodInstanceId 只用于后续月报链路，不在最终回复回显。 | `ENFORCED`；业务 reference 与 focused tests |
 | 当前退出状态 | 成功、help 和成功 dry-run 为 `0`；本地 flag/字段/JSON/范围校验为 `2`；stdin I/O、鉴权、配置、网络、HTTP、业务失败和输出文件失败为 `1`。 | `currentExitCodeStatus=ENFORCED`；`internal/shortcut/runtime.go` 与本命令测试 |
@@ -27,7 +27,7 @@ ihr-cli attendance +periodInstances --month 2026-07 --page 0 --size 20
 
 ### Agent 调用与安全规则
 
-- 自动分页：`ENFORCED` 为禁止；不自动翻页或批量；默认 size=20，当前仅校验 size>=1；不自动重试。
+- 自动分页：普通查询只读取当前页，保留原默认 size；CLI size 范围 1-1000。用户明确要求指定范围内全量查询时，使用最大页 size=1000 并遵循 [Skill 全量分页规则](../SKILL.md#全量分页规则)。CLI 单次命令只请求一页，不自动重试。
 - 批量执行：`ENFORCED` 为禁止，除非具体命令本身的单次请求字段明确表达多个筛选值。
 - 重试：`ENFORCED` 为不自动重试；只在用户修正参数、重新登录或确认远端恢复后重新执行。
 - 写入保护：`N/A`，本命令只读；dry-run 仅构造请求。
@@ -42,7 +42,7 @@ ihr-cli attendance +periodInstances --month 2026-07 --page 0 --size 20
 | 参数 | 类型 | 必填状态 | 默认值 | 说明 | 请求映射 |
 | --- | --- | --- | --- | --- | --- |
 | `--page` | int | OPTIONAL | `0` | gateway 原始页码，首屏为 0 | `page` |
-| `--size` | int | OPTIONAL | `20` | 每页记录数，最小 1 | `size` |
+| `--size` | int | OPTIONAL | `20` | 每页记录数，范围 1-1000 | `size` |
 | `--month` | string | OPTIONAL | 无 | 所属月份，格式 `yyyy-MM` | `month` |
 
 ```bash

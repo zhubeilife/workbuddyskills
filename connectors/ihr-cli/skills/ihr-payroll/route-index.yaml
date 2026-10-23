@@ -1,0 +1,146 @@
+version: 1
+
+domains:
+  - id: payroll
+    title: 薪资查询、核算结果、公司配置与薪资 Excel 处理
+    useWhen:
+      - 查询人员银行卡、薪资档案、薪资台账、薪资方案、核算任务或个税扣缴关系
+      - 查询或配置公司薪资项目、公司薪资模板，或校验和试算薪资公式
+      - 识别薪资 Excel、匹配表头与薪资项目，或从 Excel 创建公司薪资模板
+      - 查询 CNB 个税申报主体、申报状态或缴款汇总
+    avoidWhen:
+      - 只查询员工花名册、任职、组织编制、考勤结果或社保福利
+    load:
+      domain: references/domain/overview.md
+
+useCases:
+  - id: payroll.ledger.query
+    title: 查询某期薪资台账字段或员工明细
+    useWhen:
+      - 用户要查看某月或某期工资表、台账字段或员工薪资明细
+      - 需要先定位 history 或 merge 台账，再读取字段定义或当前页明细
+    avoidWhen:
+      - 只查询人员当前或历史薪资档案
+      - 要求 split 子台账、导出、工资总额或平均工资统计
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/ledger-query/guide.md
+
+  - id: payroll.salary-profile.query
+    title: 查询人员薪资档案
+    useWhen:
+      - 查询员工当前或历史薪资构成、薪级或动态薪资字段
+      - 用户给姓名或工号，需要先在薪资员工范围内定位再读取详情
+    avoidWhen:
+      - 查询某期已形成的薪资台账
+      - 查询员工银行卡
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/salary-profile-query/guide.md
+
+  - id: payroll.bank-card.query
+    title: 查询人员银行卡
+    useWhen:
+      - 查询指定员工的银行卡、卡号、持卡人或开户信息
+    avoidWhen:
+      - 查询薪资档案或薪资台账
+      - 要求按卡号、银行或多人列表筛选
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/bank-card-query/guide.md
+
+  - id: payroll.corporation.query
+    title: 查询人员个税扣缴义务人记录
+    useWhen:
+      - 查询指定员工的扣缴主体、税号、生效日期或变动记录
+    avoidWhen:
+      - 查询 CNB 个税申报状态或缴款汇总
+      - 查询主体列表或批量员工扣缴关系
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/corporation-query/guide.md
+
+  - id: payroll.company-template.configure
+    title: 创建或分步配置公司薪资模板
+    useWhen:
+      - 创建空白或系统来源的公司薪资模板，且没有把工作簿作为本次模板输入
+      - 保存已有模板薪资项目或页面默认考勤计薪规则
+    avoidWhen:
+      - 用户把工作簿作为本次公司模板的输入，要生成可用的完整模板
+      - 只校验或试算公式但不保存模板
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/company-template-configure/guide.md
+
+  - id: payroll.table-identify
+    title: 识别薪资 Excel 的主表、辅助表和引用关系
+    useWhen:
+      - 用户只需要理解薪资工作簿结构、定位唯一薪资主表或辅助查找表
+      - 用户提供 Excel 或既有提取目录，需要生成可恢复的表格识别产物
+    avoidWhen:
+      - 已经有可信且完整的表格识别产物，目标是匹配薪资项目
+      - 用户把工作簿作为输入，目标是生成完整公司薪资模板
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/table-identify/guide.md
+
+  - id: payroll.salary-field.match
+    title: 把薪资 Excel 全部末级表头匹配为公司薪资项目
+    useWhen:
+      - 用户要确认薪资 Excel 的全部末级列并形成完整项目映射
+      - 需要复用、启用、加入系统项目或原子创建一批缺失项目
+    avoidWhen:
+      - 只处理一个或少量明确薪资项目，不涉及完整 Excel 列映射
+      - 最终目标还包括生成完整公司薪资模板
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/salary-field-match/guide.md
+
+  - id: payroll.formula.edit
+    title: 校验、试算并按确认保存已有模板公式
+    useWhen:
+      - 用户最终目标是修改已有公司薪资模板的一个或多个字段公式
+      - 需要把 Excel 公式或业务规则转换为薪资系统公式后保存
+    avoidWhen:
+      - 只校验或试算公式，不保存模板
+      - 从工作簿生成完整公司薪资模板
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/formula-edit/guide.md
+
+  - id: payroll.template.from-excel
+    title: 从 Excel 端到端创建完整公司薪资模板
+    useWhen:
+      - 用户把 .xlsx 或 .xlsm 作为输入，目标是生成可用的完整公司薪资模板
+      - 目标同时包含表格识别、项目映射、公式处理和模板三步配置
+    avoidWhen:
+      - 用户明确只要识别工作簿结构、只要匹配薪资项目，或只要校验公式，且不生成公司模板
+      - 用户明确不把工作簿作为模板输入，只要空白或系统来源模板
+      - 用户明确只要修改已有模板公式，不生成新模板
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/template-from-excel/guide.md
+
+  - id: payroll.salary-field.provision
+    title: 复用、启用、加入或新建公司薪资项目
+    useWhen:
+      - 把薪资项目名称匹配到当前公司项目
+      - 启用失效项目、加入系统项目或创建自定义项目
+    avoidWhen:
+      - 完整 Excel 表头映射与批量列创建的端到端处理
+      - 只查询已确认 metaId 的项目详情
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/salary-field-provision/guide.md
+
+  - id: payroll.formula.validate-calc
+    title: 校验或试算薪资公式
+    useWhen:
+      - 校验薪资公式语法、引用、函数或循环依赖
+      - 使用样例值试算一个公式
+    avoidWhen:
+      - 把公式保存到已有公司薪资模板
+      - 直接把 Excel 单元格公式当作薪资系统公式保存
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/formula-validate-calc/guide.md

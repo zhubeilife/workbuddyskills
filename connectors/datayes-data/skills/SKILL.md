@@ -1,130 +1,90 @@
 ---
-name: datayes-data
-description: 通联数据金融数据查询技能 - A股/港股、基金、债券、指数、期货期权、因子、实时行情、宏观、公告与政策
-version: "1.0.0"
+name: datayes-data-skill
+description: 使用通联数据 MCP 查询 A股与港股、基金、债券、指数、期货期权、因子、行情、宏观、公告、分析师预测和政策法规。
+version: "1.1.0"
 author: "通联数据 DataYes"
 ---
 
-# 通联数据 MCP Skill
+# 通联数据 MCP
 
-本 Skill 提供中国金融市场数据的查询能力，覆盖 A股与港股、沪深港通、基金、债券、指数、
-期货期权、量化因子、实时行情、宏观行业指标、公告、分析师预测与政策法规。
+先在 WorkBuddy 连接器中连接通联数据，按浏览器提示登录 DataYes 账号并授权。
+WorkBuddy 管理 OAuth 凭证并自动续期；不要向用户索要 Token、密码或验证码。
+本连接器提供数据查询，不执行交易。可用数据受账号权限和余额限制。
 
-## 三步调用流程（必须按顺序）
+## 选择业务域
 
-本连接器不是「一个问题一个工具」，而是把上百个数据接口收在统一入口下，需三步取数：
+以当前连接返回的工具列表和参数 schema 为准。统一入口包含以下业务域：
 
-1. **选域检索**：根据问题所属业务域，调用对应的 `{domain}_search_api`，传入中文业务关键词，
-   拿到 Top 5 候选接口（含 `name` / `summary` / `required_parameters`）。
-2. **查参数**：对选定的接口调用 `get_api_info`，拿到完整参数定义。
-3. **取数**：调用 `api_call`，按参数定义传参。
+| 工具 | 用途 |
+|---|---|
+| `astock_search_api` | A股资料、财务、盘后行情、股东、公司事件；申万行业板块日行情与资金流 |
+| `hkstock_search_api` | 港股资料与盘后行情；沪深港通、北向/南向资金与持仓 |
+| `fund_search_api` | 基金资料、净值业绩、持仓、财务、风险与归因 |
+| `bond_search_api` | 债券档案、估值、信用、可转债条款与事件 |
+| `index_search_api` | 指数资料、成分、盘后行情、估值与收益率 |
+| `futopt_search_api` | 国内期货期权合约、盘后行情、持仓与波动率 |
+| `factor_search_api` | 股票量化因子 |
+| `quotes_search_api` | 沪深京证券日内实时快照与分钟行情 |
+| `macro_search_api` | 宏观行业指标检索；先搜指标代码，再用 `get_macro_data` 取数值 |
+| `announcement_search_api` | A股、基金、债券公告列表与原文 |
+| `analystfcst_search_api` | 分析师一致预期、盈利预测与评级 |
+| `policy_search_api` | 政策法规结构化数据与原文 |
 
-**不要跳过第 2 步凭空猜测参数名**，接口参数名多为通联特有命名（如 `secID`、`ticker`、
-`beginDate`、`endDate`、`indicID`），猜错会直接报参数错误。
+实时/分钟行情选 `quotes_search_api`；盘后历史行情按资产选域。
+沪深港通选 `hkstock_search_api`；行业板块行情选 `astock_search_api`。
+研报原文与新闻全文不在本统一入口中，不承诺通过分析师预测工具取得原文。
 
-## 可用工具
+## 普通数据查询（两步）
 
-### 业务域检索工具
+1. **域搜索**：调用对应域搜索工具，`query` 填业务关键词，如「净利润 利润表」，不必重复域名；
+   `user_question` 填用户本轮原始问题，同一问题拆成多次检索时保持原文一致。
+   返回 Top 10 候选接口，每个候选自带完整 `parameters` 定义（名称、类型、是否必填、说明）。
+   搜索参数：`query`（string，必填）、`limit`（integer，选填，1～10，默认 10）、
+   `user_question`（string，选填）；没有合适候选时细化或更换关键词后重试。
+2. **直接取数**：从候选中选定接口，按其 `parameters` 定义调用
+   `api_call(api_name=..., api_parameters={...}, user_question=...)`，无需再查接口详情。
+   `api_parameters` 是对象，日期格式以该接口的参数定义为准。不要凭记忆猜接口名或参数。
 
-| 工具 | 覆盖范围 |
-|------|----------|
-| `astock_search_api` | A股基本资料、财务、盘后行情、股本股东与公司重大事项 |
-| `hkstock_search_api` | 港股基本面与盘后行情，以及沪深港通（陆股通/北向资金、港股通/南向资金） |
-| `fund_search_api` | 基金基本资料、净值业绩、持仓配置与风险绩效归因 |
-| `bond_search_api` | 债券档案、估值行情、信用资质、可转债条款与债券事件 |
-| `index_search_api` | 指数基本要素、成分构成、盘后行情估值与收益率 |
-| `futopt_search_api` | 国内期货与期权合约规则、盘后行情、持仓与波动率 |
-| `factor_search_api` | 股票量化因子（技术、价值、质量、动量、成长、情绪等） |
-| `quotes_search_api` | 沪深京证券日内实时快照与分钟级行情序列 |
-| `macro_search_api` | 宏观行业指标、时序数据与经济日历（GDP、CPI、PMI、社融、M2、进出口等） |
-| `announcement_search_api` | A股、基金与债券公告原文及公告列表 |
-| `analystfcst_search_api` | 分析师一致预期、盈利预测与评级（研报衍生结构化指标） |
-| `policy_search_api` | 政策法规结构化信息与原文 |
+仅当返回候选缺少 `parameters` 定义时，才用 `get_api_info(api_name=...)` 补查：`api_name` 为必填
+string，需要多个接口时可用英文逗号分隔，最多 5 个。`api_call` 的 `api_name`（string）与
+`api_parameters`（object）必填，`user_question`（string）选填。只调用确实需要数据的接口，
+近义候选择一，避免重复取数产生费用。
 
-**参数说明**：
+用户只给中文名称时，先通过对应域搜索证券/基金/指数代码查询接口，再查目标数据。
+例如「贵州茅台去年的净利润」：`astock_search_api(query="净利润 利润表")` → 从返回的参数定义中
+选定接口 → `api_call`，按定义填写证券代码及报告期。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|:----:|------|
-| query | string | 是 | 中文业务关键词，如「净利润」「十大重仓股」「陆股通持股」 |
-| limit | number | - | 返回候选数，默认 5，最多可放宽到 10 |
+## 宏观查询
 
-**选域要点**：
-- 陆股通 / 北向资金 / 港股通 / 南向资金的接口挂在 `hkstock_search_api`，不在 `astock_search_api`。
-- `query` 里不要重复域名本身（如在 `astock_search_api` 里搜「股票 净利润」），
-  域已由所选工具确定，泛化词只会稀释排序，直接搜「净利润」即可。
-- 首轮没有合适候选时，换更具体的业务词重搜，或把 `limit` 放宽，不要直接猜接口名。
+宏观取数为两跳：先搜索指标代码，再按代码取时序数值。
 
-### get_api_info - 获取接口参数定义
+1. `macro_search_api(query="CPI")`：返回指标搜索接口 `search_macro_indicators` 及其参数定义。
+2. `api_call(api_name="search_macro_indicators", api_parameters={"keyword": "CPI"})`：
+   只返回指标元信息与指标代码（indicator_code），不含任何数值；只搜到指标名不等于回答了问题，
+   必须继续第 3 步。从结果中选择口径吻合用户问题的指标。
+3. `api_call(api_name="get_macro_data", api_parameters={"indicID": "<指标代码>"})`：
+   返回时序数值。`indicID` 多个时可传字符串数组；可选 `beginDate`/`endDate` 日期过滤、
+   `limit`（最大 50）、`summary_only` 等，参数定义可查 `get_api_info(api_name="get_macro_data")`。
 
-**参数说明**：
+如需经济日历，查 `get_macro_calendar` 的定义后调用。不要把 PMI 数值误表述为同比增速。
+若后续服务升级为指标直搜（域搜索直接返回 `data[].indicator_code`），可跳过第 2 步，
+直接用返回的指标代码调用 `get_macro_data`。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|:----:|------|
-| api_name | string | 是 | 域检索结果中的 `results[].name` |
+## 返回数据与错误处理
 
-返回该接口的全部参数（名称、类型、是否必填、中文含义、可选枚举值）。
+成功返回通常包含 `retCode: 1` 和 `data`，宏观结果等以实际返回结构为准。
+分页按接口定义执行；只有 schema 支持时才传 `pagenum`、`pagesize` 等参数。
+若返回截断提示，应缩小代码/日期范围或选择所需字段后重查，不能把展示片段当作完整结果。
+回答应注明数据日期、单位、报告期和口径；空数据不能推断为零，不编造缺失值。
 
-### api_call - 调用接口取数
+| 情况 | 处理方式 |
+|---|---|
+| `retCode: -1` 或空数据 | 核对代码、日期与口径，必要时调整范围；避免重复相同查询 |
+| 参数错误或缺少参数 | 重新查看接口定义并修正 |
+| 超时/系统繁忙 | 缩小查询范围，必要时稍后重试一次 |
+| HTTP 429 / `CONCURRENCY_LIMITED` | 稍后串行重试，避免并发重发 |
+| 积分不足 | 提示用户在通联数据平台核对余额/充值；不推断是否已扣费 |
+| 未开通权限 | 提示用户核对该账号的数据订阅，不通过换接口绕过权限 |
+| 授权过期/HTTP 401 | 先由 WorkBuddy 自动刷新；若仍失败，提示重新连接并完成浏览器授权 |
 
-**参数说明**：
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|:----:|------|
-| api_name | string | 是 | 接口名，须与 `get_api_info` 查询的一致 |
-| api_parameters | object | 是 | 按参数定义构造的参数对象 |
-| user_question | string | - | 用户的原始提问，用于服务侧问题归因，建议原样填写 |
-
-**分页**：单次最多返回 50 行，更多数据用 `pagenum` 翻页（从 1 开始）。
-大文本类接口（研报原文、政策法规）单页 20 条。
-
-## 使用示例
-
-- **查财务数据**：用户问「贵州茅台去年的净利润」
-  → `astock_search_api(query="净利润 利润表")`
-  → 选定接口后 `get_api_info`
-  → `api_call`，传 `ticker="600519"` 与报告期区间。
-
-- **查基金持仓**：用户问「易方达蓝筹二季度前十大重仓股」
-  → `fund_search_api(query="重仓股 持仓明细")` → `get_api_info` → `api_call`。
-
-- **查宏观指标**：用户问「最近的 CPI 同比」
-  → `macro_search_api(query="CPI 居民消费价格指数")`，先用检索类接口确认 `indicID`，
-  再用取数接口拿时序数据。
-
-- **查北向资金**：用户问「陆股通持股比例」
-  → `hkstock_search_api(query="陆股通 持股")`（不要用 `astock_search_api`）。
-
-## 证券代码解析
-
-多数接口需要证券代码（`secID` / `ticker`），而不是中文简称。
-当用户只给了中文名称时，**先用 `astock_search_api(query="证券编码 secID")` 找到代码查询接口
-（如 `getSecIDEqu`），用中文简称换取代码，再去调目标接口**；仅在确实无法解析时才向用户追问代码。
-基金与指数同理。
-
-## 错误处理
-
-服务返回体中的 `retCode` 表示上游数据接口的状态，失败时同时带 `error_type` 与 `suggestion`：
-
-| retCode | 含义 | 处理建议 |
-|---------|------|----------|
-| 1 | 成功 | 正常解析 `data` |
-| -1 | 无数据返回 | 查询条件范围内确实没有数据。放宽时间范围或核对代码后重试；**不要反复重试相同参数**，也不要编造数据 |
-| -2 / -9 | 参数无效 / 缺少必填参数 | 回到 `get_api_info` 核对参数名与格式（日期为 `YYYYMMDD`） |
-| -5 | 系统繁忙 | 稍后重试一次即可 |
-| -7 | 查询超时 | 结果集过大，缩小时间范围或增加过滤条件（如指定证券代码） |
-| 402 | 积分不足 | 本次未返回数据且未计费，请提示用户到通联数据控制台充值 |
-
-其他情况：
-- 返回业务错误 `INSUFFICIENT_CREDITS`：积分不足，提示用户充值后再重试，不要重复提交相同请求。
-- 返回 `code: "CONCURRENCY_LIMITED"` 或 HTTP 429：并发请求数达上限，稍后串行重试，不要并发重发。
-- 提示「未开通该服务权限」：该 Token 未订阅对应数据服务，请提示用户联系通联数据开通，不要换接口硬试。
-
-## 认证说明
-
-- 本连接器使用长期有效的访问令牌（Token），在连接时由 WorkBuddy 注入请求头
-  `Authorization: Bearer <token>`，Token 仅保存在用户本机。
-- Token 同时决定数据权限范围与积分账户，取数会按接口单价 × 返回行数扣减积分。
-- **Token 失效或需要更换时**：到 https://mcp.datayes.com/#/personal-center
-  （个人中心 → 个人信息 → Token）点「重新生成」，然后在 WorkBuddy 的连接器设置中更新即可，
-  无需重启 WorkBuddy。注意重新生成会使旧 Token 立即失效。
-- 若出现「权限验证失败」类提示，通常是 Token 未填写、填错或已被撤销，请引导用户重新配置。
+费用与权限以通联数据平台及上游返回为准；不要声称所有查询免费或固定按返回行数计费。

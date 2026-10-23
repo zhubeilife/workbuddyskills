@@ -6,6 +6,7 @@
 
 | 命令族 | 典型入口 | 当前契约来源 |
 | --- | --- | --- |
+| 框架命令 | `ihr-cli tenant quota` | 本共享契约与 [租户额度提示](ihr-cli-quota-notice.md) |
 | Shortcut | `ihr-cli <domain> +<action>` 或 resource-scoped `+` 命令 | 命令 help、所属 Domain reference 与 Shortcut 实现 |
 | Metadata Command | `ihr-cli <domain> <resource> <action>` | `schema`、所属业务 reference 与 Metadata Runtime |
 
@@ -16,6 +17,7 @@ Connector Skills 不使用未打包 Domain、raw 网关命令、自写 HTTP clie
 - Shortcut 和 Metadata Command 的成功或失败 JSON envelope 写入 stdout。
 - 根 help 只输出领域和逐层发现入口；资源、动作、参数和示例通过对应层级的 `--help` 或 `schema` 按需获取。
 - warning 可以写入 stderr。不能假设所有诊断都只在 stderr；先按所属命令解析 stdout，再结合进程退出状态判断结果。
+- 业务命令的 JSON envelope 可以在 `meta` 中携带 CLI 给出的提示（当前如 `meta.quotaHint`）；触发条件、文案和去重由命令决定，调用方按原文展示即可，不要自行推算或改写。
 
 ## JSON envelope
 

@@ -1,7 +1,7 @@
 ---
 name: jufa-legal-data
-description: 使用聚法法律数据智能服务检索司法案例、法律法规、检察文书、合同模板、招投标、企业信息及相关风险，并按结果标识读取详情。
-version: 1.0.0
+description: 聚法为智能体提供司法案例、法律法规、检察文书、合同模板、招投标、企业信息及风险数据的检索与详情查询能力。
+version: 1.1.0
 author: 聚法科技（长春）有限公司
 ---
 
@@ -11,7 +11,7 @@ author: 聚法科技（长春）有限公司
 
 当用户需要查询中国司法案例、法律法规、检察文书、合同模板、招投标、企业工商信息、诉讼与执行风险、商标、专利、司法拍卖、开庭公告或行政处罚时使用本 Skill。
 
-本 Connector 对外提供 36 个已上线工具。案例聚合、法规聚合和法规向量法条检索尚未上线，不得声称或尝试调用这些能力。
+本 Connector 的工具目录由聚法服务端动态提供。调用前以客户端实际获取的工具目录和参数 Schema 为准。
 
 ## 鉴权与费用
 
@@ -36,8 +36,11 @@ author: 聚法科技（长春）有限公司
 | 工具 | 用途与返回 | 参数 |
 |---|---|---|
 | `jufa_case_search_cases` | 搜索案例，返回列表、摘要及 `case_uuid` | 必填：`keyword`。可选：`page`、`page_size`、`court_name`、`court_id`、`court_level_id`、`case_type_id`、`case_level_id`、`reason_id`、`reason_name`、`region_id`、`region_name`、`year_id`、`judge_name`、`party_name`、`lawyer_name`、`lawoffice_name`、`judgement_id`、`judgement_timestamp_id`、`round_id`、`circuit_id`、`special_id`、`special_court_name`、`result_type_id`、`textlen_range_id`、`lxqj_id`、`ajtz_id`、`zyjd_id`、`typeKey`、`sign_type`、`sort_type`、`filters` |
+| `jufa_case_aggregate_cases` | 按指定维度统计案例结果，用于先观察案由、法院、年份等分布再缩小检索范围 | 必填：`keyword`、`aggregation_types`；其余筛选参数以工具 Schema 为准 |
 | `jufa_case_get_case_detail` | 读取案例摘要、分段正文及引用法规 | `case_uuid`、`case_no`至少一个；可选`keyword`用于高亮 |
 | `jufa_law_search_laws` | 搜索法规，返回列表、摘要及 `law_uuid` | 必填：`keyword`。可选：`page`、`page_size`、`area_id`、`area_name`、`xljb_id`、`xljb_name`、`lawxljb_id`、`unit_id`、`unit_name`、`sxx_id`、`year_id`、`publish_date_start`、`publish_date_end`、`effect_date_start`、`effect_date_end`、`typeKey`、`sign_type`、`sort_type`、`filters` |
+| `jufa_law_aggregate_laws` | 按指定维度统计法规结果，用于分析效力位阶、制定机关、地域等分布 | 必填：`keyword`、`aggregation_types`；其余筛选参数以工具 Schema 为准 |
+| `jufa_law_search_law_articles_vector` | 按法规名称和法条语义检索法条原文候选，并返回效力状态核验信息 | 参数结构以工具 Schema 为准；法规名称必须来自用户输入或可信上下文，不得猜测 |
 | `jufa_law_get_law_detail` | 读取法规基础信息和分段法条正文 | `law_uuid`、`title`至少一个；可选`keyword`仅返回命中法条分段 |
 
 ### 检察文书

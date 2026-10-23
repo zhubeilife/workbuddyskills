@@ -1,8 +1,8 @@
 {
-  "title": "企业动态追踪API凭证配置",
-  "title_en": "Enterprise Dynamic Tracking API Credentials",
-  "description": "请在下方填入您的企业动态追踪 API Key。该凭证仅存储在您本机，用于向企业动态追踪服务发起认证请求。",
-  "description_en": "Please enter your Enterprise Dynamic Tracking API Key below. This credential is stored only on your local machine and used to authenticate requests to the service.",
+  "title": "上奇产业通API凭证配置",
+  "title_en": "Shangqi Industry Connect API Credentials",
+  "description": "请在下方填入您的上奇产业通 API Key。该凭证仅存储在您本机，用于向上奇产业通服务发起认证请求。",
+  "description_en": "Please enter your Shangqi Industry Connect API Key below. This credential is stored only on your local machine and used to authenticate requests to the service.",
   "docUrl": "https://ai.chanyedata.com/ai-quantitative/#/?ref=Wb7Kx2Qm",
   "docLabel": "前往个人中心获取 API Key",
   "docLabel_en": "Go to Personal Center to get your API Key",

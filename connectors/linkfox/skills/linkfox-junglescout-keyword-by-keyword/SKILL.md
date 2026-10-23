@@ -7,7 +7,9 @@ description: Jungle Scout关键词拓展工具，根据种子关键词扩展出�
 
 ## 基本信息
 
-- **业务工具名**：`/tool-jungle-scout/keywords/by-keyword`
+- **MCP 服务**：`LinkFox`
+- **MCP 工具**：`proxy_call`
+- **业务路由**：`toolName = "tool-jungle-scout/keywords/by-keyword"`，不加前导 `/`，保留大小写。
 - **所属分组**：Jungle Scout · 亚马逊关键词与销量
 - **功能说明**：根据关键词扩展关键词信息
 
@@ -38,30 +40,21 @@ description: Jungle Scout关键词拓展工具，根据种子关键词扩展出�
 
 ## MCP 调用示例
 
-向以下地址发起 HTTP `POST`：
-
-```text
-https://mcp-tool-gateway.linkfox.com/mcp/any-tool
-```
-
-请求体：
+调用已安装的 **LinkFox MCP** 所暴露的 **`proxy_call` 工具**，传入以下工具参数：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "/tool-jungle-scout/keywords/by-keyword",
-    "arguments": {
-      "marketplace": "us",
-      "searchTerms": "example"
-    }
+  "toolName": "tool-jungle-scout/keywords/by-keyword",
+  "arguments": {
+    "marketplace": "us",
+    "searchTerms": "example"
   }
 }
 ```
 
 > 示例值仅用于展示请求结构。实际调用时必须替换为用户的真实查询条件。
+
+`proxy_call` 是 MCP 工具名；`tool-jungle-scout/keywords/by-keyword` 是其 `toolName` 参数中的业务路由。`arguments` 为业务参数对象，字段类型按输入参数表及 Schema 传入；数组和对象不要序列化为字符串。WorkBuddy 自动注入认证信息，无需在工具参数中传入凭证。若 LinkFox MCP 不可用，按下方安装指引提示用户，不改用直接 HTTP 请求。
 
 ## 输出字段
 
@@ -92,9 +85,9 @@ https://mcp-tool-gateway.linkfox.com/mcp/any-tool
 
 ## 响应处理建议
 
-1. 先检查 JSON-RPC 外层是否包含 `error`。
-2. 成功时读取 `result`，并继续解析其中的 `content`、`data`、`products`、`items` 或其他业务字段。
-3. 如果响应为 `text/event-stream`，按 SSE 事件读取 `data:` 内容，再解析 JSON。
+1. 检查 MCP 工具调用是否报错（如 `isError`）；报错时保留错误信息。
+2. 读取返回的 `content` 或结构化结果；若 `content` 中包含 JSON 文本，解析为业务响应，并按该工具返回的状态码和错误信息判断是否成功。
+3. 成功后按输出字段读取 `data`、`products`、`items` 或其他业务结果。
 4. 保留分页字段、总数、失败明细及 `costToken`。
 5. 向用户输出分析结论，不要直接倾倒大段原始 JSON。
 
@@ -105,7 +98,7 @@ https://mcp-tool-gateway.linkfox.com/mcp/any-tool
 ## 解决认证和积分问题
 
 ## [!IMPORTANT]
-本 Skill 必须依赖 MCP “linkfox”。如未安装该MCP，请明确通知用户：
+本 Skill 必须依赖 MCP “LinkFox”。如未安装该MCP，请明确通知用户：
 > 请先安装 LinkFox 连接器：
 > - 在 WorkBuddy 左侧找到 “专家·技能·连接器” → “连接器”；
 > - 搜索关键词 “LinkFox”，并安装连接器 “LinkFox”（注意：是 linkfox，不是 linkfox-product-selection），按指引完成登录授权；

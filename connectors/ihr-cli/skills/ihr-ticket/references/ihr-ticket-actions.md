@@ -9,6 +9,8 @@
 
 ```bash
 ihr-cli ticket +create --title "页面异常" --category-id 1 --content "操作后页面报错"
+ihr-cli ticket +create --title "页面异常" --category-id 1 --content "操作后页面报错" \
+  --related-thread-id "thread-123"
 ihr-cli ticket +create --json '{"title":"页面异常","categoryId":1,"content":"操作后页面报错"}'
 ```
 
@@ -17,9 +19,19 @@ ihr-cli ticket +create --json '{"title":"页面异常","categoryId":1,"content":
 | `--title` | string | REQUIRED | 无 | `title` | 非空标题 |
 | `--category-id` | string | REQUIRED | 无 | `categoryId` | 正整数 ID |
 | `--content` | string | OPTIONAL | 空 | `content` | 最长 5000 字符 |
-| `--related-thread-id` | string | OPTIONAL | 空 | `relatedThreadId` | 当前用户可见会话 ID |
+| `--related-thread-id` | string | OPTIONAL | 空 | `relatedThreadId` | 显式传入的指定会话 ID；建议从 `+related-threads` 结果中选择 |
 | `--attachment-ids` | string | OPTIONAL | 空 | `attachmentIds` | 逗号分隔或 JSON 数组，元素为正整数 ID |
 | `--idempotency-key` | string | OPTIONAL | CLI 自动生成 | `idempotencyKey`（仅传输控制） | 仅 `[A-Za-z0-9._:-]`；进入请求头，不进入业务 body |
+
+### 创建时关联会话
+
+`relatedThreadId` 是可选的持久化会话 ID；CLI 不保存、也不能自行发现聊天产品的“当前会话”。
+
+1. 在同一次创建确认预览中显示“关联会话：`<标题/ID>`”或“关联会话：不关联”，与标题、分类、内容和附件一起确认，不增加第二次确认。
+2. 仅当调用上下文明确提供 Claw threadId，或用户从候选中选定 ID 时，才传入 `--related-thread-id <threadId>`；不得根据标题、时间或返回顺序猜测当前/最近会话。
+3. 需要候选时，先在用户确认后执行 `ihr-cli ticket +related-threads`；返回多项时让用户选择，不自动使用第一项或最近一项。
+4. 用户选择不关联时省略该参数；CLI 不生成会话 ID，也不从其他字段推断。
+5. `X-Session-Id` 是 Claw 身份会话，不是 `relatedThreadId`，不得互相替代。
 
 结果不确定时保留并复用原 `Idempotency-Key`，不要生成新 key 后盲目重试。
 

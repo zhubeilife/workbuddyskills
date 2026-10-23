@@ -1,0 +1,18 @@
+{
+  "title": "连接凡科建站",
+  "title_en": "Connect your Faisco site",
+  "description": "请填写网站后台申请的 API Key，并确认站点已开启 AI 接口开放。WorkBuddy 将凭证保存在用户本机，连接时发送至凡科建站服务进行鉴权。",
+  "description_en": "Enter the API key obtained from your site administration panel and enable AI interface access. WorkBuddy stores the credential locally and sends it to the Faisco service when connecting.",
+  "fields": [
+    {
+      "key": "FAISCO_API_KEY",
+      "label": "API Key",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "填写您在网站后台申请的 API Key",
+      "description": "用于查询或管理该密钥获准访问的站点文章。请使用您自己的密钥，不要在对话中粘贴或公开分享。",
+      "description_en": "Used to access site articles permitted by this key. Use your own key; do not paste it into conversations or share it publicly."
+    }
+  ]
+}

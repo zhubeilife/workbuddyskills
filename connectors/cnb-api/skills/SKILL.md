@@ -50,6 +50,7 @@ skills:
 编号同 `--repo` 一样默认从环境变量识别，无需传递；用 `--repo <组织/仓库>`、`--number <编号>` 可覆盖。
 
 例如：
+
 - `cnb issues get --number 66`
 - `cnb pulls get --repo x/y --number 99`
 
@@ -60,13 +61,18 @@ skills:
 - 图片 `.../-/imgs/<issues|pulls>/<数字 ID>/<key>/<文件名>`
 - 附件 `.../-/files/<issues|pulls>/<数字 ID>/<key>/<文件名>`
 
-`图片路径/附件路径`=`<数字 ID>/<key>/<文件名>`，即 `参数` 取 `<issues|pulls>/` 之后的**完整尾段**。
+`图片路径/附件路径`=`<issues|pulls>/<数字 ID>/<key>/<文件名>`，即 `参数` 取 `<issues|pulls>/` 开头的**完整尾段**。
 
 ## 常用链接
 
 生成链接时遵循以下结构：
+
 - Issue: `<host>/<slug>/-/issues/<number>`
 - PR: `<host>/<slug>/-/pulls/<number>`
+
+## 正文中引用跨仓库 Issue / PR
+
+- 统一写 `<slug>#<number>` 或完整链接（格式见上）。
 
 ## 更多 API
 

@@ -1,0 +1,18 @@
+{
+  "title": "198系统API配置",
+  "title_en": "198 System API Configuration",
+  "description": "连接您的198智能健康系统账号。API Key由9两健康管理员签发（联系管理员获取，格式 jlk_ 开头），凭证仅保存在本机，不上传云端。",
+  "description_en": "Connect your 198 Smart Health System account. The API Key is issued by the 9Liang Health administrator (contact your admin, format: jlk_ prefix). Credentials are stored locally only, never uploaded.",
+  "fields": [
+    {
+      "key": "API_KEY",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "请联系9两健康管理员签发（jlk_ 开头）",
+      "description": "由9两健康管理员签发的个人访问令牌（jlk_ 前缀），用于访问198系统API",
+      "label_en": "API Key",
+      "description_en": "Personal access token issued by the 9Liang Health administrator (jlk_ prefix), used to access the 198 Smart Health System API"
+    }
+  ]
+}

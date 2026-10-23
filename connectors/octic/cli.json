@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "darwin": "octic auth login --device",
+    "linux": "octic auth login --device",
+    "win32": "octic auth login --device"
+  },
+  "status": {
+    "darwin": "octic auth status --output json",
+    "linux": "octic auth status --output json",
+    "win32": "octic auth status --output json"
+  },
+  "unAuth": {
+    "darwin": "octic auth logout",
+    "linux": "octic auth logout",
+    "win32": "octic auth logout"
+  },
+  "versionCheck": {
+    "command": {
+      "darwin": "octic --version",
+      "linux": "octic --version",
+      "win32": "octic --version"
+    },
+    "minVersion": "1.4.0"
+  },
+  "statusMatch": "\"probeResult\"\\s*:\\s*\"connected\"",
+  "authUrlDomain": "octic-auth.mininglamp.com",
+  "init": {
+    "darwin": "curl -fsSL https://octic.mininglamp.com/cli/install.sh | bash",
+    "linux": "curl -fsSL https://octic.mininglamp.com/cli/install.sh | bash",
+    "win32": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"[scriptblock]::Create((irm 'https://octic.mininglamp.com/cli/install.ps1')).Invoke()\""
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": "连接硅菩提办事确认卡",
+  "title_en": "Connect Guiputi Task Confirmation Card",
+  "description": "不填密钥也能先试用，每天可免费建 30 张确认卡。填上 GPT中文网的免费密钥可以解除次数限制。密钥只由 WorkBuddy 保存在本机，连接时放进请求头，不会上传到 WorkBuddy 云端。",
+  "description_en": "You can try it without a key (30 free cards per day). Add a free GPT Chinese key to remove the limit. The key is stored locally by WorkBuddy and sent only in the request header.",
+  "docUrl": "https://www.gpt.com.cn/mcp/workbuddy",
+  "docLabel": "如何免费获取密钥？",
+  "docLabel_en": "How do I get a free key?",
+  "fields": [
+    {
+      "key": "GPTCN_API_KEY",
+      "label": "GPT中文网密钥（可不填）",
+      "label_en": "GPT Chinese key (optional)",
+      "type": "password",
+      "required": false,
+      "placeholder": "留空先试用；有密钥就粘贴 sk_gp_ 开头的那串",
+      "placeholder_en": "Leave empty to try; or paste the key starting with sk_gp_",
+      "description": "在 www.gpt.com.cn/mcp/keys 登录后免费申请，明文只显示一次。不要在对话里发送密钥；泄露了就到同一页面作废重发。",
+      "description_en": "Get it free at www.gpt.com.cn/mcp/keys. It is shown only once. Never paste it into a chat; revoke and reissue on the same page if exposed."
+    }
+  ]
+}

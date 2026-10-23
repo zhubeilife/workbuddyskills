@@ -1,12 +1,8 @@
 {
     "mcpServers": {
         "datayes-data": {
-            "type": "streamableHttp",
+            "type": "streamable-http",
             "url": "https://dataapi-mcp-server.datayes.com/datayes-data/mcp",
-            "headers": {
-                "Authorization": "Bearer ${DATAYES_TOKEN}",
-                "Accept": "application/json, text/event-stream"
-            },
             "timeout": 30000
         }
     }

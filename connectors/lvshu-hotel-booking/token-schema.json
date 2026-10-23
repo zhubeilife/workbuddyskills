@@ -1,0 +1,19 @@
+{
+  "title": "旅枢分销接入配置",
+  "title_en": "LvShu Distributor Access",
+  "description": "凭证仅保存在本机 ~/.workbuddy 目录下。请先在旅枢分销平台注册/登录，在「数据看板」复制 api_key。",
+  "description_en": "Credentials are stored locally in ~/.workbuddy only. Register or sign in on the LvShu distributor platform, then copy the api_key from the dashboard.",
+  "docUrl": "https://lvshu.seniin.com/lvshu-distributor/",
+  "docLabel": "如何获取 api_key？",
+  "fields": [
+    {
+      "key": "LVSHU_API_KEY",
+      "label": "API Key",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "在旅枢分销平台「数据看板」复制",
+      "description": "用于调用旅枢分销 MCP 的 api_key，请勿分享给他人。"
+    }
+  ]
+}

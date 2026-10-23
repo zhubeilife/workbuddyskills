@@ -1,0 +1,21 @@
+{
+    "title": "中证数智企业数据配置",
+    "title_en": "CSCS Enterprise Data Configuration",
+    "description": "连接中证数智数据平台，用于查询企业工商、司法、财务、舆情等数据。API Key 仅存储在本机 ~/.workbuddy 下，不会上传云端。",
+    "description_en": "Connect to the CSCS data platform to query enterprise registration, legal, financial, and news data. Your API Key is stored locally in ~/.workbuddy only.",
+    "docUrl": "https://ds.chinacscs.com/dashboard/api-keys",
+    "docLabel": "如何获取中证数智 API Key？",
+    "docLabel_en": "How to get a CSCS API Key?",
+    "fields": [
+        {
+            "key": "CSCS_API_KEY",
+            "label": "API Key",
+            "placeholder": "在中证数智控制台「API 密钥」页面生成，以 sk- 开头",
+            "placeholder_en": "Generate on the CSCS dashboard API Keys page, starts with sk-",
+            "type": "password",
+            "required": true,
+            "description": "用于访问中证数智 MCP 服务的数据查询凭证。",
+            "description_en": "Credential for accessing the CSCS MCP data query service."
+        }
+    ]
+}

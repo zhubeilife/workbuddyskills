@@ -1,9 +1,22 @@
 ---
 name: linkfox-onboarding
-description: LinkFox 账号与环境引导。两个入口：(1) 检测到 LINKFOX_AGENT_API_KEY/LINKFOXAGENT_API_KEY 均未配置，或任何 linkfox-* skill 返回 errcode=401/authorized error 时，引导用户配置 key——支持脚本化注册（手机号→验证码→自动获取 key）；(2) 任何 linkfox-* skill 返回计费不足错误（errcode=402 或消息含"积分余额不足/计费不足/余额不足/quota exceeded/insufficient balance/套餐到期/需充值/请充值"）时，触发充值流程：列套餐 → 用户选套餐（校验）→ 选支付方式（微信/支付宝，校验）→ 调下单接口生成支付二维码 → 三路展示（PNG/链接/ASCII）→ 可选查询订单状态。用户说"没配 key""鉴权失败""积分不足""余额不足""充值""recharge""升级套餐""注册""手机号注册"时触发。
+description: LinkFox 账号与环境引导。当用户提到连接器未安装、登录授权失败、鉴权失败、积分不足、充值、注册或没配 key 时使用。在 WorkBuddy 中优先引导安装 LinkFox 连接器、完成登录授权或进入 LinkFox 账号页面充值；连接器负责认证，不以本地 API Key 环境变量缺失判断未登录。仅在用户明确使用独立 CLI/API 脚本时，使用本技能的 API Key 配置、短信注册和套餐支付脚本流程。
 ---
 
 # LinkFox 账号与环境引导
+
+## WorkBuddy 连接器引导（优先）
+
+本目录的业务技能依赖 **LinkFox MCP**，实际调用其 **`proxy_call` 工具**：`toolName` 为对应技能规定的精确业务路由（不加前导 `/`），`arguments` 为业务参数对象。账号安装与授权引导本身无需调用业务工具，也不要为注册或充值猜测 `toolName`。
+
+- **MCP 或工具不可用**：引导用户在 WorkBuddy 左侧“专家·技能·连接器” → “连接器”搜索并安装 **LinkFox**（不是 linkfox-product-selection），按指引完成登录授权，再重试原业务技能。
+- **鉴权失败（401 / authorized error）**：引导用户在 LinkFox 连接器中重新登录授权。WorkBuddy 自动注入认证信息，无需给 `proxy_call` 传入凭证，也无需检测或设置本地 API Key 环境变量。
+- **积分不足（402 或余额不足消息）**：引导用户访问 https://agent.linkfox.com/ ，使用连接器授权时的账号登录并完成充值，再重试原业务技能。
+- **无权限（403）**：保留错误信息并提示检查账号权限，不归入缺 Key 或积分不足流程。
+
+在 WorkBuddy 连接器模式下，以下独立 CLI/API 流程不自动执行；不要因为环境变量为空切换到 HTTP 或脚本调用。只有用户明确要求使用独立 CLI/API 脚本时，才进入以下流程。
+
+## 独立 CLI/API 引导
 
 承接两类引导场景：
 

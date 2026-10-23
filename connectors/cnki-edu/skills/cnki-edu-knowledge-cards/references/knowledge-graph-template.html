@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-style="mindmap">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识图谱 · 贴纸手帐风模板</title>
+<!--
+  ======================================================================
+  知识图谱 / 思维导图 / 思维外化图 · 贴纸手帐风模板（cnki-edu-knowledge-cards）
+  ----------------------------------------------------------------------
+  设计目标：告别"一个方框一个方框"的单调排版，中小学知识图谱应当——
+    ① 中心节点 = 发光"星球/主角"气泡（不是方框）；
+    ② 主分支 = 绕中心均匀分布的彩色"贴纸"节点，用曲线胶带连线；
+    ③ 详细卡片 = 手帐贴纸卡：彩色横幅标题 + 凸起 emoji 徽章 + 胶带角 + 轻微旋转；
+    ④ 重点 = 金色"★重点"星标贴纸，不是普通小字；
+    ⑤ 背景有星点 / 圆点 / 涂鸦装饰，元素丰富多彩、生动有趣。
+  纯 HTML/CSS/JS，零外部依赖，可离线打开、可打印（A4 横向导出 PDF）。
+  ----------------------------------------------------------------------
+  使用方式：把下面 <script> 里的 const GRAPH = {...} 换成本次知识点数据即可，
+  不要重写渲染逻辑。GRAPH 字段：
+    title    图谱标题
+    subtitle 副标题（学段·学科·册次·课次）
+    tags     顶部标签数组，如 ["学段：高中","学科：地理"]
+    note     图角诚信/核对说明（建议保留"⚠ 请按所用教材版本核对"）
+    theme/theme2  页头与中心节点渐变主色（hex）
+    center   {emoji, label(可含\n换行), sub}
+    branches 数组，每项 {ix, icon, title, color, sub(hero副标), points:[{text, key?}], tip?}
+              color 为该分支主色（hex），节点/横幅/胶带都会跟随；
+              point 的 key:true 会渲染成金色"★重点"星标贴纸。
+  ======================================================================
+-->
+<style>
+  :root{
+    --bg-1:#fef6ec; --bg-2:#eef4ff;
+    --panel:#ffffff;
+    --text:#2b3340; --muted:#7a8392;
+    --line:#e7e0d4;
+    --theme:#3b6fd4; --theme-2:#1f3c7a;
+    --key:#e0a400; --key-soft:#fff4cf;
+    --radius:18px;
+    --shadow:0 10px 26px rgba(60,80,140,.14);
+    --shadow-pop:0 16px 34px rgba(60,80,140,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1100px 560px at 8% -10%, rgba(91,141,212,.16), transparent 60%),
+      radial-gradient(900px 520px at 100% 0%, rgba(240,150,30,.14), transparent 55%),
+      linear-gradient(160deg,var(--bg-1),var(--bg-2));
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Comic Sans MS",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.78;
+    padding:24px 18px 64px;
+    position:relative;
+  }
+  /* 背景涂鸦：圆点 + 小星 */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;
+    background-image:
+      radial-gradient(circle, rgba(120,140,200,.18) 1.5px, transparent 2px),
+      radial-gradient(circle, rgba(230,160,60,.16) 1.5px, transparent 2px);
+    background-size:46px 46px, 70px 70px;
+    background-position:0 0, 23px 35px;
+  }
+  .wrap{max-width:1280px;margin:0 auto}
+
+  /* ===== 头部 ===== */
+  header.top{
+    background:linear-gradient(135deg,var(--theme),var(--theme-2));
+    color:#fff;border-radius:24px;padding:24px 28px;position:relative;overflow:hidden;
+    box-shadow:0 16px 38px rgba(30,50,120,.30);
+  }
+  header.top::after{content:"✶";position:absolute;right:18px;top:6px;font-size:64px;color:rgba(255,255,255,.16);transform:rotate(12deg)}
+  header.top .star{position:absolute;left:20px;bottom:8px;font-size:30px;opacity:.5}
+  header.top h1{margin:0;font-size:1.6em;letter-spacing:.01em;font-weight:900;display:inline-block;
+    background:rgba(255,255,255,.18);padding:4px 16px;border-radius:14px;border:2px dashed rgba(255,255,255,.5)}
+  .meta{margin-top:12px;font-size:.95em;color:rgba(255,255,255,.94)}
+  .tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .tag{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 13px;font-size:.82em;font-weight:700}
+  .note{margin-top:14px;font-size:.84em;color:#fff;background:rgba(0,0,0,.20);border-radius:12px;padding:9px 13px;border-left:5px solid #ffe08a}
+
+  /* ===== 导图 hero ===== */
+  .map-card{
+    margin-top:22px;background:var(--panel);border:2.5px dashed #d9cdb6;border-radius:24px;
+    padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .map-card h2{margin:4px 8px 12px;font-size:1.08em;font-weight:900;color:#5a4a2e;display:flex;align-items:center;gap:8px}
+  .map-card h2 .pin{background:#ffe08a;border-radius:8px;padding:1px 9px;font-size:.8em;transform:rotate(-3deg);border:1px solid #e7c75a}
+  svg.hero{width:100%;height:auto;display:block}
+
+  /* ===== 详细分支（手帐贴纸卡） ===== */
+  .detail{margin-top:26px;display:grid;grid-template-columns:repeat(2,1fr);gap:26px 22px}
+  @media(max-width:860px){.detail{grid-template-columns:1fr}}
+  .branch{
+    position:relative;background:var(--panel);border:2px solid var(--bc,#999);border-radius:20px;
+    padding:22px 18px 16px;box-shadow:var(--shadow);transform:rotate(var(--rot,0deg));
+    transition:transform .2s, box-shadow .2s;animation:pop .5s both;break-inside:avoid;page-break-inside:avoid;
+  }
+  .branch:hover{transform:rotate(0deg) translateY(-6px) scale(1.02);box-shadow:var(--shadow-pop)}
+  @keyframes pop{from{opacity:0;transform:rotate(var(--rot,0deg)) translateY(18px) scale(.96)}to{opacity:1;transform:rotate(var(--rot,0deg))}}
+  /* 胶带角 */
+  .branch .tape{position:absolute;top:-12px;left:24px;width:74px;height:24px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 8px,var(--bc,#bbb) 8px 16px);opacity:.85;border:1px solid rgba(0,0,0,.06);transform:rotate(-5deg);box-shadow:0 2px 5px rgba(0,0,0,.12)}
+  /* 凸起 emoji 徽章 */
+  .branch .badge{position:absolute;top:-22px;right:18px;width:50px;height:50px;border-radius:50%;
+    background:#fff;border:3px solid var(--bc,#999);display:flex;align-items:center;justify-content:center;
+    font-size:26px;box-shadow:0 5px 12px rgba(0,0,0,.16);z-index:2}
+  /* 彩色横幅标题 */
+  .branch .banner{display:inline-block;background:var(--bc,#999);color:#fff;font-weight:900;font-size:1.06em;
+    padding:6px 16px 6px 14px;border-radius:0 14px 14px 0;margin:-2px 0 12px -18px;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+  .branch .banner .ix{background:rgba(255,255,255,.25);border-radius:8px;padding:0 8px;margin-right:8px;font-size:.86em}
+  .branch ul{margin:6px 0 0;padding-left:0;list-style:none}
+  .branch li.pt{position:relative;padding:7px 12px;margin:8px 0;background:#fbfcff;border:1.5px solid #eef1f7;border-radius:12px;line-height:1.7}
+  .branch li.pt::before{content:"●";color:var(--bc,#bbb);font-size:.7em;margin-right:8px;vertical-align:middle}
+  .branch li.pt.key{background:var(--key-soft);border-color:#f0d488}
+  .branch li.pt.key::before{content:"★";color:var(--key);font-size:.95em;margin-right:6px}
+  .branch .pt.tip{background:#fff6e8;border-color:#f3d9a8;font-size:.9em;color:#7a5a2e}
+  .branch .pt.tip b{color:#5a3e12}
+
+  footer{margin-top:28px;font-size:.82em;color:#8a8f9c;text-align:center}
+  .print-note{display:none}
+  .float{position:absolute;font-size:26px;opacity:.5;pointer-events:none;animation:floaty 5s ease-in-out infinite}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg)}}
+
+  @page{size:A4 landscape;margin:12mm}
+  @media print{
+    body{background:#fff !important;color:#000;padding:0;font-size:11pt}
+    body::before{display:none}
+    header.top,.map-card,.branch{box-shadow:none;transform:none !important}
+    .branch{border:1.5px solid #aaa;animation:none}
+    .branch .tape{display:none}
+    .branch .badge{border:2px solid #aaa}
+    .map-card{border:1.5px solid #aaa}
+    .float{display:none}
+    .print-note{display:block;font-size:.8em;color:#444;margin:0 0 8px}
+    .detail{gap:12px}
+  }
+/* ===== 样式库·内联（cnki-edu-knowledge-cards · 技能内部资产，不单独输出给用户） ===== */
+:root{
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="handdrawn"]:not([data-contrast="high"]){
+  --bg-1:#FBF7EE; --bg-2:#FFFDF5;
+  --panel:#FFFFFF;
+  --text:#3a3327; --muted:#8a7f6a;
+  --line:#ece3d2;
+  --deck:#e8a33d; --deck-2:#2f8f6b;
+  --deck-soft:#fdf1d8; --front:#fffdf6; --back:#fbf3e6;
+  --theme:#e8a33d; --theme-2:#2f8f6b;
+  --key:#e6b800; --key-soft:#fff3c4;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#2f8f6b; --lv-base-soft:#e7f3ec;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 8px 22px rgba(120,90,30,.12);
+  --shadow-hover:0 16px 34px rgba(120,90,30,.20);
+  --shadow-pop:0 16px 34px rgba(120,90,30,.20);
+  --font-head:"Xingkai SC","STXingkai","Comic Sans MS","Segoe Print",cursive;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="handdrawn"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="handdrawn"]:not([data-contrast="high"]) h1,
+html[data-style="handdrawn"]:not([data-contrast="high"]) h2,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .banner,
+html[data-style="handdrawn"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+html[data-style="collage"]:not([data-contrast="high"]){
+  --bg-1:#f4f6f8; --bg-2:#eef1f5;
+  --panel:#ffffff;
+  --text:#27313d; --muted:#6e7884;
+  --line:#e7ecf3;
+  --deck:#1aa179; --deck-2:#34b3a0;
+  --deck-soft:#e7f5ef; --front:#ffffff; --back:#f2f9f6;
+  --theme:#1aa179; --theme-2:#34b3a0;
+  --key:#f5a623; --key-soft:#fff3cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 24px rgba(40,61,110,.10);
+  --shadow-hover:0 16px 34px rgba(40,61,110,.18);
+  --shadow-pop:0 16px 34px rgba(40,61,110,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="magazine"]:not([data-contrast="high"]){
+  --bg-1:#ffffff; --bg-2:#ffffff;
+  --panel:#ffffff;
+  --text:#101418; --muted:#5b6573;
+  --line:#e6e9ef;
+  --deck:#1E66F5; --deck-2:#FF7A1A;
+  --deck-soft:#e8eeff; --front:#ffffff; --back:#f5f8ff;
+  --theme:#1E66F5; --theme-2:#FF7A1A;
+  --key:#1E66F5; --key-soft:#e8eeff;
+  --warn:#b54708; --warn-soft:#fff1e6;
+  --lv-base:#1E66F5; --lv-base-soft:#e8eeff;
+  --lv-up:#FF7A1A; --lv-up-soft:#fff0e6;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:6px; --radius-sm:4px;
+  --shadow:0 4px 14px rgba(20,40,90,.10);
+  --shadow-hover:0 8px 22px rgba(20,40,90,.18);
+  --shadow-pop:0 8px 22px rgba(20,40,90,.18);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-style="blackboard"]:not([data-contrast="high"]){
+  --bg-1:#1f3a2e; --bg-2:#22332a;
+  --panel:#26453a;
+  --text:#f3f6f2; --muted:#bcd2c4;
+  --line:#3c5a4b;
+  --deck:#f5f5f5; --deck-2:#9ad0b4;
+  --deck-soft:#34564a; --front:#2c4d40; --back:#2f5246;
+  --theme:#f5f5f5; --theme-2:#9ad0b4;
+  --key:#ffd866; --key-soft:#3a4d3f;
+  --warn:#ffb4a0; --warn-soft:#3a2e2a;
+  --lv-base:#9ad0b4; --lv-base-soft:#34564a;
+  --lv-up:#ffd866; --lv-up-soft:#3a4d3f;
+  --lv-chal:#ff8fa3; --lv-chal-soft:#3a2e34;
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 8px 20px rgba(0,0,0,.35);
+  --shadow-hover:0 14px 30px rgba(0,0,0,.45);
+  --shadow-pop:0 14px 30px rgba(0,0,0,.45);
+  --font-head:"Comic Sans MS","Chalkboard SE","STKaiti","Kaiti SC",cursive;
+  --font-body:"Kaiti SC","STKaiti","PingFang SC","Microsoft YaHei",serif;
+}
+html[data-style="blackboard"]:not([data-contrast="high"]) body{font-family:var(--font-body)!important}
+html[data-style="blackboard"]:not([data-contrast="high"]) h1,
+html[data-style="blackboard"]:not([data-contrast="high"]) h2,
+html[data-style="blackboard"]:not([data-contrast="high"]) .banner,
+html[data-style="blackboard"]:not([data-contrast="high"]) .card-title{font-family:var(--font-head)!important}
+html[data-style="mindmap"]:not([data-contrast="high"]){
+  --bg-1:#fef6ec; --bg-2:#eef4ff;
+  --panel:#ffffff;
+  --text:#2b3340; --muted:#7a8392;
+  --line:#e7e0d4;
+  --deck:#3b6fd4; --deck-2:#1f3c7a;
+  --deck-soft:#e7eefb; --front:#ffffff; --back:#f4f8ff;
+  --theme:#3b6fd4; --theme-2:#1f3c7a;
+  --key:#e0a400; --key-soft:#fff4cf;
+  --warn:#c2410c; --warn-soft:#fff3ea;
+  --lv-base:#0ea371; --lv-base-soft:#e7f7f0;
+  --lv-up:#d97706; --lv-up-soft:#fef3e2;
+  --lv-chal:#e11d48; --lv-chal-soft:#fdeaf0;
+  --radius:18px; --radius-sm:11px;
+  --shadow:0 10px 26px rgba(60,80,140,.14);
+  --shadow-hover:0 16px 34px rgba(60,80,140,.22);
+  --shadow-pop:0 16px 34px rgba(60,80,140,.22);
+  --font-head:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+.hl-y{background:linear-gradient(transparent 60%, #fff36b 60%);padding:0 2px}
+.hl-g{background:linear-gradient(transparent 60%, #b6f0c2 60%);padding:0 2px}
+.hl-p{background:linear-gradient(transparent 60%, #ffc9de 60%);padding:0 2px}
+.chalk{border:2px dashed #f5f5f5;border-radius:10px;padding:8px 12px}
+.anchor-time::before{content:"⏳ "}
+.anchor-person::before{content:"👤 "}
+.anchor-emotion::before{content:"💡 "}
+.anchor-exam::before{content:"🔴 "}
+.anchor-lab::before{content:"🧪 "}
+.anchor-formula::before{content:"📐 "}
+.shape-circle{border-radius:999px}
+.shape-square{border-radius:6px}
+.shape-diamond{transform:rotate(45deg)}
+.shape-diamond > *{transform:rotate(-45deg)}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+
+  <header class="top">
+    <span class="star">✦</span>
+    <h1 id="gTitle">知识图谱</h1>
+    <div class="meta" id="gSub">副标题</div>
+    <div class="tags" id="gTags"></div>
+    <div class="note" id="gNote"></div>
+  </header>
+
+  <section class="map-card">
+    <h2><span class="pin">导图速览</span> 中心节点 + 彩色分支（由远及近、由外到内）</h2>
+    <svg class="hero" id="hero" viewBox="0 0 1400 980" role="img" aria-label="知识图谱"></svg>
+  </section>
+
+  <section class="detail" id="detail"></section>
+
+  <div class="print-note">打印提示：纸张选 A4 横向，缩放选"实际大小"（关闭"适应页面"）。导图可单独打印首页，贴纸卡作复习速览。</div>
+  <footer id="gFoot">本图谱依据教材整理，供课前导学 / 单元复习使用；具体表述与页码请按所用教材版本核对。</footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   GRAPH 数据：换成你的知识点即可（字段说明见文件头注释）
+   ========================================================================= */
+const GRAPH = {
+  title: "《地球的宇宙环境》学习知识图谱",
+  subtitle: "高中地理 · 必修 · 人教版 必修第一册 · 第一章 第一节（教材 P1–7）",
+  tags: ["学段：高中（必修）", "学科：地理", "形态：知识图谱", "风格：贴纸·手帐·生动"],
+  note: "⚠ 请按所用教材版本核对：本图谱依据人教版 地理 必修第一册（2019版）第一章 第一节《地球的宇宙环境》（教材 P1–7）整理；细节表述与页码以手头教材为准。",
+  theme: "#3b6fd4", theme2: "#1f3c7a",
+  center: { emoji: "🌍", label: "地球的\n宇宙环境", sub: "第一章 · 第一节" },
+  branches: [
+    { ix:"①", icon:"🌟", title:"天体（概念·类型）", color:"#4f8cff", sub:"宇宙间物质存在形式；最基本：恒星·星云",
+      points:[
+        {text:"概念：宇宙间物质存在的形式，统称天体。"},
+        {text:"常见自然天体：恒星 / 星云 / 行星 / 卫星 / 流星体 / 彗星。"},
+        {text:"最基本的天体：恒星和星云。", key:true},
+        {text:"自然 vs 人造：人造卫星、空间站、飞船不算自然天体。"}
+      ]},
+    { ix:"②", icon:"🌀", title:"天体系统（层次）", color:"#19bccb", sub:"地月系→太阳系→银河系→可观测宇宙",
+      points:[
+        {text:"概念：运动中的天体相互吸引、相互绕转，形成天体系统。"},
+        {text:"层次（由低到高）：地月系 → 太阳系 → 银河系 → 可观测宇宙。", key:true},
+        {text:"太阳系：太阳为质量占 99.86% 的中心天体；日地距约 1.5 亿 km。"},
+        {text:"可观测宇宙 = 银河系 + 河外星系（二者同级）。"}
+      ],
+      tip:"易混：光年是距离单位（光一年走的距离），不是时间单位。"},
+    { ix:"③", icon:"🪐", title:"太阳系与八大行星", color:"#e59410", sub:"距日顺序·分类·三性·小行星带",
+      points:[
+        {text:"八大行星（距日由近及远）：水·金·地·火·木·土·天·海。"},
+        {text:"分类：类地行星（水金地火）、巨行星（木土）、远日行星（天海）。"},
+        {text:"运动特征（三性）：同向性、共面性、近圆性。", key:true},
+        {text:"小行星带位于火星与木星轨道之间；哈雷彗星 76 年回归。"}
+      ]},
+    { ix:"④", icon:"🌍", title:"地球是普通的行星", color:"#43b02a", sub:"类地行星·运动特征一致",
+      points:[
+        {text:"结构特征相近：与类地行星（水金地火）在距日远近、体积、质量上相似。"},
+        {text:"运动特征一致：同样具有同向性、共面性、近圆性。"},
+        {text:"结论：地球只是太阳系中一颗普通的行星。", key:true}
+      ]},
+    { ix:"⑤", icon:"💧", title:"地球是特殊的行星·存在生命", color:"#ef5b8d", sub:"外部条件 + 自身金锁链",
+      points:[
+        {text:"特殊性：八颗行星中唯一存在高级智慧生命的星球。"},
+        {text:"外部条件：稳定的太阳光照 + 安全的宇宙环境（各行其道、互不干扰）。"},
+        {text:"自身"金锁链"：日地距离适中→适宜温度/液态水；体积质量适中→适合呼吸的大气；自转周期适当→昼夜温差不大。", key:true}
+      ]},
+    { ix:"⑥", icon:"🔭", title:"人类观测宇宙进展", color:"#8a5cf0", sub:"日心说→望远镜→河外星系→FAST",
+      points:[
+        {text:"1543 哥白尼提出日心说；1609 伽利略制望远镜。"},
+        {text:"赫歇耳确认银河系；哈勃证实河外星系存在。"},
+        {text:"2016 我国贵州 FAST（世界最大单口径射电望远镜）建成。", key:true}
+      ]},
+    { ix:"⑦", icon:"⚠️", title:"易错警示", color:"#e8453a", sub:"高频易错·避坑",
+      points:[
+        {text:"天体指自然天体，人造卫星/空间站不算自然天体。"},
+        {text:"天体系统必须相互绕转，孤立天体不构成系统。"},
+        {text:"地球特殊在"高级智慧生命"，不是笼统"有生命"。"},
+        {text:"光年是距离单位，不是时间单位。", key:true}
+      ]},
+    { ix:"⑧", icon:"🧭", title:"核心素养与课标", color:"#c79a14", sub:"课标 1.1 · 四大素养",
+      points:[
+        {text:"课标 1.1：运用资料，描述地球所处的宇宙环境。"},
+        {text:"人地协调观 / 综合思维 / 地理实践力 / 区域认知。"},
+        {text:"学习主线：由远及近、由外到内（宇宙尺度→地球本身）。", key:true}
+      ]}
+  ]
+};
+
+/* =========================================================================
+   渲染逻辑（一般无需改动）
+   ========================================================================= */
+function lighten(hex, amt){ // 生成浅色底纹
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.round(r+(255-r)*amt); g=Math.round(g+(255-g)*amt); b=Math.round(b+(255-b)*amt);
+  return "rgb("+r+","+g+","+b+")";
+}
+function svgText(escaped){return escaped.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function renderHeader(){
+  document.documentElement.style.setProperty("--theme", GRAPH.theme);
+  document.documentElement.style.setProperty("--theme-2", GRAPH.theme2);
+  document.getElementById("gTitle").textContent = GRAPH.title;
+  document.getElementById("gSub").textContent = GRAPH.subtitle || "";
+  document.getElementById("gNote").textContent = GRAPH.note || "";
+  document.getElementById("gFoot").textContent = GRAPH.note || document.getElementById("gFoot").textContent;
+  const tg = document.getElementById("gTags");
+  (GRAPH.tags||[]).forEach(function(t){const s=document.createElement("span");s.className="tag";s.textContent=t;tg.appendChild(s);});
+}
+
+function renderHero(){
+  const svg = document.getElementById("hero");
+  const cx=700, cy=470, R=360;
+  const N = GRAPH.branches.length;
+  const W=234, H=62;
+  let s = "";
+  // 装饰星
+  const stars=[[120,90,"✶"],[1280,120,"✦"],[160,860,"✺"],[1230,840,"✶"],[700,40,"★"],[60,470,"✦"]];
+  stars.forEach(function(st){ s+='<text x="'+st[0]+'" y="'+st[1]+'" font-size="30" fill="#cdb27a" opacity=".55">'+st[2]+'</text>'; });
+  // 连线（曲线胶带）+ 分支节点
+  GRAPH.branches.forEach(function(b,i){
+    const ang = (-90 + i*(360/N)) * Math.PI/180;
+    const nx = cx + R*Math.cos(ang), ny = cy + R*Math.sin(ang);
+    // 控制点：中点垂直偏移，形成柔和曲线
+    const mx=(cx+nx)/2, my=(cy+ny)/2;
+    const dx=nx-cx, dy=ny-cy, len=Math.hypot(dx,dy)||1;
+    const px=-dy/len*40, py=dx/len*40;
+    s+='<path d="M'+cx+','+cy+' Q'+(mx+px)+','+(my+py)+' '+nx+','+ny+'" fill="none" stroke="'+b.color+'" stroke-width="7" stroke-linecap="round" opacity=".75"/>';
+    // 节点（圆角贴纸 + emoji + 标题）
+    const x=nx-W/2, y=ny-H/2;
+    s+='<g>';
+    s+='<rect x="'+x+'" y="'+y+'" width="'+W+'" height="'+H+'" rx="30" fill="'+lighten(b.color,.82)+'" stroke="'+b.color+'" stroke-width="3"/>';
+    s+='<text x="'+(x+34)+'" y="'+(ny+9)+'" font-size="28" text-anchor="middle">'+b.icon+'</text>';
+    s+='<text x="'+(x+58)+'" y="'+(ny+9)+'" font-size="18" font-weight="800" fill="'+b.color+'">'+svgText(b.title.replace(/（.*?）/g,""))+'</text>';
+    s+='</g>';
+  });
+  // 中心发光星球
+  s+='<defs><radialGradient id="orb" cx="50%" cy="38%" r="62%">'+
+     '<stop offset="0%" stop-color="#bfe0ff"/><stop offset="60%" stop-color="'+GRAPH.theme+'"/><stop offset="100%" stop-color="'+GRAPH.theme2+'"/></radialGradient></defs>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="70" fill="url(#orb)" stroke="#fff" stroke-width="4"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="84" fill="none" stroke="'+GRAPH.theme+'" stroke-width="2" stroke-dasharray="6 8" opacity=".5"/>';
+  s+='<text x="'+cx+'" y="'+(cy-6)+'" font-size="40" text-anchor="middle">'+GRAPH.center.emoji+'</text>';
+  const labs=String(GRAPH.center.label).split("\n");
+  labs.forEach(function(ln,k){ s+='<text x="'+cx+'" y="'+(cy+26+k*20)+'" font-size="16" font-weight="900" fill="#fff" text-anchor="middle">'+svgText(ln)+'</text>'; });
+  s+='<text x="'+cx+'" y="'+(cy+92)+'" font-size="13" fill="#dfe9ff" text-anchor="middle">'+svgText(GRAPH.center.sub||"")+'</text>';
+  svg.innerHTML = s;
+}
+
+function renderDetail(){
+  const det = document.getElementById("detail");
+  GRAPH.branches.forEach(function(b,i){
+    const rot = (i%2===0? -1.4 : 1.4); // 交错轻微旋转，手帐感
+    const art = document.createElement("article");
+    art.className="branch"; art.style.setProperty("--bc", b.color); art.style.setProperty("--rot", rot+"deg");
+    art.style.animationDelay = (i*0.06)+"s";
+    let html = '<div class="tape"></div><div class="badge">'+b.icon+'</div>';
+    html += '<div class="banner"><span class="ix">'+b.ix+'</span>'+b.title+'</div>';
+    html += '<ul>';
+    (b.points||[]).forEach(function(p){
+      html += '<li class="pt'+(p.key?' key':'')+'">'+svgText(p.text)+'</li>';
+    });
+    html += '</ul>';
+    if(b.tip) html += '<div class="pt tip"><b>易混 / 提示：</b>'+svgText(b.tip)+'</div>';
+    art.innerHTML = html;
+    det.appendChild(art);
+  });
+  // 漂浮装饰
+  const wrap=document.getElementById("wrap");
+  ["✶","✦","✺","★","❀","✸"].forEach(function(e,i){
+    const f=document.createElement("div"); f.className="float"; f.textContent=e;
+    f.style.right=(5+i*7)+"%"; f.style.top=(12+i*10)+"%"; f.style.left=""; f.style.animationDelay=(i*0.7)+"s";
+    wrap.appendChild(f);
+  });
+}
+
+renderHeader();
+renderHero();
+renderDetail();
+document.title = GRAPH.title + " · 知识图谱";
+</script>
+</body>
+</html>

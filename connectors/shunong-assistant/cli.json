@@ -1,21 +1,21 @@
 {
   "runtime": {
     "type": "node",
-    "version": ">=20"
+    "version": "^20.0.0"
   },
   "npmRegistry": "https://registry.npmjs.org",
   "init": {
-    "darwin": "npm install -g sznr-cli@0.1.2 --no-audit --no-fund",
-    "linux": "npm install -g sznr-cli@0.1.2 --no-audit --no-fund",
-    "win32": "npm install -g sznr-cli@0.1.2 --no-audit --no-fund"
+    "darwin": "npm install -g sznr-cli@latest --no-audit --no-fund",
+    "linux": "npm install -g sznr-cli@latest --no-audit --no-fund",
+    "win32": "npm install -g sznr-cli@latest --no-audit --no-fund"
   },
   "versionCheck": {
     "command": {
-      "darwin": "sznr-cli --version",
-      "linux": "sznr-cli --version",
-      "win32": "sznr-cli.cmd --version"
+      "darwin": "sznr-cli update-check 2>/dev/null || sznr-cli --version",
+      "linux": "sznr-cli update-check 2>/dev/null || sznr-cli --version",
+      "win32": "sznr-cli.cmd update-check 2>nul || sznr-cli.cmd --version"
     },
-    "minVersion": "0.1.2",
+    "minVersion": "0.1.7",
     "versionPattern": "(\\d+\\.\\d+\\.\\d+)"
   },
   "auth": {

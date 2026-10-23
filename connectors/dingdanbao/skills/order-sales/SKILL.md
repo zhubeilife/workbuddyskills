@@ -1,23 +1,23 @@
 ---
 name: dingdanbao-order-sales
-description: "订单豹代客下单、复购、草稿、报价、销售订单跟进与审核。"
-description_zh: "代客下单、复购、草稿、报价、销售订单查询与审核。"
-description_en: "Ordering on behalf of customers, repurchase, drafts, quotations, sales-order tracking and audit."
-version: "1.0.0"
+description: "订单豹代客下单、复购、草稿、报价、销售订单跟进、审核与配送方式查询。"
+description_zh: "代客下单、复购、草稿、报价、销售订单查询、审核与配送方式查询。"
+description_en: "Ordering on behalf of customers, repurchase, drafts, quotations, sales-order tracking, audit, and delivery-mode lookup."
+version: "1.1.1"
 author: "订单豹"
 ---
 
 # 订单豹 · 下单与销售
 
-搜客户、确认清单、提交订单、复购、草稿、报价和审核。
+搜客户、确认清单、提交订单、复购、草稿、报价、审核和查配送方式。
 
 ## 认证说明
 
-登录失败时请用户打开连接器设置重填账号密码。不要在对话里要密码。
+登录失败时请用户重新连接连接器完成授权。不要在对话里要密码。
 
 ## 对用户说话
 
-只说姓名、手机号、商品名、单号、金额。不要说内部编号、会话键、工具名或参数名。
+只说姓名、手机号、商品名、单号、金额、配送方式名称。不要说内部编号、会话键、工具名或参数名。
 
 ## 模型路由（不要向用户复述）
 
@@ -37,6 +37,10 @@ author: "订单豹"
 
 搜索客户。参数：`keyword`(必填)、`page`、`page_size`。返回客户列表；对用户只展示姓名和手机号。
 
+### ddb_list_delivery_modes
+
+查询客户可选配送方式。参数：`member_id`(必填)、`stash_id`(指定仓库时传，可空)。对用户只说配送方式名称和是否默认，不要说 `deliveryType` 编码。改配送时把返回 JSON 里的 `deliveryType` 传给提交工具。
+
 ### ddb_build_confirmation
 
 生成确认清单。参数：`text`(必填)、`member_id`(必填)、`stash_id`、`salesman_id`。返回 `sessionKey` + `confirmation`。
@@ -51,7 +55,7 @@ author: "订单豹"
 
 ### ddb_list_orders
 
-销售订单列表。参数：`keyword`、`order_status`(默认 effective；待审 order_check / price_check / second_check)、`page`、`page_size`、`member_id`。
+销售订单列表。参数：`keyword`、`order_status`(默认 effective；待审会同时传 check_type：order_check / price_check / second_check)、`page`、`page_size`、`member_id`。
 
 ### ddb_get_order_detail
 
@@ -67,7 +71,7 @@ author: "订单豹"
 
 ### ddb_list_frequently_bought
 
-常购商品。参数：`member_id`(必填)、`page`、`page_size`、`keyword`。
+常购商品。参数：`member_id`(必填)、`page`、`page_size`、`keyword`(在常购结果里按品名/规格过滤)。
 
 ### ddb_build_repeat_order
 
@@ -107,12 +111,13 @@ author: "订单豹"
 - 「把酱油改成 10」→ 在上一轮 `result.goods` 里取该商品 `skuId` → `ddb_apply_sku_change`。
 - 「审核通过订单 DDxxxx」→ 先看当前环节 → 只调对应审核工具。
 - 「按上一单再来一份」→ 可复购列表 → `ddb_build_repeat_order` → 确认后提交。
+- 「这个客户能怎么送」→ 先搜客户拿到 `memberId` → `ddb_list_delivery_modes` → 只报配送方式名称。
 
 ## 错误场景
 
 | 现象 | 处理 |
 |------|------|
-| 未获取到登录凭证 / 登录失败 | 请用户在连接器设置重填账号密码后重新连接 |
+| 未获取到登录凭证 / 登录失败 | 请用户重新连接连接器完成授权 |
 | 客户不唯一 | 列出姓名+手机号让用户选 |
 | 会话不存在 / 已提交 | 不要重试同一 sessionKey，重新 search + build |
 | 请先审核订单 | 当前不是这一环，先查详情 |

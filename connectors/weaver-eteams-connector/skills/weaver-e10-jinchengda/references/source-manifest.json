@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "module": "contract",
+  "skill": "weaver-e10-jinchengda",
+  "generatedAt": "2026-09-20T09:52:00.000Z",
+  "sourceSet": {
+    "aggregateSha256": "84b6cd88057c3a82e42069c09265ba00313078bc8566169a9bc2c3985ec34381",
+    "sourceRoots": [
+      "<user-provided>/泛微E10今承达合同管理"
+    ]
+  },
+  "generatedTargets": {
+    "cli": [
+      "src/shortcuts/contract",
+      "src/shortcuts/index.ts"
+    ],
+    "skill": [
+      "skills/weaver-e10-jinchengda"
+    ],
+    "tests": [
+      "test/business/contract-host.test.ts",
+      "test/business/contract-operations.test.ts"
+    ],
+    "docs": [
+      "docs/contract.md",
+      "skill-template/domains/jinchengda.md"
+    ]
+  },
+  "sources": [
+    {
+      "path": "SKILL.md",
+      "role": "skill-doc",
+      "size": 7538,
+      "sha256": "f7612cb9539ac963c5590d60b8f2c9b67433d785a3ec6ecf58fa0114fa7ba04e"
+    },
+    {
+      "path": "feature-map.json",
+      "role": "feature-map",
+      "size": 1773,
+      "sha256": "17ee22bd43e8bb7ad8f9be626fec9b89ddb5270bafb012b6deb106ae782acb1e"
+    },
+    {
+      "path": "references/api-contract-type-tree.md",
+      "role": "api-doc",
+      "size": 3546,
+      "sha256": "ff19b867c7482df50d74e8e5ddb7b8b18b1be71b1bca4a55c68a7cf317524e08"
+    },
+    {
+      "path": "references/approval-workflows/api-active-wf-id.md",
+      "role": "api-doc",
+      "size": 1712,
+      "sha256": "18598eee4d582ac29454c5cf52132ebd7809c6744076f3a1a4d3e4e7d4e4747c"
+    },
+    {
+      "path": "references/approval-workflows/api-create-request.md",
+      "role": "api-doc",
+      "size": 3809,
+      "sha256": "792cefd71aa31692f0d326710753a5fc3a1d39957de1a0514a65b693d3dfe212"
+    },
+    {
+      "path": "references/approval-workflows/api-create-workflow-list.md",
+      "role": "api-doc",
+      "size": 2046,
+      "sha256": "8414a892d42f6c6e5214be21add5ef9a92d8409eecb8fa5b3ffb61c9a95461c0"
+    },
+    {
+      "path": "references/approval-workflows/api-ebuilder-get-all-data.md",
+      "role": "api-doc",
+      "size": 3694,
+      "sha256": "8a545f91eb510828652d90d7619cf9c6ee0e976c36efef78d54205884ecf2c08"
+    },
+    {
+      "path": "references/approval-workflows/api-ebuilder-get-objs-by-tag.md",
+      "role": "api-doc",
+      "size": 2739,
+      "sha256": "a0154375d343618a7090b448a47c68ee7c405d538dddaa793130406808965bfa"
+    },
+    {
+      "path": "references/approval-workflows/api-field-option.md",
+      "role": "api-doc",
+      "size": 2996,
+      "sha256": "91d75013150878c56343941bf5bb4e18eea799f6e21098957bc2c74dd67173fe"
+    },
+    {
+      "path": "references/approval-workflows/api-form-info.md",
+      "role": "api-doc",
+      "size": 3849,
+      "sha256": "cc6f15bee3505d45bd7095a8cf724caa648b321204732abefea8cfb7ecfae058"
+    },
+    {
+      "path": "references/approval-workflows/api-request-log.md",
+      "role": "api-doc",
+      "size": 1914,
+      "sha256": "a0a4d938792f8fb5e23a500dec819443dc2e8032eb2120a4bd58cfaa06436538"
+    },
+    {
+      "path": "references/approval-workflows/api-request-status.md",
+      "role": "api-doc",
+      "size": 2867,
+      "sha256": "05d3300beef33f904c7e7b730b00e11098083a904e3424333828df57c9a68882"
+    },
+    {
+      "path": "references/approval-workflows/api-request-supervise.md",
+      "role": "api-doc",
+      "size": 2673,
+      "sha256": "bcdddf7e04d0b3e96aa5fb4e10325f7df773e7d6c0aa5baeb0800d27b675c213"
+    },
+    {
+      "path": "references/approval-workflows/api-save-form-data.md",
+      "role": "api-doc",
+      "size": 4675,
+      "sha256": "f77ed8d2b4820b93e7c9c7321bbecca2b99c6b6eea9fe023698360daa1ff95db"
+    },
+    {
+      "path": "references/approval-workflows/api-submit-request.md",
+      "role": "api-doc",
+      "size": 4056,
+      "sha256": "fa65f21289327428bd0fc5832792aa479e2573653d601e5e9d474514b8b06047"
+    },
+    {
+      "path": "references/approval-workflows/api-workflow-query.md",
+      "role": "api-doc",
+      "size": 3642,
+      "sha256": "e72576f81cff821b74103b5c774bf9d0e48ee8fbe3e19f4269b5bfaf313eaef4"
+    },
+    {
+      "path": "references/approval-workflows/catalog.md",
+      "role": "api-doc",
+      "size": 2961,
+      "sha256": "daaf69eab644481919e84850ac631bc25a1f9a9a294d74b29d28654d4a39bc38"
+    },
+    {
+      "path": "references/catalog.md",
+      "role": "catalog",
+      "size": 3023,
+      "sha256": "322f204d03e87463b5b3846f813d27f52726a048c5122957933dccdf64de313d"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-group-list.md",
+      "role": "api-doc",
+      "size": 3174,
+      "sha256": "0a3e9b20a9bb7194c6bf56a7674514176ee0c8b1f09969597a167554b3e159bb"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-list.md",
+      "role": "api-doc",
+      "size": 3807,
+      "sha256": "f48e04fc7e79aedda99e4396b4cdb68c9c1d0d581cd25c0a9d84de10abe29cf0"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-reference-query.md",
+      "role": "api-doc",
+      "size": 3740,
+      "sha256": "be7c8b59bc3545129b8e4ac2b899244b43c9903efa97ef09256384cc92563999"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-reference-save.md",
+      "role": "api-doc",
+      "size": 2524,
+      "sha256": "174e01c49bf8035ea622a301ad4d95d975a00403b8b929490fc5364b0c50c1bb"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-search.md",
+      "role": "api-doc",
+      "size": 5389,
+      "sha256": "4fffb766e0077b493044505d6b6f21b71381bf8aa4160ecc9f691ef49bad6fda"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-tags.md",
+      "role": "api-doc",
+      "size": 2850,
+      "sha256": "a2024388d2a02ecd32623d01d599e0133d8145247533d9027242d48d62448ae2"
+    },
+    {
+      "path": "references/clause-recommender/api-clause-tree-list.md",
+      "role": "api-doc",
+      "size": 2726,
+      "sha256": "8223c5e6515e2cf3afa17dbeebbaed2f86593d3541b688818d914533e956a110"
+    },
+    {
+      "path": "references/enterprise-credit/api-enterprise-credit.md",
+      "role": "api-doc",
+      "size": 383,
+      "sha256": "d12be1646e2ae497d36246639d33fc97313631eb5aae097d106ea2da92a8fc1d"
+    },
+    {
+      "path": "references/signing-subjects/api-form-create.md",
+      "role": "api-doc",
+      "size": 2474,
+      "sha256": "2f0fa557be0353ed89e00f772f042efc3def6c246ba51b53c1402daca2333a8a"
+    },
+    {
+      "path": "references/signing-subjects/api-form-fields.md",
+      "role": "api-doc",
+      "size": 2885,
+      "sha256": "ca64934b0f3bee7f2c959f034fe55c163931bffe0635657047c02e4de4c3ec0a"
+    },
+    {
+      "path": "references/signing-subjects/api-form-options.md",
+      "role": "api-doc",
+      "size": 1651,
+      "sha256": "16f09be5b67a788f92cb1d8cad2a1cce59ed5481d1c31aa5e11085ab6778cffe"
+    },
+    {
+      "path": "references/signing-subjects/api-form-query.md",
+      "role": "api-doc",
+      "size": 2399,
+      "sha256": "12fd401ba8fb62aec209869a903b81e6539b6ae2c00d0775f20f6465369b0ae8"
+    },
+    {
+      "path": "references/signing-subjects/api-tag-app.md",
+      "role": "api-doc",
+      "size": 1507,
+      "sha256": "e24752e664d5d81eae1b3300ff91212ddc8a41930ed1a7486fde8b1b7f572568"
+    },
+    {
+      "path": "references/signing-subjects/api-tag-form.md",
+      "role": "api-doc",
+      "size": 2381,
+      "sha256": "0aebbcf8699bd80548860d304aa7f14a6230132007c664c317044f83071dbb80"
+    },
+    {
+      "path": "references/template-selector/api-contract-type-tree.md",
+      "role": "api-doc",
+      "size": 3144,
+      "sha256": "8302cdc48d914ffe894dfd3e297085155b9a8bbace4a1c13a9ba318d412e6e71"
+    },
+    {
+      "path": "references/template-selector/api-template-detail.md",
+      "role": "api-doc",
+      "size": 4220,
+      "sha256": "ce87bf4f033f1f61ac71e9dcc25d993d62fc9b26fea7857e51675bbf5b0ab252"
+    },
+    {
+      "path": "references/template-selector/api-template-list.md",
+      "role": "api-doc",
+      "size": 5063,
+      "sha256": "213e147e8cf8047998b35547d569257476d68f9dc6a9d3b6139f358607e9f853"
+    },
+    {
+      "path": "references/template-selector/api-template-tree-list.md",
+      "role": "api-doc",
+      "size": 2990,
+      "sha256": "4346009b9afa272ab014958af17d7c8ac2b3be8b1eb6b4034059d8fc2c51bb90"
+    },
+    {
+      "path": "tests/test-plan.md",
+      "role": "test-plan",
+      "size": 1856,
+      "sha256": "a641aac5dc7610b8137604abbf6a4c1ea15a6928f0c133799c37ba533566d992"
+    }
+  ],
+  "notes": [
+    "只记录源资料指纹和转换摘要，不保存 Cookie、Token 或大段源正文。",
+    "源资料内部存在状态冲突：SKILL.md 标注 CM-005~CM-015 多数可用，feature-map.json 将 CM-005~CM-015 列入 not_released；实现以接口文档完整可读为准。",
+    "企业资信 CM-018 的三个子文档（api-credit-info.md、api-enterprise-change.md、api-monitor-config.md）在源资料中不存在，对应能力已列入 withheldOperations。",
+    "撤回/退回接口源资料只提及、未给出路径与参数，已列入 withheldOperations。"
+  ]
+}

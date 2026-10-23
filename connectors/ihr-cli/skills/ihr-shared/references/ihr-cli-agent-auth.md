@@ -17,7 +17,7 @@ ihr-cli auth ensure --open-browser --wait 1m --stream --source <trusted-source> 
 ```
 
 - 第一个非终态 `authorization_required` 事件必须在首次轮询前写出并刷新。宿主与 Agent 必须逐事件消费并立即向用户逐字展示完整 `authorizationUrl` 和 `userCode`，不得把整个命令输出缓冲到进程结束，也不得等到命令终态、截断、改写、重新拼接或用 `verification_uri` 替代；链接对用户可见后，才允许同一前台进程继续自动轮询。
-- 前台自动轮询最长 1 分钟，不得改成隐藏的后台任务或 9/10 分钟长轮询。终态 `ready` 到达后立即告知授权成功；若结构化 `companyName`、`userName` 非空，同时原样展示并结束当前响应，不追加状态文件读取、`auth status`、`auth verify` 或业务命令。
+- 前台自动轮询最长 1 分钟，不得改成隐藏的后台任务或 9/10 分钟长轮询。新授权的终态 `ready` 只在 CLI 使用候选 token 完成远端校验、刷新身份与超级密码鉴权快照并保存凭证后到达，此时 `remoteVerified=true`。立即告知授权成功；若结构化 `companyName`、`userName` 非空，同时原样展示并结束当前响应，不追加状态文件读取、`auth status`、`auth verify` 或业务命令。复用已有本地凭证返回的 `READY` 可以是 `remoteVerified=false`，不因此追加远端校验。
 - 一分钟后仍返回终态 `authorization_required` 时，保留原 Session，提示“暂未检测到授权，完成后只需回复‘已授权’”，然后结束当前响应。
 - 必须以 CLI 的 NDJSON 事件与结构化字段为准；不得依赖模型从普通终端文案或乱码中猜测授权链接、公司或用户信息。
 - 不向用户展示 `sessionRef`，也不要求用户提供链接、设备码、用户码或 Session 引用。
@@ -34,6 +34,8 @@ ihr-cli auth resume --source <same-trusted-source> [--env <same-trusted-env>] --
 - `READY`：立即告知授权成功；若 `companyName`、`userName` 非空，同时原样展示并结束当前响应。之后才可开始新的业务阶段。
 - `AUTHORIZATION_REQUIRED`：本次一分钟等待尚未检测到授权。保留原 Session，告知用户暂未检测到；不得后台继续轮询，不得创建新链接。
 - `authorization_session_expired`：原 Session 已过期，此时才重新执行一次 `auth ensure` 并展示新链接。
+- `verify_failed` / `verify_endpoint_unavailable` / `EXECUTION_IDENTITY_MISMATCH`：候选 token 未保存，原凭证保持不变。停止并报告结构化错误，不把网页已授权当作登录成功，也不通过 `auth status`、`auth verify` 或新建 Session 制造成功结果。
+- `authorization_session_context_changed`：授权期间已有更新的凭证，候选 token 未保存。保留更新后的凭证并停止，不重放旧授权。
 - `device_authorization_denied` 或其他明确终止状态：停止并告知用户；只有用户再次明确要求授权时才新建 Session。
 - `authorization_session_not_found`：停止并报告无法恢复可信范围内的原 Session，不得猜测或要求用户提供 `sessionRef`。
 

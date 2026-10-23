@@ -1,0 +1,6 @@
+{
+  "title": "❌ 构建失败：webhookroom@main",
+  "body": "阶段：test\n失败用例：webroom-contract-check\n构建号：cnb-0q3-1k2qv4r7v\n日志：https://cnb.cool/aiwho/tools/webhookroom/-/build/logs/cnb-0q3-1k2qv4r7v",
+  "level": "urgent",
+  "externalId": "cnb-0q3-1k2qv4r7v"
+}

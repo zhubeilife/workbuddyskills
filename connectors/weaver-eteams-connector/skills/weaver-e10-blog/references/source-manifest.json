@@ -1,0 +1,1540 @@
+{
+  "schemaVersion": 2,
+  "module": "blog",
+  "cliCommand": "blog",
+  "skillName": "weaver-e10-blog",
+  "generatedAt": "2026-09-17",
+  "updatedAt": "2026-09-18",
+  "sourceRoot": "~/.workbuddy/skills/weaver-e10-blog",
+  "sourceSet": {
+    "detectionStrength": "weak",
+    "fileCount": 41,
+    "aggregateSha256": "54fdae1aa360100fd56973daeef8f0a74195a99779db9c5e05701b43375a9aad",
+    "reason": "源资料是已在生产使用的 Agent Skill（接口文档 + 实测脚本），没有 OpenAPI / JSON Schema / operation manifest 等机器可读契约；chunk 锚点使用「HTTP 方法 + 路径」与 Markdown 标题，不做行号级切块。"
+  },
+  "sources": [
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/SKILL.md",
+      "size": 16228,
+      "sha256": "4306f58b8099b63b338b0e56116e486a8e1dccf05eefaa014d3d79f9c5d8feb5",
+      "role": "existing-skill"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/agents/openai.yaml",
+      "size": 3143,
+      "sha256": "f1cf09e6d46a7ea087da295080fce364e508da489f7e1b88cc67a387d8a50d10",
+      "role": "existing-skill"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/blog-blog-query-blogs.md",
+      "size": 11415,
+      "sha256": "72ba5e259b2624ac2d9cf167aacd02ed036fd001c2b2afaadb1bdb70172ea2ed",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/catalog.md",
+      "size": 10441,
+      "sha256": "f9d7cb1b72b00bac74483b35791973ad431d653f1f683a7640c85a38270a8899",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-add-blog.md",
+      "size": 7102,
+      "sha256": "4b828c0195ac72eb1de1c75866ded7a1a18346b243534f3d05175bba845a8644",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-comment-page.md",
+      "size": 3366,
+      "sha256": "4b5d70f090d7085ab3a082ee29408e851cb66488b1fcb1084aa85404b2a138ec",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-create-comment.md",
+      "size": 2578,
+      "sha256": "04d7f9b679da5724e1fe15ff15edb28e3885e4273de2e385eccc2436836febfa",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-details-by-date.md",
+      "size": 7161,
+      "sha256": "7519206069df8c1c64b9c72e5e1480cd152d7e7c245f9b7f63709e16963c413f",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-get-default-permission.md",
+      "size": 4621,
+      "sha256": "aa73dc94a682f8dca2d46e6103edb5aa510279991fae48f2cd2cd8ae9bf20cfd",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-send-urge.md",
+      "size": 3193,
+      "sha256": "343b56454d222f46fa9b0f6c04b80c9bb0fb848ff604fe4af3e2485b3811c79b",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-update-blog.md",
+      "size": 3776,
+      "sha256": "76c3e1f441c2935ae9abffb15aafdb3709ef8db2927d514c439e3b8d070dfd0a",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-upvote.md",
+      "size": 3643,
+      "sha256": "8a5b1dde7a07e0deacae145bc6e465126129671470bf7cac7f0a06e6bf382f7d",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-add.md",
+      "size": 4276,
+      "sha256": "f1287bbcd5a39d88c08a54bacacc5815ac4d5787e2de9298b513186a773d011d",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-edit.md",
+      "size": 3851,
+      "sha256": "4d11d7f165eba08e94ad5163c8cc3381c560c1f65b1b793ea949457638b1ff12",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-form-fields.md",
+      "size": 6157,
+      "sha256": "8c5815749408422a228d7813bcc5591ef666b10bb98441b08e35cf6a20e04116",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-gen-daily.md",
+      "size": 6165,
+      "sha256": "54d8b38ec388859f83e3d8f87721cb43b073c4651f5e6e434d9245fcf183e265",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-remind.md",
+      "size": 4910,
+      "sha256": "455beedaf96c3b211e3a89bb648321f32e8ca9105834c31953c1850d50dacde6",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-set-default-share.md",
+      "size": 3705,
+      "sha256": "c24c6ce3220efeab67caef07b42046e74c0776088f4667dc7d5f36dbd0c70294",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-submit.md",
+      "size": 3688,
+      "sha256": "5dad2a629e6613bb581ad645114dd3d1a2a84cf441c07b70d0c38ad97f35ec98",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/standard-blog-export.md",
+      "size": 2483,
+      "sha256": "7af340d872073d64e0601bf1cdd73c6d2eff3f4ed0be9f4d2799956e62bbf279",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/workflow.md",
+      "size": 15913,
+      "sha256": "19ac168a7d31ad6e73e882ff08355dc7e936436e2b2d72eb08f084b9bfdcc09c",
+      "role": "api-doc"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/add-eb-blog.mjs",
+      "size": 4389,
+      "sha256": "1ea49a14b8e6c349534f46f7b3443b157c7be35754a38f761fcb642afcd51715",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/comment-blog.mjs",
+      "size": 11050,
+      "sha256": "9f78fe0945027ad77e17947977b5d7935b53b596af1aec0d82788b9a3f1c0878",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/edit-blog.mjs",
+      "size": 10172,
+      "sha256": "59fe2296afd2c74749adb6f68462559c7d2ab5c7379c152dd9d0daef7719cb1c",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/edit-eb-blog.mjs",
+      "size": 4941,
+      "sha256": "57289f8a0c37d089e43eb7ac27e28830fb6d2e1cdc99b37362445575c2fd779a",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/export-blog.mjs",
+      "size": 4658,
+      "sha256": "4c837b949b5b7fae2f3d3df42759cfc7e8a6dd07266eb7ebb3e7f77f8a68ffea",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/gen-eb-blog-daily.mjs",
+      "size": 20419,
+      "sha256": "ddffddb2c700fd36161d4d0df69803bec3fe5a4ade52bc9f82d699a2bef94954",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/like-blog.mjs",
+      "size": 11374,
+      "sha256": "ce8ec51b26ed981b7e92a2b945ff2d36f1e89aa376e20f06178420647349185b",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/merge-blog-export.py",
+      "size": 5144,
+      "sha256": "9e28d81e78dbc4ff79a0abc76fbd6c38e0315ded017720dbec1b8a79657fd5f7",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/publish-blog.mjs",
+      "size": 5217,
+      "sha256": "18bbd6ee814c2ad08c117820ec51867cfe451aac8f3d34576ce39e740dc993b4",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-comments.mjs",
+      "size": 6652,
+      "sha256": "66425210d8b7deb6890f5d59ddea2d75159a04589ec1e88f04aeeee43c2c4c6e",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-day.mjs",
+      "size": 9634,
+      "sha256": "3c7773d907e53dbdc3e57cb3978d2ae8065103f1ab60e565f5ae27ba166d9edd",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-direct-eb-blog.mjs",
+      "size": 9391,
+      "sha256": "c37414ffc8589a253b3e357622746a2a539ed67a65986eebd2ca39ecf0c5f8e3",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-eb-blog-by-names.mjs",
+      "size": 6804,
+      "sha256": "b525a8a2a8a65cbea4c9b718ef511ad32708e586b52a7eca52eac876e8dae757",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-eb-blog-report.mjs",
+      "size": 10914,
+      "sha256": "8bc32739a51a1d93437704361cfc36dd3626807154bd48947e2257a323557208",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-weaver-e10-blog.mjs",
+      "size": 14066,
+      "sha256": "092461aaa6d89ba4aab30c667f83d4bcded41feb4c6b2f039b5a5f4c815a15f3",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/remind-blog.mjs",
+      "size": 12244,
+      "sha256": "39f03448fa5137e4c612bb6c0bbdae5c904183fe5e18360a8b2511aa273ce385",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/remind-eb-blog.mjs",
+      "size": 5812,
+      "sha256": "217e9dc1f6fc6c08f44985486523e9b1e1af968714c0f0ae028fd4c46679ac84",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/set-default-share.mjs",
+      "size": 3397,
+      "sha256": "60165a9280f67c4f7bb375989bee880b609e0be36e1b5db5913a285b0f081dcb",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/submit-eb-blog.mjs",
+      "size": 7365,
+      "sha256": "9c465bbd854088a8f3cf223183f4b2aa2757eaebb01ad52b2273ef8da39acffe",
+      "role": "code"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/test-blog-apis.mjs",
+      "size": 9263,
+      "sha256": "74a5333fe6cc08dc69ed615b337209ee807bb2c7dacf84177dc161370b600f38",
+      "role": "code"
+    }
+  ],
+  "sourceChunks": [
+    {
+      "id": "POST /api/blog/query/blogs",
+      "source": "references/blog-blog-query-blogs.md",
+      "operations": [
+        "blog.query"
+      ],
+      "fields": [
+        "blogType",
+        "keywords",
+        "pageNo",
+        "pageSize",
+        "filter.userType",
+        "filter.startDate",
+        "filter.endDate",
+        "filter.timezoneOffset",
+        "filter.userIds",
+        "filter.empIds"
+      ],
+      "notes": "实测：filter.userIds/empIds/userId/creator 被服务端忽略（恒定返回登录人）；startDate/endDate 不生效；pageNo 被忽略，pageSize 上限 300"
+    },
+    {
+      "id": "GET /api/blog/prior/detailsByDate",
+      "source": "references/daily-report-blog-details-by-date.md",
+      "operations": [
+        "blog.query_user",
+        "blog.publish.prepare",
+        "blog.publish.apply",
+        "blog.edit.prepare",
+        "blog.edit.apply",
+        "blog.comment.prepare",
+        "blog.like.prepare"
+      ],
+      "fields": [
+        "date",
+        "userId"
+      ],
+      "notes": "响应无 found 字段；无日报时返回空壳 blog 对象，判定必须看 blog.id"
+    },
+    {
+      "id": "POST /api/hrm/common/browser/count/resource",
+      "source": "references/daily-report-blog-details-by-date.md",
+      "operations": [
+        "blog.resolve_users",
+        "blog.query_user",
+        "blog.remind.prepare"
+      ],
+      "fields": [
+        "formDatas.username",
+        "status",
+        "subcompany",
+        "department",
+        "role",
+        "position",
+        "superior",
+        "cmd",
+        "type",
+        "containsNoneAccount",
+        "containsPartTimeEmployee"
+      ],
+      "notes": "11 字段必填模板；结果行取 id（不是 userid）作为 E10 业务 userId；先查 count 再查 data"
+    },
+    {
+      "id": "POST /api/hrm/common/browser/data/resource",
+      "source": "references/daily-report-blog-details-by-date.md",
+      "operations": [
+        "blog.resolve_users",
+        "blog.query_user",
+        "blog.remind.prepare"
+      ],
+      "fields": [
+        "id",
+        "name",
+        "department"
+      ],
+      "notes": "行数据在 data.data[]；id 为业务 userId"
+    },
+    {
+      "id": "POST /api/blog/prior/addBlog",
+      "source": "references/daily-report-blog-add-blog.md",
+      "operations": [
+        "blog.publish.apply"
+      ],
+      "fields": [
+        "blog.blogTime",
+        "blog.content",
+        "blog.permissionList",
+        "blog.isTm",
+        "blog.isDbCheck",
+        "blog.formData",
+        "blog.attachmentIds",
+        "blog.atLinkList",
+        "blog.deleteTargetType",
+        "blog.client",
+        "timezoneOffset"
+      ],
+      "notes": "服务端不限制同日重复提交，发布前必须查重；发布后需另行设置默认共享"
+    },
+    {
+      "id": "POST /api/blog/prior/updateBlog",
+      "source": "references/daily-report-blog-update-blog.md",
+      "operations": [
+        "blog.edit.apply"
+      ],
+      "fields": [
+        "blog.id",
+        "blog.content",
+        "blog.attachmentIds",
+        "blog.atLinkList",
+        "blog.isTm",
+        "blog.isDbCheck",
+        "blog.client",
+        "timezoneOffset"
+      ],
+      "notes": "按 blog.id 覆盖内容；返回后需回查内容一致性"
+    },
+    {
+      "id": "POST /api/blog/common/comment/createComment",
+      "source": "references/daily-report-blog-create-comment.md",
+      "operations": [
+        "blog.comment.apply"
+      ],
+      "fields": [
+        "comment.targetId",
+        "comment.content",
+        "comment.originContent",
+        "comment.imAtContent",
+        "comment.module",
+        "comment.disableMessage",
+        "comment.relevanceList",
+        "comment.atLinkList",
+        "attachments",
+        "attachmentsList",
+        "client"
+      ],
+      "notes": "无幂等保证；写后需从 commentPage 回查该评论"
+    },
+    {
+      "id": "POST /api/blog/common/comment/commentPage",
+      "source": "references/daily-report-blog-comment-page.md",
+      "operations": [
+        "blog.comments",
+        "blog.comment.apply"
+      ],
+      "fields": [
+        "pageNo",
+        "pageSize",
+        "targetId",
+        "module",
+        "foldCommentList"
+      ],
+      "notes": "POST 方法（GET 返回 405）；评论数组在 data.page.result[]"
+    },
+    {
+      "id": "POST /api/blog/common/upvoteComponent/vote",
+      "source": "references/daily-report-blog-upvote.md",
+      "operations": [
+        "blog.like.apply"
+      ],
+      "fields": [
+        "componentId",
+        "upvote"
+      ],
+      "notes": "返回 {code:200, fail:false, data:'点赞成功!'}；无只读回查接口"
+    },
+    {
+      "id": "POST /api/blog/common/upvoteComponent/cancelVote",
+      "source": "references/daily-report-blog-upvote.md",
+      "operations": [
+        "blog.like.apply"
+      ],
+      "fields": [
+        "componentId",
+        "upvote"
+      ],
+      "notes": "取消点赞与点赞共用同一请求形状，仅路径不同"
+    },
+    {
+      "id": "POST /api/blog/message/sendUrge",
+      "source": "references/daily-report-blog-send-urge.md",
+      "operations": [
+        "blog.remind.prepare",
+        "blog.remind.apply"
+      ],
+      "fields": [
+        "content",
+        "definiteType",
+        "ids",
+        "targetId",
+        "type",
+        "year",
+        "checkStr"
+      ],
+      "notes": "ids 为单个 userId，多人必须逐个 POST；业务码非 0 即失败"
+    },
+    {
+      "id": "GET /api/blog/share/getDefaultPermission",
+      "source": "references/daily-report-blog-get-default-permission.md",
+      "operations": [
+        "blog.default_permission",
+        "blog.publish.prepare"
+      ],
+      "fields": [
+        "blogTime"
+      ],
+      "notes": "data.list 直接作为 addBlog 的 permissionList"
+    },
+    {
+      "id": "POST /api/blog/report/exportAllBlog",
+      "source": "references/standard-blog-export.md",
+      "operations": [
+        "blog.export"
+      ],
+      "fields": [
+        "startDate",
+        "endDate",
+        "blogType",
+        "searchType",
+        "disableType",
+        "pageNo",
+        "pageSize",
+        "isNeedConvert"
+      ],
+      "notes": "响应为 xlsx 文件流（PK 魔数）；出错时返回 JSON 错误体"
+    },
+    {
+      "id": "workflow.md 意图判定与作业步骤链",
+      "source": "references/workflow.md",
+      "operations": [
+        "blog.query",
+        "blog.query_user",
+        "blog.publish.prepare",
+        "blog.edit.prepare",
+        "blog.comment.prepare",
+        "blog.like.prepare",
+        "blog.remind.prepare"
+      ],
+      "fields": [],
+      "notes": "补交口径、催交顺序、写操作前后查证规则迁移为 CLI 固定行为与 Skill 处理链"
+    },
+    {
+      "id": "eb-* 接口族（ebuilder getFormDataList + secondev addBlog/editBlog + ESB 提醒）",
+      "source": "references/eb-blog-add.md",
+      "operations": [],
+      "fields": [],
+      "notes": "当前租户未启用 EB 日报应用，整体 withheld"
+    }
+  ],
+  "sourceCoverage": [
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/SKILL.md",
+      "role": "existing-skill",
+      "status": "converted",
+      "operations": [
+        "blog.query",
+        "blog.query_user",
+        "blog.resolve_users",
+        "blog.comments",
+        "blog.default_permission",
+        "blog.export",
+        "blog.publish.prepare",
+        "blog.publish.apply",
+        "blog.edit.prepare",
+        "blog.edit.apply",
+        "blog.comment.prepare",
+        "blog.comment.apply",
+        "blog.like.prepare",
+        "blog.like.apply",
+        "blog.remind.prepare",
+        "blog.remind.apply"
+      ],
+      "reason": "能力表与路由规则迁移为 manifest operation 与 Skill 路由"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/agents/openai.yaml",
+      "role": "existing-skill",
+      "status": "not-applicable",
+      "operations": [],
+      "reason": "Agent 平台元数据，不进 CLI 合约"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/blog-blog-query-blogs.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.query"
+      ],
+      "reason": "群体查询入参与实测结论"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/catalog.md",
+      "role": "api-doc",
+      "status": "not-applicable",
+      "operations": [],
+      "reason": "reference 索引文件，内容由各 reference 与 manifest 覆盖"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-add-blog.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.publish.apply"
+      ],
+      "reason": "发布请求体"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-comment-page.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.comments",
+        "blog.comment.apply"
+      ],
+      "reason": "评论列表查询与写后回查"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-create-comment.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.comment.apply"
+      ],
+      "reason": "评论请求体"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-details-by-date.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.query_user",
+        "blog.publish.prepare",
+        "blog.edit.prepare",
+        "blog.comment.prepare",
+        "blog.like.prepare"
+      ],
+      "reason": "单人单日查询 + 目标定位"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-get-default-permission.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.default_permission",
+        "blog.publish.prepare"
+      ],
+      "reason": "默认共享回填"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-send-urge.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.remind.prepare",
+        "blog.remind.apply"
+      ],
+      "reason": "催交提醒请求体"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-update-blog.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.edit.apply"
+      ],
+      "reason": "编辑请求体"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/daily-report-blog-upvote.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.like.prepare",
+        "blog.like.apply"
+      ],
+      "reason": "点赞与取消点赞"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-add.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-edit.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-form-fields.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-gen-daily.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-remind.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-set-default-share.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/eb-blog-submit.md",
+      "role": "api-doc",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/standard-blog-export.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.export"
+      ],
+      "reason": "导出请求体与文件流"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/references/workflow.md",
+      "role": "api-doc",
+      "status": "converted",
+      "operations": [
+        "blog.query",
+        "blog.query_user",
+        "blog.publish.prepare",
+        "blog.edit.prepare",
+        "blog.comment.prepare",
+        "blog.like.prepare",
+        "blog.remind.prepare"
+      ],
+      "reason": "补交口径、催交顺序与写前查证规则"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/add-eb-blog.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/comment-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.comment.prepare",
+        "blog.comment.apply"
+      ],
+      "reason": "定位方式迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/edit-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.edit.prepare",
+        "blog.edit.apply"
+      ],
+      "reason": "blogTime + content 用法迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/edit-eb-blog.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/export-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.export"
+      ],
+      "reason": "--out 用法迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/gen-eb-blog-daily.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/like-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.like.prepare",
+        "blog.like.apply"
+      ],
+      "reason": "vote / cancelVote 双路径迁移"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/merge-blog-export.py",
+      "role": "code",
+      "status": "not-applicable",
+      "operations": [],
+      "reason": "本地 xlsx 合并辅助脚本，不属于 CLI 能力边界"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/publish-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.publish.prepare",
+        "blog.publish.apply"
+      ],
+      "reason": "--share 用法迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-comments.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.comments"
+      ],
+      "reason": "--blogId 用法迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-day.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.query_user"
+      ],
+      "reason": "--name / --userId 用法迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-direct-eb-blog.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-eb-blog-by-names.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-eb-blog-report.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/query-weaver-e10-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.query",
+        "blog.resolve_users"
+      ],
+      "reason": "userType 用法与 HRM 解析段迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/remind-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [
+        "blog.remind.prepare",
+        "blog.remind.apply"
+      ],
+      "reason": "--userId/--name/--content/--year 迁移为 inputExamples"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/remind-eb-blog.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用未启用"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/set-default-share.mjs",
+      "role": "code",
+      "status": "withheld",
+      "operations": [],
+      "reason": "EB 日报应用专属默认共享接口"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/submit-eb-blog.mjs",
+      "role": "code",
+      "status": "converted",
+      "operations": [],
+      "reason": "已迁移为 CLI operation / Skill reference"
+    },
+    {
+      "path": "~/.workbuddy/skills/weaver-e10-blog/scripts/test-blog-apis.mjs",
+      "role": "code",
+      "status": "not-applicable",
+      "operations": [],
+      "reason": "接口自测脚本，非业务能力"
+    }
+  ],
+  "operationImpact": [
+    {
+      "operation": "blog.query",
+      "sourceChunks": [
+        "POST /api/blog/query/blogs"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "filter.userType",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "user_type",
+          "status": "converted",
+          "facts": "枚举 directSubordinate | indirectSubordinate | allSubordinate | myFollow，必填"
+        },
+        {
+          "parameter": "filter.startDate",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "start_date",
+          "status": "converted",
+          "facts": "必填 YYYY-MM-DD；服务端不过滤，窗口裁剪在客户端"
+        },
+        {
+          "parameter": "filter.endDate",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "end_date",
+          "status": "converted",
+          "facts": "必填 YYYY-MM-DD；含当日"
+        },
+        {
+          "parameter": "keywords",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "keywords",
+          "status": "converted",
+          "facts": "可选，缺省空串"
+        },
+        {
+          "parameter": "pageSize",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "page_size",
+          "status": "converted",
+          "facts": "实测上限 300，默认 300"
+        },
+        {
+          "parameter": "pageNo",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": "page_no",
+          "status": "converted",
+          "facts": "透传；服务端忽略，调大不会拿到更多数据"
+        },
+        {
+          "parameter": "blogType",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：'order'"
+        },
+        {
+          "parameter": "filter.timezoneOffset",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：-8"
+        },
+        {
+          "parameter": "filter.userIds / empIds / userId / creator",
+          "source": "POST /api/blog/query/blogs",
+          "inputSchema": null,
+          "status": "withheld",
+          "facts": "服务端静默忽略该过滤，恒定返回当前登录人；按人查询改走 blog.query_user"
+        }
+      ]
+    },
+    {
+      "operation": "blog.query_user",
+      "sourceChunks": [
+        "GET /api/blog/prior/detailsByDate",
+        "POST /api/hrm/common/browser/count/resource",
+        "POST /api/hrm/common/browser/data/resource"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "date",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": "date",
+          "status": "converted",
+          "facts": "必填，逐日起点"
+        },
+        {
+          "parameter": "userId",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": "user_id",
+          "status": "converted",
+          "facts": "与 name 二选一"
+        },
+        {
+          "parameter": "formDatas.username",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": "name",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：姓名经 HRM 精确解析"
+        },
+        {
+          "parameter": "name",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": "name",
+          "status": "converted",
+          "facts": "同名多命中报 name_ambiguous 并列出候选"
+        },
+        {
+          "parameter": "endDate（区间）",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": "end_date",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：区间展开为逐日调用，上限 62 天"
+        }
+      ]
+    },
+    {
+      "operation": "blog.resolve_users",
+      "sourceChunks": [
+        "POST /api/hrm/common/browser/count/resource",
+        "POST /api/hrm/common/browser/data/resource"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "formDatas.username",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": "name",
+          "status": "converted",
+          "facts": "usernameOpt=eq 精确匹配"
+        },
+        {
+          "parameter": "cmd / type / containsNoneAccount / containsPartTimeEmployee / quickSearchDatas 等 11 字段",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：实测必填模板，缺字段返回 0 行"
+        },
+        {
+          "parameter": "rows[].id",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：作为 user_id 输出（不是 userid）"
+        }
+      ]
+    },
+    {
+      "operation": "blog.comments",
+      "sourceChunks": [
+        "POST /api/blog/common/comment/commentPage"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "targetId",
+          "source": "POST /api/blog/common/comment/commentPage",
+          "inputSchema": "blog_id",
+          "status": "converted",
+          "facts": "必填正整数文本"
+        },
+        {
+          "parameter": "pageNo",
+          "source": "POST /api/blog/common/comment/commentPage",
+          "inputSchema": "page_no",
+          "status": "converted",
+          "facts": "默认 1"
+        },
+        {
+          "parameter": "pageSize",
+          "source": "POST /api/blog/common/comment/commentPage",
+          "inputSchema": "page_size",
+          "status": "converted",
+          "facts": "默认 20，上限 100"
+        },
+        {
+          "parameter": "module / foldCommentList",
+          "source": "POST /api/blog/common/comment/commentPage",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：'blog' / false"
+        }
+      ]
+    },
+    {
+      "operation": "blog.default_permission",
+      "sourceChunks": [
+        "GET /api/blog/share/getDefaultPermission"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "blogTime",
+          "source": "GET /api/blog/share/getDefaultPermission",
+          "inputSchema": "date",
+          "status": "converted",
+          "facts": "必填 YYYY-MM-DD"
+        }
+      ]
+    },
+    {
+      "operation": "blog.export",
+      "sourceChunks": [
+        "POST /api/blog/report/exportAllBlog"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "startDate",
+          "source": "POST /api/blog/report/exportAllBlog",
+          "inputSchema": "start_date",
+          "status": "converted",
+          "facts": "必填"
+        },
+        {
+          "parameter": "endDate",
+          "source": "POST /api/blog/report/exportAllBlog",
+          "inputSchema": "end_date",
+          "status": "converted",
+          "facts": "必填"
+        },
+        {
+          "parameter": "pageSize",
+          "source": "POST /api/blog/report/exportAllBlog",
+          "inputSchema": "page_size",
+          "status": "converted",
+          "facts": "默认 200，上限 500"
+        },
+        {
+          "parameter": "blogType / searchType / disableType / isNeedConvert / pageNo",
+          "source": "POST /api/blog/report/exportAllBlog",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：'all' / 'all' / 'all' / false / 1"
+        },
+        {
+          "parameter": "输出文件路径",
+          "source": "scripts/export-blog.mjs --out",
+          "inputSchema": "output",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：本地落点，父目录必须存在且拒绝覆盖"
+        },
+        {
+          "parameter": "本地 xlsx 合并",
+          "source": "scripts/merge-blog-export.py",
+          "inputSchema": null,
+          "status": "not-applicable",
+          "facts": "多文件合并属本地后处理，不在 CLI 能力边界"
+        }
+      ]
+    },
+    {
+      "operation": "blog.publish.prepare",
+      "sourceChunks": [
+        "POST /api/blog/prior/addBlog",
+        "GET /api/blog/share/getDefaultPermission",
+        "GET /api/blog/prior/detailsByDate"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "blog.blogTime",
+          "source": "POST /api/blog/prior/addBlog",
+          "inputSchema": "date",
+          "status": "converted",
+          "facts": "必填 YYYY-MM-DD"
+        },
+        {
+          "parameter": "blog.content",
+          "source": "POST /api/blog/prior/addBlog",
+          "inputSchema": "content",
+          "status": "converted",
+          "facts": "纯文本自动包裹 <p>，HTML 原样保留"
+        },
+        {
+          "parameter": "blog.permissionList",
+          "source": "GET /api/blog/share/getDefaultPermission",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：按 date 查默认共享回填；share_default=false 时为空"
+        },
+        {
+          "parameter": "同日查重",
+          "source": "POST /api/blog/prior/addBlog",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：服务端不限制重复提交，prepare 先查当天是否已有日报"
+        },
+        {
+          "parameter": "isTm / isDbCheck / formData / attachmentIds / atLinkList / deleteTargetType / client / timezoneOffset",
+          "source": "POST /api/blog/prior/addBlog",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent"
+        }
+      ]
+    },
+    {
+      "operation": "blog.publish.apply",
+      "sourceChunks": [
+        "POST /api/blog/prior/addBlog"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "确认凭据",
+          "source": "scripts/publish-blog.mjs（无 continuation 概念）",
+          "inputSchema": "continuation",
+          "status": "converted",
+          "facts": "CLI 新增：prepare 签发、apply 校验，10 分钟有效"
+        },
+        {
+          "parameter": "显式确认",
+          "source": "scripts/publish-blog.mjs（直接执行）",
+          "inputSchema": "confirm",
+          "status": "converted",
+          "facts": "CLI 新增：必须 confirm=true 才落库"
+        },
+        {
+          "parameter": "写前查重与写后回查",
+          "source": "POST /api/blog/prior/detailsByDate",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：apply 再次查重并回查 blog_id 与补交状态"
+        }
+      ]
+    },
+    {
+      "operation": "blog.edit.prepare",
+      "sourceChunks": [
+        "POST /api/blog/prior/updateBlog",
+        "GET /api/blog/prior/detailsByDate"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "blog.id",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：按 date + user 回查得到"
+        },
+        {
+          "parameter": "blog.content",
+          "source": "POST /api/blog/prior/updateBlog",
+          "inputSchema": "content",
+          "status": "converted",
+          "facts": "必填；与原文相同报 changes_noop"
+        },
+        {
+          "parameter": "target 用户",
+          "source": "scripts/edit-blog.mjs",
+          "inputSchema": "user_id / name",
+          "status": "converted",
+          "facts": "缺省为当前登录人；name 经 HRM 解析"
+        },
+        {
+          "parameter": "无日报场景",
+          "source": "POST /api/blog/prior/updateBlog",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：目标不存在报 edit_target_missing，不追问"
+        }
+      ]
+    },
+    {
+      "operation": "blog.edit.apply",
+      "sourceChunks": [
+        "POST /api/blog/prior/updateBlog"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "确认凭据",
+          "source": "scripts/edit-blog.mjs（无 continuation 概念）",
+          "inputSchema": "continuation",
+          "status": "converted",
+          "facts": "CLI 新增：绑定 blogId、content 与目标指纹"
+        },
+        {
+          "parameter": "显式确认",
+          "source": "scripts/edit-blog.mjs（直接执行）",
+          "inputSchema": "confirm",
+          "status": "converted",
+          "facts": "CLI 新增：必须 confirm=true"
+        },
+        {
+          "parameter": "attachmentIds / atLinkList / isTm / isDbCheck / client / timezoneOffset",
+          "source": "POST /api/blog/prior/updateBlog",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent"
+        },
+        {
+          "parameter": "写后回查内容",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：内容不一致返回 partial/write_uncertain"
+        }
+      ]
+    },
+    {
+      "operation": "blog.comment.prepare",
+      "sourceChunks": [
+        "POST /api/blog/common/comment/createComment",
+        "GET /api/blog/prior/detailsByDate"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "comment.targetId",
+          "source": "POST /api/blog/common/comment/createComment",
+          "inputSchema": "blog_id",
+          "status": "converted",
+          "facts": "与 date（+user）二选一"
+        },
+        {
+          "parameter": "comment.content",
+          "source": "POST /api/blog/common/comment/createComment",
+          "inputSchema": "content",
+          "status": "converted",
+          "facts": "必填"
+        },
+        {
+          "parameter": "目标定位",
+          "source": "GET /api/blog/prior/detailsByDate",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：无日报直接报 target_missing"
+        }
+      ]
+    },
+    {
+      "operation": "blog.comment.apply",
+      "sourceChunks": [
+        "POST /api/blog/common/comment/createComment",
+        "POST /api/blog/common/comment/commentPage"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "确认凭据",
+          "source": "scripts/comment-blog.mjs（无 continuation 概念）",
+          "inputSchema": "continuation",
+          "status": "converted",
+          "facts": "CLI 新增"
+        },
+        {
+          "parameter": "显式确认",
+          "source": "scripts/comment-blog.mjs（直接执行）",
+          "inputSchema": "confirm",
+          "status": "converted",
+          "facts": "CLI 新增：必须 confirm=true"
+        },
+        {
+          "parameter": "disableMessage / relevanceList / imAtContent / atLinkList / originContent / module / attachments / attachmentsList / client",
+          "source": "POST /api/blog/common/comment/createComment",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent"
+        },
+        {
+          "parameter": "写后回查",
+          "source": "POST /api/blog/common/comment/commentPage",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：回查未命中返回 partial/write_uncertain"
+        }
+      ]
+    },
+    {
+      "operation": "blog.like.prepare",
+      "sourceChunks": [
+        "POST /api/blog/common/upvoteComponent/vote",
+        "POST /api/blog/common/upvoteComponent/cancelVote"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "componentId",
+          "source": "POST /api/blog/common/upvoteComponent/vote",
+          "inputSchema": "blog_id",
+          "status": "converted",
+          "facts": "与 date（+user）二选一"
+        },
+        {
+          "parameter": "upvote",
+          "source": "POST /api/blog/common/upvoteComponent/vote",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：true"
+        },
+        {
+          "parameter": "投票 / 取消投票路径",
+          "source": "POST /api/blog/common/upvoteComponent/cancelVote",
+          "inputSchema": "cancel",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：cancel=true 走 cancelVote，否则走 vote"
+        }
+      ]
+    },
+    {
+      "operation": "blog.like.apply",
+      "sourceChunks": [
+        "POST /api/blog/common/upvoteComponent/vote",
+        "POST /api/blog/common/upvoteComponent/cancelVote"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "确认凭据",
+          "source": "scripts/like-blog.mjs（无 continuation 概念）",
+          "inputSchema": "continuation",
+          "status": "converted",
+          "facts": "CLI 新增"
+        },
+        {
+          "parameter": "显式确认",
+          "source": "scripts/like-blog.mjs（直接执行）",
+          "inputSchema": "confirm",
+          "status": "converted",
+          "facts": "CLI 新增：必须 confirm=true"
+        },
+        {
+          "parameter": "生效判定",
+          "source": "POST /api/blog/common/upvoteComponent/vote",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：无只读回查接口，以业务码为准，verified 恒为 false"
+        }
+      ]
+    },
+    {
+      "operation": "blog.remind.prepare",
+      "sourceChunks": [
+        "POST /api/blog/message/sendUrge",
+        "POST /api/hrm/common/browser/data/resource"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "ids",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": "user_ids",
+          "status": "converted",
+          "facts": "数组或逗号串，单次上限 50"
+        },
+        {
+          "parameter": "ids（按姓名）",
+          "source": "POST /api/hrm/common/browser/data/resource",
+          "inputSchema": "names",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：姓名经 HRM 解析为 id"
+        },
+        {
+          "parameter": "content",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": "content",
+          "status": "converted",
+          "facts": "缺省生成「请填写 YYYY年 M月 D日 的日报！」；自定义文案必须包含日期"
+        },
+        {
+          "parameter": "year",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": "year",
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：缺省从 date 推断"
+        },
+        {
+          "parameter": "definiteType / type / targetId / checkStr",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": null,
+          "status": "fixed",
+          "facts": "源接口要求但由 CLI 固定，不暴露给 Agent：'blog' / 'blog' / null / ''"
+        }
+      ]
+    },
+    {
+      "operation": "blog.remind.apply",
+      "sourceChunks": [
+        "POST /api/blog/message/sendUrge"
+      ],
+      "parameterCoverage": [
+        {
+          "parameter": "确认凭据",
+          "source": "scripts/remind-blog.mjs（无 continuation 概念）",
+          "inputSchema": "continuation",
+          "status": "converted",
+          "facts": "CLI 新增：绑定目标列表、文案与年份指纹"
+        },
+        {
+          "parameter": "显式确认",
+          "source": "scripts/remind-blog.mjs（直接执行）",
+          "inputSchema": "confirm",
+          "status": "converted",
+          "facts": "CLI 新增：必须 confirm=true"
+        },
+        {
+          "parameter": "逐人发送",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": null,
+          "status": "derived",
+          "facts": "由 CLI 内部查询、解析或 continuation 绑定得到：多人逐个 POST，部分失败返回 PARTIAL，中断返回 write_uncertain"
+        },
+        {
+          "parameter": "撤回提醒",
+          "source": "POST /api/blog/message/sendUrge",
+          "inputSchema": null,
+          "status": "withheld",
+          "facts": "源资料无撤回接口"
+        }
+      ]
+    }
+  ],
+  "artifactBaseline": [
+    {
+      "path": "src/shortcuts/blog/",
+      "type": "directory",
+      "fileCount": 18,
+      "sha256": "89e250d5aa0fcfcacb45184e5c69c71c74c2a613e8601b23761e991c52966f89"
+    },
+    {
+      "path": "skills/weaver-e10-blog/",
+      "type": "directory",
+      "fileCount": 14,
+      "sha256": "6ee85652be1606716f817b8b091d488e599f082b092777a7847b401a94c600b6"
+    },
+    {
+      "path": "docs/blog.md",
+      "type": "file",
+      "size": 7886,
+      "sha256": "3412839fd4c4d86d1c4be9066b7a8fa7cf89a2eed04e27a9b3bc73dab836a267"
+    },
+    {
+      "path": "test/business/blog-operations.test.ts",
+      "type": "file",
+      "size": 39092,
+      "sha256": "ee199dcbedebaadd1e2a6b6b1863551277e0ca3f96410ece41c6367004452da2"
+    },
+    {
+      "path": "test/business/blog-host.test.ts",
+      "type": "file",
+      "size": 10663,
+      "sha256": "6806326fa8569ff8cba6f5c09bd9acdee370c86c0e0ebdb13b93daf37c081c0d"
+    },
+    {
+      "path": "skill-template/business-info.json",
+      "type": "file",
+      "size": 6338,
+      "sha256": "c14748f9c2855c92efc01aadbc5e19dd6db54202454d26113acb60932601d9f8"
+    },
+    {
+      "path": "skill-template/domains/blog.md",
+      "type": "file",
+      "size": 2402,
+      "sha256": "17cb35250c97b726ba027bab0e406878757f0bc89ea58befccc16b6aeade3b6d"
+    }
+  ],
+  "generatedArtifacts": [
+    "src/shortcuts/blog/",
+    "skills/weaver-e10-blog/",
+    "docs/blog.md",
+    "test/business/blog-operations.test.ts",
+    "test/business/blog-host.test.ts",
+    "skill-template/business-info.json",
+    "skill-template/domains/blog.md"
+  ],
+  "notes": [
+    "补交判定统一为 createTime 与 blogTime 是否同日（blogs 接口的 later 字段实测不可靠，弃用）。",
+    "blogs 接口的 filter.userIds / empIds / userId / creator 被服务端静默忽略，按人查询只能走 blog.query_user（detailsByDate 逐日扫描）。",
+    "blogs 接口的 pageNo 被服务端忽略（第 1/2/3 页返回同一批数据），pageSize 上限 300，因此单页拉满并在截断时输出 _note。",
+    "HRM 人员解析取 rows[].id 作为 E10 业务 userId，userid 字段对业务接口不可用。",
+    "block 级 weak detection：源资料变更时按文件 sha256 与 aggregateSha256 判断，不能定位到具体字段级 diff。"
+  ]
+}

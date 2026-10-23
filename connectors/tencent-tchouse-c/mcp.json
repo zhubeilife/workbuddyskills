@@ -1,8 +1,8 @@
 {
     "mcpServers": {
-        "tchouse-c": {
+        "tchousecdx": {
             "type": "streamableHttp",
-            "url": "https://tcmcpserver.cloud.tencent.com/tchousec/mcp"
+            "url": "https://tcmcpserver.cloud.tencent.com/tchousecdx/mcp"
         }
     }
 }

@@ -1,0 +1,19 @@
+{
+  "title": "鹄得 SCRM 对接配置",
+  "title_en": "Wenear SCRM Configuration",
+  "description": "连接你的鹄得 SCRM 账号。凭证仅保存在本机 ~/.workbuddy 目录下，不会上传云端。",
+  "description_en": "Connect your Wenear SCRM account. Credentials are stored locally only and never uploaded.",
+  "docUrl": "https://console.goodscrm.cn",
+  "docLabel": "如何获取接口令牌？",
+  "fields": [
+    {
+      "key": "SCRM_TOKEN",
+      "label": "接口令牌",
+      "label_en": "Access Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "在鹄得 SCRM 控制台 → 开放平台 → API 中生成",
+      "description": "用于访问鹄得 SCRM OpenAPI 的个人接口令牌。"
+    }
+  ]
+}

@@ -1,18 +1,10 @@
 {
   "mcpServers": {
     "jufa-mcp-server": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "jufa-mcp-server@latest"
-      ],
-      "env": {
-        "JUFA_API_KEY": "${JUFA_API_KEY}"
-      },
-      "runtime": {
-        "type": "node",
-        "version": ">=20"
+      "type": "streamableHttp",
+      "url": "https://www.jufaai.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${JUFA_API_KEY}"
       },
       "timeout": 120000
     }

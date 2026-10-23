@@ -15,6 +15,8 @@ version: 1.1.0
 
 > **执行通道**：本 skill 全程使用 **WorkRally MCP 工具**（`mcp__workrally1__*`）。
 > **不要**调用 `workrally` CLI，也不要依赖 `WORKRALLY_API_KEY` 环境变量——鉴权由 MCP 连接器托管。
+>
+> **平台唯一性**：生成只走 WorkRally MCP，**不得**切换、替换或补充其他 MCP server、第三方生图 API、本地或开源模型、网页版生成工具。失败或额度用尽时报告错误原文并停在该步等用户决定，不换平台、不用其他来源素材顶替。完整规则见 `workrally-brand-film-pipeline`「平台唯一性规则」。
 
 ## When to use
 
@@ -50,8 +52,8 @@ canvas_generate_image(
 9. 轮询任务：对每个 `task_id` 调 **`canvas_get_task`**（间隔约 3 秒）。
    `state` 枚举：**1=排队 2=运行 3=暂停 4=成功 5=失败 6=已取消**。只认 `4` 取产物、`5` 放弃重提、其余继续等。
    成功后产物在 `output_assets[]`，取 `asset_id`。
-10. 取下载地址：用 **`asset_detail(asset_ids=[...])`** 拿带签名的 `asset_details.url` / `download_url`（签名约 10 小时有效），再本地 `curl` 落盘到工作区输出目录。
-11. 如果下载文件没有扩展名，用文件类型检查后重命名为有意义的 `.png` 文件名。
+10. 取下载地址：用 **`asset_detail(asset_ids=[...])`** 拿带签名的 `asset_details.download_url` / `url`（签名有时效），写成 registry 后按 **`workrally-asset-qc`** 的 `scripts/fetch_assets.py` 串行下载到工作区输出目录并做完整性校验。
+11. 文件名由该脚本按文件头真实格式命名（PNG→`.png`、JPEG→`.jpg`），不手工写死扩展名。
 12. 向用户交付：流程图、示例图文件、使用的模型、尺寸、提示词摘要和必要的 QA 注意事项。
 
 ## Prompt template
@@ -75,7 +77,7 @@ avoid extra fingers, bad anatomy, blurry edges
 - WorkRally 模型必须**动态获取**（`canvas_image_model_list`），不能凭记忆猜 `model_id`；不同环境可用模型不同。
 - MCP 的 `task_ids` **不能直接用于下载** —— 要用 `canvas_get_task` 查状态，素材 URL 必须经 `asset_detail` 获取。
 - `asset_detail` 返回的 URL 带签名、约 10 小时过期，过期后重新调用即可。
-- 下载文件有时没有扩展名；下载后应检查文件类型并重命名。
+- 下载与完整性校验统一按 `workrally-asset-qc`；扩展名以文件头真实格式为准。
 - GPT-IMAGE-2 可能不真正输出透明 Alpha，即使提示词写了 transparent background；交付时不要承诺一定透明。
 - 游戏资产示例图只是概念/参考级输出，进入项目前仍要人工 QA 和必要修图。
 - 商业项目要记录模型、提示词、生成任务、授权等级；Steam 上架还要做 AI 内容披露。

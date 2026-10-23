@@ -9,7 +9,7 @@ metadata:
 
 # iHR360 面谈会话
 
-**CRITICAL — 开始前 MUST 先阅读 [`../ihr-shared/SKILL.md`](../ihr-shared/SKILL.md)，其中包含共享运行规则、时间处理原则和 JSON 协议。**
+**CRITICAL — 开始前 MUST 先阅读 [`../ihr-shared/SKILL.md`](../ihr-shared/SKILL.md)，其中包含共享运行规则、时间处理原则、JSON 协议和[查询分页](../ihr-shared/SKILL.md#查询分页)。** 专项搜索等分页列表：普通查询只读当前页；统计分析、明确全量或完整拉取可串行翻页，禁止并发。单会话读取、发起和自定义分析同步不分页。
 
 ## 统一业务边界
 
@@ -26,16 +26,18 @@ metadata:
 ## 核心概念
 
 - **ConferenceSession**：三类面谈成功发起后形成的统一会话资源，通过 `conferenceSessionId` 标识。后续搜索、读取文档和继续处理都围绕该会话 ID 进行，不再按原发起流程拆分资源。
+- **Conference Staff Selection**：面谈选人候选范围，通过 `conference +selectStaffs` 查询。该范围只服务面谈参与人选择，不等同于员工花名册可见范围；通用员工检索应使用 `staff +search`。
 - **Campaign**：面谈专项，通过字符串形式的 `campaignId` 标识，避免雪花 ID 精度丢失。用户只提供专项名称时，先用 `+campaign-search` 查询；重名时必须让用户确认，不能自行选择。
 - **Custom Analysis**：由 AI 系统生成 HTML 文件后同步到面谈系统的自定义分析主题。首次同步创建主题和 V1，后续携带 `analysisId` 刷新同一主题并追加版本；同步和刷新都是写入操作。
 - **业务类型**：面谈/会议、数字人面试、数字人陪练是 Agent 用来选择发起流程的三类业务意图。普通面谈、普通面试和会议在这里属于同一类型，不是三套不同流程；业务类型也不是统一搜索流程必须依赖的单一公开字段。
 - **Search Result**：首轮搜索返回的候选会话集合，包含 `conferenceSessionIds`、`returnedCount`、`truncated` 和可选的 `previewItems`。
 - **Preview Item**：候选会话的标准化预览，包含状态、时间、可见文本和 `currentQueryUserIdentity`。没有基础信息权限时，搜索结果会删除整条预览项；不能据此判断会话不存在。
 - **Session Documents**：选定会话后读取的文档化结果，通过 `access` 表达基础信息、大纲、智能纪要和转写权限；只有明确需要逐句内容时才读取完整转写。用户明确要求公开分享链接时，同一入口还可以按分享权限开启公开访问并返回 `shareLink`，这条分支有真实副作用。
+- **Recruit Handoff**：招聘面试安排列表返回 `conferenceSessionId` 时，面谈摘要、待办和转写摘要可转到本 Skill 的 `conference +documents`；招聘场景的完整逐句转写必须回到招聘 Skill，使用 `recruit interview transcript-read`，由招聘后端调用面谈二方读取。不要把任一服务的二方接口直接暴露给用户。
 - **Launch Request / Response**：发起请求负责创建新会话；真实发起成功后返回统一的会话结果，包括 `conferenceSessionId`、状态和 `conferenceDetailUrl`。三类业务当前都执行 `conference +launch`，但必须使用各自独立的发起 reference 组装和校验请求。
 - **Conference 大纲模板**：由 launch 请求的 `templateId` 标识，并与 `purposeId` 配套，用于决定面谈大纲模板。
 - **数字人面试模板**：独立于 Conference 大纲模板。模板搜索或创建返回的 `templateId` 在发起数字人面试时作为 `interviewCode` 使用。
-- **数字人陪练模板**：独立于数字人面试模板，使用 `scenarioPrompt` 定义角色、隐藏信息、异议和对话规则，不包含岗位、维度或题目。搜索或创建返回的 `templateId` 在统一发起时同样作为 `interviewCode` 使用。
+- **数字人陪练模板**：独立于数字人面试模板，使用 `scenarioConfig` 保存结构化场景设定和完整 Graph 对话方案，不包含岗位、维度或题目。运行时 `scenarioPrompt` 由服务端根据场景设定编译，Agent 不生成或提交。搜索或创建返回的 `templateId` 在统一发起时同样作为 `interviewCode` 使用。
 
 ## 面谈类型关系
 
@@ -56,7 +58,7 @@ metadata:
 | `templateBusinessType` | 数字人模板业务类型，只使用 `INTERVIEW` 或 `PRACTICE`。面试和陪练通过独立搜索/创建入口固定该值；它属于模板事实，不是统一 `+launch` 的输入。 |
 | `interviewCode` | 统一数字人发起链路对业务模板的引用。数字人面试必须来自面试模板入口，数字人陪练必须来自陪练模板入口。 |
 | `staffId` | 普通内部参与人时表示已确认的内部人员 ID；当参与人为 `sourceType=DIGITAL_HUMAN` 的数字人面谈官时，该字段承载数字人配置 ID。 |
-| `digitalHumanId` | 模板最终绑定的数字人配置 ID。创建模板时用户可以显式指定；未指定时由后端按当前配置决定。搜索/创建成功后读取后端返回的实际值，发起时转为十进制字符串写入数字人面谈官的 `staffId`，不得在 CLI 或 Skill 中复制后端默认值。 |
+| `digitalHumanId` | 模板最终绑定的数字人配置 ID。创建模板时可选；仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写。搜索/创建成功后必须读取响应中的实际值，发起时转为十进制字符串写入数字人面谈官的 `staffId`。 |
 | `sourceType` | 参与人来源/身份类型，例如内部人员、外部人员或 `DIGITAL_HUMAN`；它不等同于三类面谈业务类型。 |
 | `interviewMode` | 会话方式，例如 `ONLINE`、`OFFLINE`、`DIGITAL_AVATAR`。数字人面试和数字人陪练都使用 `DIGITAL_AVATAR`，具体业务类型由模板决定。 |
 | `thirdPartyPlatform` | 会话承载平台，例如 `TENCENT_MEETING`、`OFFLINE_MEETING`、`DIGITAL_AVATAR`；与 `interviewMode` 配合描述会话方式，不是模板身份。 |
@@ -143,12 +145,13 @@ Campaign
 3. 只有用户明确需要逐句完整转写时才使用 `fullDetail=true`。
 4. 文档结果按请求顺序保留 session；不可见或不可用时可能只返回 `conferenceSessionId` 和全为 `DENIED` 的 `access`。
 5. 只有用户主动要求分享链接、目标会话已经唯一确定时，才按 documents reference 请求 `enablePublicShare=true`。
+6. 如果会话 ID 来自招聘面试安排列表，摘要、待办和转写摘要仍可使用本命令，先确认候选人、面试轮次和时间，再把该结果中的真实 `conferenceSessionId` 作为 `+documents` 输入；招聘场景的完整逐句转写必须使用 `recruit interview transcript-read`，不接受手工猜测或拼接会话 ID。
 
 ## 自定义分析同步
 
 用户要求把 AI 系统生成的 HTML 文件保存为自定义分析，或手动刷新已有主题时，先读取 [`references/ihr-conference-custom-analysis-sync.md`](references/ihr-conference-custom-analysis-sync.md)：
 
-1. 首次同步不传 `analysisId`，必须提供主题名称、文件 ID、Agent ID 和线程 ID；成功后默认创建仅本人可见的 V1。
+1. 首次同步不传 `analysisId`，必须提供主题名称、文件 ID、Agent ID、工作空间 ID 和线程 ID；成功后默认创建仅本人可见的 V1。
 2. 刷新必须使用页面或上一版本返回的 `analysisId`，不凭主题名称猜测；刷新会新增版本，不修改旧版本。
 3. 两种操作都有持久化副作用。只有用户明确要求保存或刷新，并确认主题或目标 ID 和文件 ID 后才能执行；仅要求预览参数时使用 `--dry-run`。
 4. 不自动重试未知结果或远端失败，避免重复创建主题或追加版本；先核实主题当前状态或让用户决定下一步。
@@ -163,6 +166,8 @@ Campaign
 | 数字人面试 | [`references/ihr-conference-digital-interview-launch.md`](references/ihr-conference-digital-interview-launch.md) | `ihr-cli conference +launch` | 可用，真实执行需确认 |
 | 数字人陪练 | [`references/ihr-conference-digital-practice-launch.md`](references/ihr-conference-digital-practice-launch.md) | `ihr-cli conference +launch` | 可用，真实执行需确认 |
 
+涉及普通内部参与人时，先读取 [`references/ihr-conference-select-staffs.md`](references/ihr-conference-select-staffs.md)，通过 `conference +selectStaffs` 获取并确认候选 `staffId`。
+
 ### 普通面谈/会议
 
 普通面谈、普通面试和会议使用普通发起 reference。该流程负责 purpose、conference 模板、Markdown 大纲、普通参与人、线上/线下方式和结果汇报。
@@ -175,17 +180,17 @@ Campaign
 
 ### 数字人陪练
 
-数字人陪练使用独立发起 reference，但最终复用统一 `conference +launch`。用户没有可用陪练模板时，先读取 [`references/ihr-conference-digital-practice-template.md`](references/ihr-conference-digital-practice-template.md)，搜索现有陪练模板；没有合适模板且用户明确要求新建时，再创建并发布。
+数字人陪练使用独立发起 reference，但最终复用统一 `conference +launch`。用户没有可用陪练模板时，先读取 [`references/ihr-conference-digital-practice-template.md`](references/ihr-conference-digital-practice-template.md)，搜索现有陪练模板；没有语义高度一致的模板且用户明确要求新建时，模型一次生成完整 `templateName`、`sceneSetting` 和 `dialoguePlan` 对象并创建发布。不要调用额外生成接口，也不要提交 Checklist Markdown。
 
-陪练模板返回的 `templateId` 作为 `interviewCode`，返回的 `digitalHumanId` 作为数字人面谈官 `staffId`。创建模板时用户未指定数字人配置，由后端按当前配置决定；Skill 必须使用搜索/创建结果中的实际值，不得硬编码默认数字人。不得改用数字人面试模板。
+陪练模板返回的 `templateId` 作为 `interviewCode`，返回的 `digitalHumanId` 作为数字人面谈官 `staffId`。创建模板时 `digitalHumanId` 可选；仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写。Skill 必须使用搜索/创建结果中的实际值继续发起，不得改用数字人面试模板。
 
 ## 高频安全规则
 
 1. `conference +launch` 有真实副作用。用户只说“准备、拟定、看看参数”时，不得真实发起；可以整理信息或使用 `--dry-run`。
-2. 普通面谈或真人监考官涉及内部人员姓名时，先通过 `ihr-cli base +selectStaffs` 获取并确认 `staffId`；多候选时不得自动选择第一条。
+2. 普通面谈或真人监考官涉及内部人员姓名时，先通过 `ihr-cli conference +selectStaffs` 获取并确认 `staffId`；多候选时不得自动选择第一条。该命令的空结果只表示当前面谈候选范围未命中，不能据此判断员工花名册不可见。
 3. 相对时间先基于当前日期和 `Asia/Shanghai` 换算成 ISO-8601 offset datetime；具体时间含义和必填边界按所选发起或搜索 reference 执行。
 4. 缺少对应发起 reference 要求的关键字段时先追问，不用默认值补造人员、时间、模板或联系方式。
-5. 数字人面试或陪练发起时，必须把已选模板响应中的实际 `digitalHumanId` 映射为唯一数字人面谈官的 `staffId`；没有该值时先补充模板结果，不能省略并让 CLI 猜默认值。
+5. 数字人面试或陪练发起时，必须把已选模板响应中的实际 `digitalHumanId` 映射为唯一数字人面谈官的 `staffId`；没有该值时先补充模板结果，不能自行补造。
 6. 不使用 `ihr-interface`、raw API、完整 URL、curl/httpie/wget 或自写 HTTP client 绕过本 Skill。
 7. 真实发起结果按所选发起 reference 的时间语义和展示顺序汇报；只把 `conferenceDetailUrl` 作为默认统一入口。
 8. 公开分享会开启外部可访问入口，属于真实写入。用户没有主动要求分享链接时必须保持 `enablePublicShare=false` 或省略；目标含糊时先确认会话，批量分享时先确认目标集合和公开影响。
@@ -195,6 +200,7 @@ Campaign
 ## 参考
 
 - [`references/ihr-conference-search.md`](references/ihr-conference-search.md)：搜索面谈/会议、数字人面试和数字人陪练三类已发起会话。
+- [`references/ihr-conference-select-staffs.md`](references/ihr-conference-select-staffs.md)：分页搜索并确认面谈参与人候选。
 - [`references/ihr-conference-campaign-search.md`](references/ihr-conference-campaign-search.md)：搜索当前用户可见的专项并确认 `campaignId`。
 - [`references/ihr-conference-custom-analysis-sync.md`](references/ihr-conference-custom-analysis-sync.md)：从 AI 文件创建自定义分析，或刷新同一主题并追加版本。
 - [`references/ihr-conference-documents.md`](references/ihr-conference-documents.md)：读取选中会话的摘要、待办、转写摘要、完整转写，或在明确授权后生成公开分享链接。
@@ -202,12 +208,13 @@ Campaign
 - [`references/ihr-conference-digital-interview-launch.md`](references/ihr-conference-digital-interview-launch.md)：数字人面试发起。
 - [`references/ihr-conference-digital-interview-template.md`](references/ihr-conference-digital-interview-template.md)：数字人面试模板搜索、设计和创建。
 - [`references/ihr-conference-digital-practice-launch.md`](references/ihr-conference-digital-practice-launch.md)：数字人陪练统一发起流程。
-- [`references/ihr-conference-digital-practice-template.md`](references/ihr-conference-digital-practice-template.md)：数字人陪练模板搜索和创建。
+- [`references/ihr-conference-digital-practice-template.md`](references/ihr-conference-digital-practice-template.md)：数字人陪练模板搜索和一次创建。
 
 ## 可执行命令边界
 
 当前 conference 业务命令包括：
 
+- `ihr-cli conference +selectStaffs`
 - `ihr-cli conference +search`
 - `ihr-cli conference +campaign-search`
 - `ihr-cli conference +sync-custom-analysis`

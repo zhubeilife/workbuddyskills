@@ -1,0 +1,15 @@
+{
+  "title": "八月瓜 API Key 配置",
+  "description": "请填写八月瓜开放平台颁发的 API Key，用于调用八月瓜知识产权智能 MCP（专利）。凭证仅保存在用户本机，连接时注入请求，不上传云端。本服务为只读查询，不会修改任何专利数据。",
+  "docUrl": "https://www.bayuegua.com/",
+  "docLabel": "如何获取 API Key？",
+  "fields": [
+    {
+      "key": "BAYUEGUA_API_KEY",
+      "label": "API Key",
+      "type": "string",
+      "required": true,
+      "description": "八月瓜开放平台颁发的 API Key（32 位字符串），用于调用专利检索 MCP"
+    }
+  ]
+}

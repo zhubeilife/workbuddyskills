@@ -11,6 +11,10 @@ agent_created: true
 
 把**本机文件**变成 WorkRally 生成工具可用的**公网参考图 URL**。
 
+> **平台唯一性**：取公网 URL 只能用 WorkRally 的 `get_upload_token` + COS 直传（音视频再经 `asset_create` 换签名地址）。**不得**改用第三方图床、公有云对象存储、临时文件分享服务或其他 MCP server 来"快速拿一个可访问链接"——这类地址不在 WorkRally 媒资体系内，不可追溯、不可归档。取不到凭证或上传失败时报告错误原文并停在该步等用户决定。完整规则见 `workrally-brand-film-pipeline`「平台唯一性规则」。
+
+> **本技能是插件内「本机文件上传」的唯一规则源**。`workrally-brand-film-pipeline`、`workrally-batch-image-gen` 等需要把本机文件作为参考输入时一律按本文执行，不各自写 `upload_file` / COS SDK 方案。
+
 ## When to use
 
 触发条件（满足其一即用）：
@@ -40,7 +44,7 @@ agent_created: true
 
 ```
 file_ext: "jpg"          # 或 png / mp4 / mp3
-upload_type: 200         # 200=普通(公网可读，图片用)；210=私有读(音视频用)
+upload_type: 200         # 200=普通(公网可读，图片用)；210=私有读(音视频用)；不传则按 file_ext 自动推断
 ```
 
 返回：`tmp_secret_id` / `tmp_secret_key` / `tmp_token` / `bucket` / `region` / `key` / `cdn_path`。
@@ -73,12 +77,21 @@ https://<cdn 域名>/<key>
 
 `cdn_path` 返回形如 `//zenvideo-pro.gtimg.com`，取域名部分拼 `https://` + 域名 + `/` + `key`。
 
-**务必校验**（图片是公网可读，视频/音频必须用带签名的 `url`）：
+**图片（`upload_type=200`，公网读）**：拼出的 URL 可直接使用，**务必校验**：
 
 ```bash
 curl -s -o /dev/null -w "%{http_code} %{content_type} %{size_download}\n" "<URL>"
 # 期望：200 image/jpeg <本地字节数>
 ```
+
+**视频/音频（`upload_type=210`，私有读）**：拼出的是**未签名**的 CDN 路径，直接访问会被拒绝，不能直接当参考输入。须入库换签名地址：
+
+1. `project_list` 取短番项目 ID（未指定用「默认项目」）。
+2. `asset_create(asset_url=<拼出的未签名 CDN URL>, asset_type="video"|"audio", project_id=<短番项目ID>, name=<可读名>)`；要在画布里用再加 `channel="toolbox_canvas"` 与 `canvas_project_id`（上画布节点按 `workrally-canvas-organizer`）。
+3. 用返回的 `asset_details.url`（播放/参考用）或 `asset_details.download_url`（下载用），均为带签名地址、约 10 小时有效；过期后用 `asset_detail(asset_ids=[...])` 重取，不自行拼签名。
+4. 用上面的 curl 校验签名地址返回 200 且 `content_type` 为 `video/*` / `audio/*`。
+
+核心版 MCP 不提供 `sign_url`，不要调用；也不要用未签名路径冒充可访问地址。
 
 ### 4. 作为参考图传入
 
@@ -118,7 +131,7 @@ prompt: "...角色外形严格参照第一张图片..."
 - **Python urllib 直传会 write timeout**：沙箱下用 urllib 发 PUT 常超时；**改用 curl `--data-binary @文件`** 即可通。
 - **别用 `requests`/`urllib`**：走 `subprocess` 调 curl 最稳。
 - **凭证时效**：STS 临时凭证有效期短（约 1 小时级），取到后尽快传完；`get_upload_token` 返回的 `key` 已带日期目录与 uuid，不要自己拼。
-- **音视频是私有读**：`upload_file` 返回的 `url`（带签名）才能访问，`original_url` 不行。图片是公网读，无此限制。
+- **音视频是私有读**：COS 直传后拼出的 CDN 路径未签名、不可直接访问；须 `asset_create` 入库后用 `asset_details.url` / `download_url`（带签名，约 10 小时），过期经 `asset_detail` 重取（见步骤 3）。图片是公网读，无此限制。
 - **不要拿风格/氛围图当 input_images**：会污染画面（把参考图里的人、道具一起抄进去）。参考图只传**结构/身份**参考；风格走文字描述。
 - **组合图（多视图并置的资产图）不能直接当 input_images**：道具/角色资产常做成「一张图里并排多个视图」（如同时有封面＋内页、全杖＋杖头特写）。直接整张传入，模型会把**多个视图一起画进同一画面**（同框出现两份物料）。传入前先**按视图裁成单件**。
 - **含大量汉字的资产图慎传**：视频模型复现汉字会写成乱码或伪字形。关键文字（书名/表格/题词）走**后期叠印**（Pillow 渲染＋overlay），生成时不要求模型写字。

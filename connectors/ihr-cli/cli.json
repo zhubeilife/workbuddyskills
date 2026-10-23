@@ -14,7 +14,7 @@
       "linux": "ihr-cli version",
       "win32": "ihr-cli version"
     },
-    "minVersion": "1.0.28",
+    "minVersion": "1.0.41",
     "versionPattern": "\\\"version\\\"\\s*:\\s*\\\"(\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)\\\""
   },
   "auth": {
@@ -28,9 +28,9 @@
     "win32": "ihr-cli auth logout"
   },
   "status": {
-    "darwin": "ihr-cli auth status --readiness-only --strict-exit --env prod",
-    "linux": "ihr-cli auth status --readiness-only --strict-exit --env prod",
-    "win32": "ihr-cli auth status --readiness-only --strict-exit --env prod"
+    "darwin": "ihr-cli auth status --readiness-only --strict-exit",
+    "linux": "ihr-cli auth status --readiness-only --strict-exit",
+    "win32": "ihr-cli auth status --readiness-only --strict-exit"
   },
   "statusMatch": "^READY\\s*$",
   "authWaitForExit": true,

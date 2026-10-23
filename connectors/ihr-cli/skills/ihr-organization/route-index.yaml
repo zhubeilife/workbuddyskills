@@ -1,0 +1,28 @@
+version: 1
+
+domains:
+  - id: organization
+    title: 组织结构与组织基础定义
+    useWhen:
+      - 用户询问部门层级、根节点、直属子部门、上级链、虚拟组织、停用组织或组织生效日期
+      - 用户询问职位、职务、职级、地点、成本中心、汇报关系或编制定义
+    avoidWhen:
+      - 用户要查询某个员工的个人档案或员工生命周期记录
+      - 用户要查询招聘候选人、考勤结果、薪资福利或绩效结果
+    load:
+      domain: references/domain/overview.md
+
+useCases:
+  - id: organization.headcount.inspect
+    title: 按控编维度核对部门占编
+    useWhen:
+      - 用户要求先定位某方案周期下的部门编制记录，再读取控编维度并计算占编数量
+      - 用户需要在同一部门编制记录下同时核对计划编制和指定维度的占编结果
+    avoidWhen:
+      - 用户只查询编制部门列表、移除部门提示、单条维度详情或一个已知条件的占编结果
+      - 用户只需要解释计划编制、组织人数、职位容量和占编数量的区别
+      - 用户只查询普通组织树中的人数或职位数量
+      - 用户要求修改编制方案或使用未注册的子维度命令
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/headcount-inspection/guide.md

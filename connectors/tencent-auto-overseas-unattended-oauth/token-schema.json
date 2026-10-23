@@ -1,0 +1,14 @@
+{
+  "title": "连接 iAutomark 海外客服助手",
+  "description": "填写 iAutomark 平台签发的 MCP API Key。凭证仅保存在本机 ~/.workbuddy 目录，不会上传云端。API Key 由 iAutomark 平台管理员签发。",
+  "docLabel": "如何获取 API Key？",
+  "fields": [
+    {
+      "key": "IATMARK_API_KEY",
+      "label": "iAutomark MCP API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "粘贴平台签发的 MCP API Key"
+    }
+  ]
+}

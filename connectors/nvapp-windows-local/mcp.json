@@ -2,12 +2,12 @@
   "mcpServers": {
     "NVIDIA-App": {
       "type": "stdio",
-      "command": "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\McpServer\\NvAppMcpServer.exe",
-      "args": [],
-      "env": {
-        "NVAPP_MCP_TOKEN": "${NVAPP_MCP_TOKEN}"
-      },
-      "timeout": 30000
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\McpServer\\NvAppMcpServer.exe"
+      ]
     }
   }
 }

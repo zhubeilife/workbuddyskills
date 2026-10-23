@@ -7,8 +7,8 @@
 ## 命令
 
 ```bash
-ihr-cli base +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10
-ihr-cli workflow proxy +list --client-staff-id "staff-id-from-selectStaffs"
+ihr-cli staff +search --keyword "张三" --page 1 --page-size 10
+ihr-cli workflow proxy +list --client-staff-id "staff-id-from-staff-search"
 ihr-cli workflow proxy +list --client-staff-name "张三"
 ihr-cli workflow proxy +list --proxy-staff-name "李四"
 ihr-cli workflow proxy +list --approval-setting-name "请假"
@@ -18,7 +18,7 @@ ihr-cli workflow proxy +list --approval-setting-name "请假"
 
 | 参数 | 类型 | 必填 | 默认值 | 说明 | 请求映射 |
 | --- | --- | --- | --- | --- | --- |
-| `--client-staff-id` | string | 否 | 无 | 被代理人员工 ID；自然语言姓名应先用 `base +selectStaffs` 解析后再传 | `request.clientStaffId` |
+| `--client-staff-id` | string | 否 | 无 | 被代理人员工 ID；自然语言姓名应先用 `staff +search` 解析后再传 | `request.clientStaffId` |
 | `--clientStaffId` | string | 否 | 无 | `--client-staff-id` 的兼容别名 | `request.clientStaffId` |
 | `--client-staff-name` | string | 否 | 无 | 被代理人姓名 | `request.clientStaffName` |
 | `--principal` | string | 否 | 无 | `--client-staff-name` 的语义别名 | `request.clientStaffName` |
@@ -53,12 +53,12 @@ ihr-cli workflow proxy +list --json '{"clientStaffId":"staff-001","proxyStaffNam
 当用户输入“张三被谁代理了”这类姓名场景时，不要直接把姓名当 staffId。先执行：
 
 ```bash
-ihr-cli base +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10
+ihr-cli staff +search --keyword "张三" --page 1 --page-size 10
 ```
 
-读取 `response.data.dataList[]`：
+读取 `response.data.list[]`：
 
-- 只有 1 个候选时，取 `dataList[0].id`，再调用 `workflow proxy +list --client-staff-id <id>`。
+- 只有 1 个候选时，取 `response.data.list[0].id`，再调用 `workflow proxy +list --client-staff-id <id>`。
 - 多个候选时，先让用户确认具体员工，不要猜。
 - 没有候选时，可以退化为 `workflow proxy +list --client-staff-name "张三"`，并说明这是姓名模糊查询。
 
@@ -97,7 +97,7 @@ ihr-cli base +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10
 
 ### Agent 调用与安全规则
 
-- 自动分页：`ENFORCED` 为禁止；page>=1、rows 1-100；不自动翻页。
+- 自动分页：普通查询禁止；统计分析、明确全量或需要完整结果集时，允许按同一筛选串行翻页，禁止并发请求和自动重试；page>=1、rows 1-100。
 - 批量执行：`ENFORCED` 为禁止；只执行用户已确认的当前对象/范围。
 - 重试：`ENFORCED` 为不自动重试。
 - 写入保护：`N/A`，本命令只读；dry-run 只构造请求。

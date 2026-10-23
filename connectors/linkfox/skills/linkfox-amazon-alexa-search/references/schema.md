@@ -47,16 +47,13 @@
       },
       "examples": [
         {
-          "value": "[\"best wireless earbuds for running\"]",
+          "value": ["best wireless earbuds for running"],
           "summary": "单轮问题"
-        },
-        {
-          "value": "[\"best electric kettle\",\"Compare with similar products\"]",
-          "summary": "两轮对话"
         }
       ],
-      "maxItems": 1000,
-      "description": "对话提示词数组.用于发起一次 Alexa 多轮问答，至少 1 条，建议不超过 5 条。多个元素表示同一次调用中的连续追问，会按数组顺序依次发送：先发送 prompts[0]，等待 Alexa 回答后再发送 prompts[1]，再继续发送后续问题。若需要基于上一次工具调用结果继续追问，下一次调用是新的问答上下文，agent 需要根据历史回答和推荐商品自行总结上下文，并组织成新的 prompts 再发起调用。"
+      "minItems": 1,
+      "maxItems": 1,
+      "description": "对话提示词数组，必须且只能包含 1 个字符串。必须传 JSON 数组，不要传字符串或序列化后的数组字符串。每次调用仅发送 prompts[0] 这一个问题，且是独立的新会话，不保留跨次调用的历史上下文。如需追问，agent 须总结上一轮回答中的推荐商品、ASIN 和关键结论，拼接新问题后作为下一次调用唯一的 prompts[0]。"
     }
   }
 }

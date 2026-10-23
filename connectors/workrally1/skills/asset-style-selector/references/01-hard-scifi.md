@@ -1,6 +1,6 @@
 # 1 · 硬科幻（纪实写实）
 
-仅在 style_id=hard-scifi 且选择已确认时读取。来源：style-hard-scifi-realistic；原目录「资产-硬科幻&太空歌剧」。**原文明确不含太空歌剧，本合并版保持该边界。**
+**历史模板，非运行分支**：以下旧编号、加载与执行规则仅供维护追溯，不再因旧ID或入口名称执行。常规选择统一按 [../SKILL.md](../SKILL.md)，对应库条目为 [纪实硬科幻](library/styles/style-hard-scifi-realistic.md)。来源：style-hard-scifi-realistic；原目录「资产-硬科幻&太空歌剧」。**原文明确不含太空歌剧，本合并版保持该边界。**
 
 ## 定位与参考
 

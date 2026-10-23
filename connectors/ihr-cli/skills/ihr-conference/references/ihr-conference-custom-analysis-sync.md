@@ -14,6 +14,7 @@ ihr-cli conference +sync-custom-analysis \
   --analysisName "行动跟进与沟通效率" \
   --fileId "file-123" \
   --agentId "agent-1" \
+  --workspaceId "workspace-1" \
   --threadId "thread-1"
 
 # 刷新已有主题并追加版本
@@ -21,6 +22,7 @@ ihr-cli conference +sync-custom-analysis \
   --analysisId 10001 \
   --fileId "file-456" \
   --agentId "agent-1" \
+  --workspaceId "workspace-1" \
   --threadId "thread-2"
 ```
 
@@ -32,12 +34,13 @@ ihr-cli conference +sync-custom-analysis \
 | `--analysisName` | string | CONDITIONAL | 无 | 最多 200 个字符 | 首次创建时必填；刷新时可省略并沿用当前名称 | `analysisName` | 设置首次创建的分析主题名称 |
 | `--fileId` | string | REQUIRED | 无 | 最多 512 个字符，文件 ID | 无 | `fileId` | 指定 AI 系统生成、文件服务可读取的 HTML 文件 |
 | `--agentId` | string | REQUIRED | 无 | 最多 128 个字符，Agent ID | 无 | `agentId` | 记录生成本版本所使用的 AI Agent |
+| `--workspaceId` | string | REQUIRED | 无 | 最多 128 个字符，工作空间 ID | 无 | `workspaceId` | 记录生成本版本所使用的 AI 工作空间 |
 | `--threadId` | string | REQUIRED | 无 | 最多 128 个字符，线程 ID | 无 | `threadId` | 记录生成本版本所使用的 AI 会话线程 |
 
 ## JSON 输入
 
 ```bash
-ihr-cli conference +sync-custom-analysis --json '{"analysisName":"行动跟进与沟通效率","fileId":"file-123","agentId":"agent-1","threadId":"thread-1"}'
+ihr-cli conference +sync-custom-analysis --json '{"analysisName":"行动跟进与沟通效率","fileId":"file-123","agentId":"agent-1","workspaceId":"workspace-1","threadId":"thread-1"}'
 ```
 
 也可以通过 `--stdin` 输入同一对象。`--json`、`--stdin` 与分项业务参数互斥；空 JSON、未知字段、非整数 `analysisId` 和缺少条件必填字段会在调用前拒绝。

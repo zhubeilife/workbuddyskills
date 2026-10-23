@@ -18,8 +18,8 @@ ihr-cli conference +launch
 
 1. 确认用户要发起的是数字人陪练，不是数字人面试。
 2. 确认陪练模板。用户没有已确认模板时，读取 [`ihr-conference-digital-practice-template.md`](ihr-conference-digital-practice-template.md)，先搜索，没有合适模板且用户明确要求创建时再创建。
-3. 保存模板返回的 `templateId` 和实际 `digitalHumanId`：前者作为 `interviewCode`，后者转为十进制字符串作为数字人面谈官 `staffId`。创建模板时用户未指定数字人配置，由后端按当前配置决定；Skill 不硬编码默认值。
-4. 确认唯一陪练人员的姓名，以及手机号或邮箱。内部人员仍可先用 `base +selectStaffs` 确认 `staffId`，但数字人链路仍要求联系方式。
+3. 保存模板返回的 `templateId` 和实际 `digitalHumanId`：前者作为 `interviewCode`，后者转为十进制字符串作为数字人面谈官 `staffId`。创建模板时该字段可选，仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写。
+4. 确认唯一陪练人员的姓名，以及手机号或邮箱。内部人员仍可先用 `conference +selectStaffs` 确认 `staffId`，但数字人链路仍要求联系方式。
 5. 确认标题、允许进入时间和最晚结束时间。相对时间按 `Asia/Shanghai` 转成 ISO-8601 offset datetime，再用两个绝对时间的分钟差计算 `duration`；不要把预计实际陪练时长当作可进入窗口。
 6. 先 dry-run 检查请求；只有用户明确确认真实发起后才执行。
 
@@ -108,7 +108,7 @@ JSON 输入示例：
 
 1. 陪练人员必须是唯一 `interviewees[0]`，必须有 `name` 和 `phone` 或 `email`。
 2. 内部人员可以携带已确认 `staffId`，但不能因此省略联系方式。
-3. 用户创建模板时可以明确指定数字人，也可以省略并由后端配置决定；无论哪种情况，发起时都使用后端模板结果返回的实际 `digitalHumanId`，不能硬编码或自行替换。
+3. 用户创建模板时 `digitalHumanId` 可选；仅在用户提供或已经确认具体配置 ID 时填写，没有或不确定时不填写。发起时使用模板结果返回的实际 `digitalHumanId`，不能硬编码或自行替换。
 4. 真人监考官只有在 `allowObserverIntervention=true` 时传入；`others`、简历和面试轮次继续遵守前述陪练参数边界。
 
 ## 时间窗口规则

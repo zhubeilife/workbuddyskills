@@ -1,0 +1,32 @@
+{
+  "title": "连接欧路词典系列账号",
+  "title_en": "Connect an Eudic Dictionary Account",
+  "description": "填写 OpenAPI Token 和应用语言。凭证只保存在本机 ~/.workbuddy 目录中。",
+  "description_en": "Enter your OpenAPI token and app language. Credentials are stored locally in ~/.workbuddy only.",
+  "docUrl": "https://my.eudic.net/OpenAPI/Authorization",
+  "docLabel": "如何获取 OpenAPI Token？",
+  "docLabel_en": "How do I get an OpenAPI token?",
+  "fields": [
+    {
+      "key": "EUDIC_TOKEN",
+      "label": "OpenAPI Token",
+      "label_en": "OpenAPI Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "仅填写 Token，不要包含 NIS 前缀",
+      "description": "用于访问个人生词本、笔记、例句和语料。连接时会自动添加 NIS 前缀。",
+      "description_en": "Used to access your vocabulary lists, notes, example sentences, and personal vocabulary. Do not include the NIS prefix."
+    },
+    {
+      "key": "EUDIC_LANGUAGE",
+      "label": "应用语言",
+      "label_en": "App language",
+      "type": "text",
+      "required": true,
+      "defaultValue": "en",
+      "placeholder": "en / fr / de / es",
+      "description": "en=欧路词典，fr=法语助手，de=德语助手，es=西语助手。",
+      "description_en": "en=Eudic, fr=French Assistant, de=German Assistant, es=Spanish Assistant."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "摩熵数科开放平台连接配置",
+  "title_en": "Molsci Open Platform Connection Configuration",
+  "description": "填写您的摩熵数科开放平台 API Key 以连接服务。凭证仅存储在本机 ~/.workbuddy 目录下，不会上传云端。",
+  "description_en": "Enter your Molsci Open Platform API Key to connect to the service. Credentials are stored only on your local machine under ~/.workbuddy and are never uploaded to the cloud.",
+  "docUrl": "https://open.bcpmdata.com",
+  "docLabel": "如何获取 API Key？",
+  "docLabel_en": "How to get an API Key?",
+  "fields": [
+    {
+      "key": "API_KEY",
+      "label": "API Key",
+      "label_en": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "在摩熵数科开放平台点击“联系我们”申请 API Key",
+      "placeholder_en": "Click \"Contact Us\" on the Molsci Open Platform to apply for an API Key",
+      "description": "用于访问摩熵医药 OpenAPI / MCP 服务的个人访问密钥。",
+      "description_en": "Personal access key used to call Molsci Pharma OpenAPI / MCP services."
+    }
+  ]
+}

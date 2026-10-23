@@ -1,0 +1,87 @@
+version: 1
+
+domains:
+  - id: staff
+    title: 员工信息、档案与入转调离
+    useWhen:
+      - 查询员工花名册、员工详情、动态字段、档案、标签、黑名单、合同、协议、培训或异动记录
+      - 查询或办理入职记录，查询转正记录、调动记录、离职记录，或审核入职登记表
+      - 按公开条件查询员工、待入职、转正、调动、离职或培训记录的名单、当前匹配数或返回字段分布
+    avoidWhen:
+      - 只查询部门、职位、职务、职级、编制或汇报关系定义
+      - 只查询招聘候选人、考勤结果、薪资、福利或智慧绩效结果
+    load:
+      domain: references/domain/overview.md
+
+useCases:
+  - id: staff.employee-records.query
+    title: 查询同一员工的跨类别资料
+    useWhen:
+      - 同一请求组合员工信息与档案、标签、合同、协议、培训、入职/转正/调动/离职或异动中的两个及以上范围
+      - 用户泛称完整员工档案，但实际目标跨越多个独立数据范围
+    avoidWhen:
+      - 只查询花名册、一个固定档案、一个入职/转正/调动/离职记录列表或一个明确命令
+      - 要新增、编辑、审核或确认入职
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/employee-records-query/guide.md
+
+  - id: staff.custom-archive.query
+    title: 查询企业自定义员工档案
+    useWhen:
+      - 查询企业自行配置的员工补充信息子集
+      - 查询指定员工的一个或多个 SUBSET 自定义档案
+    avoidWhen:
+      - 查询教育、工作、证书、家庭成员或绩效固定档案
+      - 只查询员工信息或已知字段 code 的花名册字段值
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/custom-archive-query/guide.md
+
+  - id: staff.entry.create
+    title: 创建单条待入职记录
+    useWhen:
+      - 将一个明确人员新增、录入或添加到待入职
+      - 新建待入职记录，但尚未要求确认待入职或触发归档
+    avoidWhen:
+      - 修改已有待入职资料
+      - 确认入职、审核入职登记表或批量导入待入职
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/entry-create/guide.md
+
+  - id: staff.entry.update
+    title: 编辑单条待入职资料
+    useWhen:
+      - 修改、补全或更正已有待入职记录的字段
+      - 用户要求保留未修改内容，只调整指定入职信息
+    avoidWhen:
+      - 新建待入职记录
+      - 修改花名册中的在职员工，或审核入职登记表
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/entry-update/guide.md
+
+  - id: staff.entry.confirm
+    title: 确认单条待入职并触发归档
+    useWhen:
+      - 确认某条待入职、正式办理入职或触发归档到花名册
+      - 已有明确待入职记录，需要执行最终确认
+    avoidWhen:
+      - 只创建或修改待入职资料
+      - 只审核候选人提交的入职登记表
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/entry-confirm/guide.md
+
+  - id: staff.registration-form.approve
+    title: 审核通过单条入职登记表
+    useWhen:
+      - HR 审核候选人提交的入职登记表并要求通过
+      - 审核前需要核对登记信息或附件是否齐全
+    avoidWhen:
+      - 查询入职审批待办但不要求处理
+      - 确认待入职并触发花名册归档，或发起其他业务审批
+    load:
+      domain: references/domain/overview.md
+      useCase: references/use-cases/registration-form-approval/guide.md

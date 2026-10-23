@@ -1,0 +1,19 @@
+{
+  "title": "连接您的马上赢品牌CT账号",
+  "title_en": "Connect your Mashangying BrandCT account",
+  "description": "请填写马上赢品牌CT的个人访问令牌（PAT）。凭证仅保存在本机 ~/.workbuddy 目录，不会上传到云端，权限范围与您本人的账号一致。",
+  "description_en": "Enter your Mashangying BrandCT personal access token (PAT). The credential is stored locally in ~/.workbuddy only and never uploaded to the cloud. Its scope matches your own account permissions.",
+  "docUrl": "https://x.brandct.com/generalSettings/personalAccessTokens",
+  "docLabel": "如何获取访问令牌？",
+  "fields": [
+    {
+      "key": "BRANDCT_PAT",
+      "label": "个人访问令牌",
+      "label_en": "Personal access token",
+      "type": "password",
+      "required": true,
+      "placeholder": "ldpat_xxxxxxxxxxxxxxxx",
+      "description": "登录马上赢品牌CT后，打开 https://x.brandct.com/generalSettings/personalAccessTokens ，点击生成令牌并复制完整令牌串，粘贴到此处。"
+    }
+  ]
+}

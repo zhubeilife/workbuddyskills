@@ -1,0 +1,29 @@
+{
+  "runtime": {
+    "type": "node",
+    "version": ">=20"
+  },
+  "init": {
+    "darwin": "npx -y @zenithspace/nas-connector init",
+    "linux": "npx -y @zenithspace/nas-connector init",
+    "win32": "npx -y @zenithspace/nas-connector init"
+  },
+  "auth": {
+    "darwin": "npx -y @zenithspace/nas-connector browser-auth",
+    "linux": "npx -y @zenithspace/nas-connector browser-auth",
+    "win32": "npx -y @zenithspace/nas-connector browser-auth"
+  },
+  "status": {
+    "darwin": "npx -y @zenithspace/nas-connector status",
+    "linux": "npx -y @zenithspace/nas-connector status",
+    "win32": "npx -y @zenithspace/nas-connector status"
+  },
+  "unAuth": {
+    "darwin": "npx -y @zenithspace/nas-connector logout",
+    "linux": "npx -y @zenithspace/nas-connector logout",
+    "win32": "npx -y @zenithspace/nas-connector logout"
+  },
+  "statusMatch": "Authenticated",
+  "authUrlDomain": "oauth.zconnect.cn",
+  "authWaitForExit": true
+}

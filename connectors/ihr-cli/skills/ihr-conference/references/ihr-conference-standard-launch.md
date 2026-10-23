@@ -1,6 +1,6 @@
 # conference +launch — 普通面谈/会议发起
 
-> **前置条件：** 先阅读 [`../../ihr-shared/SKILL.md`](../../ihr-shared/SKILL.md) 了解共享运行规则、时间处理方式和 JSON 协议。涉及人员时，先阅读 [`../../ihr-base/references/ihr-base-select-staffs.md`](../../ihr-base/references/ihr-base-select-staffs.md)。
+> **前置条件：** 先阅读 [`../../ihr-shared/SKILL.md`](../../ihr-shared/SKILL.md) 了解共享运行规则、时间处理方式和 JSON 协议。涉及人员时，先阅读 [`ihr-conference-select-staffs.md`](ihr-conference-select-staffs.md)。
 
 使用 `conference +launch` 创建普通面谈、普通面试或会议。该动作有真实副作用，会创建会话、发起三方会议，并可能触发通知；只有用户明确要求创建、预约、安排或发起时才调用。
 
@@ -29,10 +29,10 @@ ihr-cli conference +launch
 
 ## 标准流程
 
-如果用户只给了人名，先用通用选人能力确认人员 ID：
+如果用户只给了人名，先用面谈选人能力确认人员 ID：
 
 ```bash
-ihr-cli base +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10
+ihr-cli conference +selectStaffs --searchKeyword "张三" --pageNo 1 --pageSize 10
 ```
 
 确认 `response.data.dataList[].id` 后，再把该值写入 `+launch` 的参与人 `staffId`。
@@ -94,7 +94,7 @@ ihr-cli conference +launch \
 | `--duration <n>` | 否 | 面谈时长分钟，默认 `30`，必须大于 `0` |
 | `--interviewMode <mode>` | 否 | 本流程使用 `ONLINE` 或 `OFFLINE`；不传时按 `thirdPartyPlatform` 推导，两者都不传时默认 `ONLINE` |
 | `--thirdPartyPlatform <platform>` | 否 | 本流程使用 `TENCENT_MEETING` 或 `OFFLINE_MEETING`；不传时按 `interviewMode` 推导，两者都不传时默认 `TENCENT_MEETING` |
-| `--interviewers <json>` | 是 | 面谈官 JSON 数组，内部人员 ID 必须先通过 `base +selectStaffs` 确认 |
+| `--interviewers <json>` | 是 | 面谈官 JSON 数组，内部人员 ID 必须先通过 `conference +selectStaffs` 确认 |
 | `--interviewees <json>` | 是 | 面谈对象 JSON 数组 |
 | `--others <json>` | 否 | 其他参与人 JSON 数组 |
 | `--outlineMdText <markdown>` | 否 | Markdown 格式面谈大纲，最终写入请求体 `outline.mdText`，如果不填写则由服务端生成，最多 `20000` 字符 |
@@ -162,14 +162,14 @@ ihr-cli conference +launch \
 
 | 字段 | 必填 | 说明 |
 |------|------|------|
-| `staffId` | 内部人员必填 | 来自 `base +selectStaffs` 的 `dataList[].id`；内部人员不能只传姓名 |
+| `staffId` | 内部人员必填 | 来自 `conference +selectStaffs` 的 `dataList[].id`；内部人员不能只传姓名 |
 | `name` | 外部人员必填，内部人员建议 | 展示用姓名；外部人员没有 `staffId` 时必须提供 |
 | `sourceType` | 否 | 未传时，有 `staffId` 的人员按当前产品补 `IHR360/WORK100`，没有 `staffId` 的人员补 `EXTERNAL` |
 | `phone` / `email` | 外部人员建议 | 外部人员联系方式 |
 
 LLM 规则：
 
-1. 如果用户只给人员姓名，优先按内部人员处理，必须先调用 `ihr-cli base +selectStaffs`，不能把姓名直接当作 `staffId`。
+1. 如果用户只给人员姓名，优先按内部人员处理，必须先调用 `ihr-cli conference +selectStaffs`，不能把姓名直接当作 `staffId`。
 2. `total=0` 时告诉用户没找到。
 3. `total=1` 且姓名高度一致时，可以采用该 `id`。
 4. `total>1` 时必须展示候选并让用户确认，不能自动选第一个。
@@ -251,8 +251,8 @@ CLI 统一输出：
 | `title 不能为空` | 缺少面谈主题 | 先补充主题 |
 | `startTime 不能为空` | 缺少开始时间 | 先确认绝对时间 |
 | `startTime 必须是 ISO-8601 offset datetime` | 时间格式不对 | 使用 `2026-05-28T15:00:00+08:00` |
-| `interviewers 不能为空` | 缺少面谈官 | 先通过 `base +selectStaffs` 确认人员 |
-| `interviewees 不能为空` | 缺少面谈对象 | 先通过 `base +selectStaffs` 确认人员 |
+| `interviewers 不能为空` | 缺少面谈官 | 先通过 `conference +selectStaffs` 确认人员 |
+| `interviewees 不能为空` | 缺少面谈对象 | 先通过 `conference +selectStaffs` 确认人员 |
 | `staffId 和 name 不能同时为空` | 参与人缺少可识别信息 | 内部人员先选人拿 `staffId`；外部人员至少传 `name`，并尽量补充 `phone` 或 `email` |
 | `templateId ... 与 purposeId ... 不匹配` | 模板和目的不一致 | 使用静态表中的同一行组合 |
 | `当前版本不支持绑定所属专项` | 传入了 `campaignId` | 暂把专项说明放入 `referenceInfo` |

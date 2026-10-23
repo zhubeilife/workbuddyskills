@@ -1,0 +1,29 @@
+{
+    "runtime": {
+        "type": "node",
+        "version": "20"
+    },
+    "init": {
+        "darwin": "npm install -g @workec/ec-crm",
+        "linux": "npm install -g @workec/ec-crm",
+        "win32": "npm install -g @workec/ec-crm"
+    },
+    "auth": {
+        "darwin": "ec-crm login qrcode",
+        "linux": "ec-crm login qrcode",
+        "win32": "ec-crm.cmd login qrcode"
+    },
+    "unAuth": {
+        "darwin": "ec-crm login logout",
+        "linux": "ec-crm login logout",
+        "win32": "ec-crm.cmd login logout"
+    },
+    "status": {
+        "darwin": "ec-crm login poll",
+        "linux": "ec-crm login poll",
+        "win32": "ec-crm.cmd login poll"
+    },
+    "statusMatch": "Logged in",
+    "authUrlDomain": "html.workec.com",
+    "npmRegistry": "https://registry.npmmirror.com"
+}

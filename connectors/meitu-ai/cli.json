@@ -4,9 +4,17 @@
     "version": ">=20"
   },
   "init": {
-    "darwin": "npm install -g meitu-cli@2.1.21",
-    "linux": "npm install -g meitu-cli@2.1.21",
-    "win32": "npm install -g meitu-cli@2.1.21"
+    "darwin": "npm install -g meitu-cli",
+    "linux": "npm install -g meitu-cli",
+    "win32": "npm install -g meitu-cli"
+  },
+  "versionCheck": {
+    "command": {
+      "darwin": "meitu --version",
+      "linux": "meitu --version",
+      "win32": "meitu.cmd --version"
+    },
+    "minVersion": "2.1.30"
   },
   "auth": {
     "darwin": "meitu auth login --force --no-open-browser --no-poll-progress",

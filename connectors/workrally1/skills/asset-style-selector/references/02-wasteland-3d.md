@@ -1,6 +1,6 @@
 # 2 · 硬核废土3D（灵笼级CG角色渲染）
 
-仅在 style_id=wasteland-3d 且选择已确认时读取。来源：style-hardcore-wasteland-3d；融合来源署名保留：资产-CG角色资产建立（CG-3D-CHARACTER-RENDER-v5.0）＋21-hardcore-wasteland-3d。九层框架已收录在本文件，无需另找外部技能。
+**历史模板，非运行分支**：以下旧编号、加载与执行规则仅供维护追溯，不再因旧ID或入口名称执行。常规选择统一按 [../SKILL.md](../SKILL.md)，对应库条目为 [硬核废土3D](library/styles/style-hardcore-wasteland-3d.md)。来源：style-hardcore-wasteland-3d；融合来源署名保留：资产-CG角色资产建立（CG-3D-CHARACTER-RENDER-v5.0）＋21-hardcore-wasteland-3d。九层框架已收录在本文件，无需另找外部技能。
 
 ## 定位与参考
 

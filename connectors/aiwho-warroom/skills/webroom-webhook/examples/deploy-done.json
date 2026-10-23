@@ -1,0 +1,6 @@
+{
+  "title": "🚀 部署完成：web@1.2.3",
+  "body": "环境：prod\n发起人：chaoming\n变更：3 个提交，含 MCP 参数校验修复\n耗时：2m 41s",
+  "level": "info",
+  "externalId": "deploy-prod-web-1.2.3"
+}

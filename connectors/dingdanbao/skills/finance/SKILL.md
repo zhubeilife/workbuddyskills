@@ -3,7 +3,7 @@ name: dingdanbao-finance
 description: "订单豹催款、收款码与财务查询。"
 description_zh: "客户欠款、待收款、收款码、收付款记录与财务总览。"
 description_en: "Customer outstanding balances, pending collections, payment QR codes, payment records, and finance overview."
-version: "1.0.0"
+version: "1.0.1"
 author: "订单豹"
 ---
 
@@ -13,7 +13,7 @@ author: "订单豹"
 
 ## 认证说明
 
-登录失败时请用户打开连接器设置重填账号密码。不要在对话里要密码。
+登录失败时请用户重新连接连接器完成授权。不要在对话里要密码。
 
 ## 对用户说话
 
@@ -27,7 +27,7 @@ author: "订单豹"
 
 ### ddb_get_customer_debt
 
-客户欠款。参数：`keyword` 或 `member_id`。
+客户欠款。`keyword` / `member_id` **必填其一**。
 
 ### ddb_list_pending_receipt_orders
 
@@ -35,7 +35,7 @@ author: "订单豹"
 
 ### ddb_list_debt_orders
 
-欠款订单。参数：`page`、`page_size`、`keyword`、`member_id`。
+欠款订单。参数：`page`、`page_size`、`keyword`、`member_id`。`pageDiffMoney` 是本页合计，`totalDiffMoney` 是接口全量欠款，不要拿本页加总去对全量合计。
 
 ### ddb_create_receipt_qrcode
 
@@ -58,7 +58,7 @@ author: "订单豹"
 
 ### ddb_get_debt_summary
 
-欠款汇总。参数：`keyword`。
+欠款汇总。参数：`keyword`。带客户名/手机号时先定位客户再汇总，不要无客户关键词查全站。
 
 ### ddb_get_finance_overview
 
@@ -73,6 +73,7 @@ author: "订单豹"
 
 | 现象 | 处理 |
 |------|------|
+| 请提供客户关键词或 member_id | 先用姓名/手机号确定客户再查欠款 |
 | 请先选择客户/欠款订单/金额 | 补齐三要素，不要猜测 |
-| 登录失败 | 设置页重填 |
+| 登录失败 | 请用户重新连接连接器完成授权 |
 | 金额无效 | 让用户给大于 0 的金额 |
